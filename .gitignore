@@ -1,0 +1,41 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+# Node
+node_modules/
+.next/
+out/
+.env
+.env.local
+.env*.local
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build/output of CLI sprint — keep PDFs and JSONs but not aux/log
+cli/output/*/T*.aux
+cli/output/*/T*.log
+cli/output/*/T*.out
+cli/output/*/T*.toc
+
+# secrets
+*.key
+*.pem
+.anthropic_key

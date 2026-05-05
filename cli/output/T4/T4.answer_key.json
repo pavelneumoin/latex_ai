@@ -1,0 +1,70 @@
+{
+  "lesson_id": "T4",
+  "template": "T4",
+  "topic": "Текстовые задачи. Проценты и вклады",
+  "grade": 11,
+  "subject": "math",
+  "page_size": "A4",
+  "fields": [
+    {
+      "task_id": "1",
+      "seq": 1,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 87.33,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "8",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "2",
+      "seq": 2,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 120.78,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "20",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "3",
+      "seq": 3,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 154.31,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "20",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "4",
+      "seq": 4,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 182.35,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "3",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "5",
+      "seq": 5,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 215.88,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "10",
+      "answer_type": "number",
+      "tolerance": 0.01
+    }
+  ]
+}

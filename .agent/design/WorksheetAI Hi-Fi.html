@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>WorksheetAI — Hi-Fi</title>
+<link rel="stylesheet" href="hifi.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #F5F6F8; font-family: 'Inter', system-ui, sans-serif; }
+  body, html { width: 100%; height: 100%; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="hi-primitives.jsx"></script>
+<script type="text/babel" src="hi-landing.jsx"></script>
+<script type="text/babel" src="hi-dashboard.jsx"></script>
+<script type="text/babel" src="hi-create.jsx"></script>
+<script type="text/babel" src="hi-mine.jsx"></script>
+<script type="text/babel" src="hi-rest.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+const App = () => (
+  <DesignCanvas title="WorksheetAI · Hi-Fi прототип" subtitle="10 экранов для учителей математики и информатики · shadcn-стиль">
+    <DCSection id="entry" title="Входные точки">
+      <DCArtboard id="landing" label="Лендинг" width={1280} height={2400}>
+        <HiLanding />
+      </DCArtboard>
+      <DCArtboard id="login" label="Логин" width={1280} height={780}>
+        <HiLogin />
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="workspace" title="Рабочее пространство">
+      <DCArtboard id="dashboard" label="Дашборд" width={1280} height={900}>
+        <HiDashboard />
+      </DCArtboard>
+      <DCArtboard id="mine" label="Мои листы" width={1280} height={1100}>
+        <HiMine />
+      </DCArtboard>
+      <DCArtboard id="detail" label="Страница листа" width={1280} height={1000}>
+        <HiDetail />
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="create-flow" title="Создание листа">
+      <DCArtboard id="create" label="Создание (двух-панельный)" width={1280} height={900}>
+        <HiCreate />
+      </DCArtboard>
+      <DCArtboard id="progress" label="Прогресс генерации" width={1280} height={900}>
+        <HiProgress />
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="more" title="Каталог · Проверка · Настройки">
+      <DCArtboard id="catalog" label="Каталог" width={1280} height={1100}>
+        <HiCatalog />
+      </DCArtboard>
+      <DCArtboard id="check" label="Проверка работ" width={1280} height={1000}>
+        <HiCheck />
+      </DCArtboard>
+      <DCArtboard id="settings" label="Настройки" width={1280} height={1100}>
+        <HiSettings />
+      </DCArtboard>
+    </DCSection>
+  </DesignCanvas>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

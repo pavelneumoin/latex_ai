@@ -1,0 +1,51 @@
+% T3 — Текстовые задачи: концентрация / смеси / сплавы. ЕГЭ профиль №10. Класс 11.
+\documentclass[a4paper,11pt]{article}
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\renewcommand{\TaskBox}[2]{%
+  \noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.8pt, rounded corners=4pt,
+          inner xsep=3mm, inner ysep=2mm,
+          text width=\dimexpr\linewidth-6mm\relax,
+          anchor=north west] (B) at (0,0) {#2};
+    \node[anchor=south west, fill=wcprimary, text=white,
+          rounded corners=2pt, inner xsep=5pt, inner ysep=1.5pt,
+          xshift=1.5pt] at (B.north west)
+      {\scriptsize\textbf{Задача №#1}};
+  \end{tikzpicture}\par\vspace{1.5mm}}
+
+\begin{document}
+
+\WorksheetTitle{Текстовые задачи. Концентрация и сплавы}
+\WorksheetSubtitle{ЕГЭ профиль, задание №10 \quad·\quad Класс 11 \quad·\quad T3 \quad·\quad ID: T3-mix-2026-05-11}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  Имеется $100$~г сплава, содержащего $30\%$ серебра. Сколько граммов чистого серебра нужно добавить, чтобы получить сплав, содержащий $50\%$ серебра? Ответ дайте в граммах.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Смешали $4$~кг $25\%$-го раствора и $6$~кг $35\%$-го раствора некоторого вещества. Сколько процентов составляет концентрация полученного раствора? Ответ дайте в процентах.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Имеется два сплава меди и цинка. Первый кусок массой $80$~г содержит $40\%$ меди, второй массой $120$~г содержит $60\%$ меди. Сколько процентов меди будет в сплаве, полученном при их сплавлении? Ответ дайте в процентах.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Из $8$~кг раствора, содержащего $25\%$ соли, выпарили $3$~кг воды. Сколько процентов соли содержится в полученном растворе? Ответ дайте в процентах.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Виноград содержит $50\%$ воды, а изюм, получаемый из винограда, --- $25\%$ воды. Сколько килограммов изюма получится из $60$~кг винограда?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{5}%
+}
+
+\WorksheetQR{T3-mix/L1/v1}
+
+\end{document}

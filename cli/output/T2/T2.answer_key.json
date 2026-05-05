@@ -1,0 +1,130 @@
+{
+  "lesson_id": "T2",
+  "template": "T2",
+  "topic": "Текстовые задачи. Совместная работа",
+  "grade": 11,
+  "subject": "math",
+  "page_size": "A4",
+  "fields": [
+    {
+      "task_id": "1",
+      "seq": 1,
+      "page": 1,
+      "x_mm": 80.96,
+      "y_mm": 102.58,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "4",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "2",
+      "seq": 2,
+      "page": 1,
+      "x_mm": 80.96,
+      "y_mm": 139.82,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "15",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "3",
+      "seq": 3,
+      "page": 1,
+      "x_mm": 80.96,
+      "y_mm": 177.06,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "5",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "4",
+      "seq": 4,
+      "page": 1,
+      "x_mm": 80.96,
+      "y_mm": 209.46,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "12",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "5",
+      "seq": 5,
+      "page": 1,
+      "x_mm": 80.96,
+      "y_mm": 246.71,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "1",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "6",
+      "seq": 6,
+      "page": 1,
+      "x_mm": 172.72,
+      "y_mm": 101.55,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "12",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "7",
+      "seq": 7,
+      "page": 1,
+      "x_mm": 172.72,
+      "y_mm": 134.38,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "3",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "8",
+      "seq": 8,
+      "page": 1,
+      "x_mm": 172.72,
+      "y_mm": 172.06,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "6",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "9",
+      "seq": 9,
+      "page": 1,
+      "x_mm": 172.72,
+      "y_mm": 209.03,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "6",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "10",
+      "seq": 10,
+      "page": 1,
+      "x_mm": 172.72,
+      "y_mm": 246.71,
+      "width_mm": 22.0,
+      "height_mm": 8.0,
+      "expected": "120",
+      "answer_type": "number",
+      "tolerance": 0.01
+    }
+  ]
+}

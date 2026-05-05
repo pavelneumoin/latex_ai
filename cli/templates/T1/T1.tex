@@ -1,0 +1,55 @@
+% T1 — Текстовые задачи: движение по реке. ЕГЭ профиль №10. Класс 11.
+% Спринт к 2026-05-11. Источник задач: prof.mathege.ru через vault + 3 свёрстанных аналога.
+% Layout: 5 задач на 1 странице, AnswerField справа в карточке, без WriteField.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% Чуть тоньше внутренние отступы карточек, чтобы влезло 5 на страницу
+\renewcommand{\TaskBox}[2]{%
+  \noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.8pt, rounded corners=4pt,
+          inner xsep=3mm, inner ysep=2mm,
+          text width=\dimexpr\linewidth-6mm\relax,
+          anchor=north west] (B) at (0,0) {#2};
+    \node[anchor=south west, fill=wcprimary, text=white,
+          rounded corners=2pt, inner xsep=5pt, inner ysep=1.5pt,
+          xshift=1.5pt] at (B.north west)
+      {\scriptsize\textbf{Задача №#1}};
+  \end{tikzpicture}\par\vspace{1.5mm}}
+
+\begin{document}
+
+\WorksheetTitle{Текстовые задачи. Движение по реке}
+\WorksheetSubtitle{ЕГЭ профиль, задание №10 \quad·\quad Класс 11 \quad·\quad T1 \quad·\quad ID: T1-river-2026-05-11}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  Моторная лодка прошла против течения реки $112$~км и вернулась в пункт отправления, затратив на обратный путь на $6$ часов меньше. Найдите скорость течения, если скорость лодки в неподвижной воде равна $11$~км/ч. Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Моторная лодка прошла против течения реки $255$~км и вернулась в пункт отправления, затратив на обратный путь на $2$ часа меньше. Найдите скорость лодки в неподвижной воде, если скорость течения равна $1$~км/ч. Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Лодка прошла $96$~км по течению реки и столько же обратно, потратив на весь путь $20$ часов. Найдите скорость лодки в неподвижной воде, если скорость течения равна $2$~км/ч. Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Теплоход прошёл $90$~км по течению реки и $30$~км против течения. На путь по течению он потратил столько же времени, сколько на путь против течения. Найдите скорость теплохода в неподвижной воде, если скорость течения равна $3$~км/ч. Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Расстояние между пристанями~A и~B равно $90$~км. Из~A в~B по течению реки отправился катер. Прибыв в~B, катер тотчас повернул обратно и возвратился в~A через $16$ часов после отправления. Найдите скорость катера в неподвижной воде, если скорость течения реки равна $3$~км/ч. Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{5}%
+}
+
+\WorksheetQR{T1-river/L1/v1}
+
+\end{document}

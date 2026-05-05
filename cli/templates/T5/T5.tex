@@ -1,0 +1,51 @@
+% T5 — Текстовые задачи: средняя скорость. ЕГЭ профиль №10. Класс 11.
+\documentclass[a4paper,11pt]{article}
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\renewcommand{\TaskBox}[2]{%
+  \noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.8pt, rounded corners=4pt,
+          inner xsep=3mm, inner ysep=2mm,
+          text width=\dimexpr\linewidth-6mm\relax,
+          anchor=north west] (B) at (0,0) {#2};
+    \node[anchor=south west, fill=wcprimary, text=white,
+          rounded corners=2pt, inner xsep=5pt, inner ysep=1.5pt,
+          xshift=1.5pt] at (B.north west)
+      {\scriptsize\textbf{Задача №#1}};
+  \end{tikzpicture}\par\vspace{1.5mm}}
+
+\begin{document}
+
+\WorksheetTitle{Текстовые задачи. Средняя скорость}
+\WorksheetSubtitle{ЕГЭ профиль, задание №10 \quad·\quad Класс 11 \quad·\quad T5 \quad·\quad ID: T5-avgspeed-2026-05-11}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  Лодка прошла по реке от пункта~A до пункта~B со скоростью $5$~км/ч, а обратно --- со скоростью $20$~км/ч. Найдите среднюю скорость лодки на всём пути (туда и обратно). Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Автомобиль проехал первую половину пути со скоростью $60$~км/ч, а вторую половину --- со скоростью $40$~км/ч. Найдите среднюю скорость автомобиля на всём пути. Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Катер прошёл по течению реки со скоростью $12$~км/ч и вернулся обратно со скоростью $4$~км/ч. Найдите среднюю скорость катера на всём пути. Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Туристы первую половину времени двигались со скоростью $50$~км/ч, а оставшуюся половину времени --- со скоростью $70$~км/ч. Какова средняя скорость туристов за всё время в пути? Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Велосипедист доехал из пункта~A до пункта~B со скоростью $4$~км/ч, а вернулся со скоростью $12$~км/ч. Найдите среднюю скорость велосипедиста на всём пути. Ответ дайте в км/ч.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{5}%
+}
+
+\WorksheetQR{T5-avgspeed/L1/v1}
+
+\end{document}

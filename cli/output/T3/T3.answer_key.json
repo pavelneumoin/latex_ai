@@ -1,0 +1,70 @@
+{
+  "lesson_id": "T3",
+  "template": "T3",
+  "topic": "Текстовые задачи. Концентрация и сплавы",
+  "grade": 11,
+  "subject": "math",
+  "page_size": "A4",
+  "fields": [
+    {
+      "task_id": "1",
+      "seq": 1,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 87.34,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "40",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "2",
+      "seq": 2,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 120.86,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "31",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "3",
+      "seq": 3,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 159.82,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "52",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "4",
+      "seq": 4,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 193.28,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "40",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "5",
+      "seq": 5,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 226.74,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "40",
+      "answer_type": "number",
+      "tolerance": 0.01
+    }
+  ]
+}

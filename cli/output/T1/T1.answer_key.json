@@ -1,0 +1,70 @@
+{
+  "lesson_id": "T1",
+  "template": "T1",
+  "topic": "Текстовые задачи. Движение по реке",
+  "grade": 11,
+  "subject": "math",
+  "page_size": "A4",
+  "fields": [
+    {
+      "task_id": "1",
+      "seq": 1,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 92.82,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "3",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "2",
+      "seq": 2,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 131.84,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "16",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "3",
+      "seq": 3,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 165.24,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "10",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "4",
+      "seq": 4,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 204.26,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "6",
+      "answer_type": "number",
+      "tolerance": 0.01
+    },
+    {
+      "task_id": "5",
+      "seq": 5,
+      "page": 1,
+      "x_mm": 158.72,
+      "y_mm": 243.15,
+      "width_mm": 30.0,
+      "height_mm": 10.0,
+      "expected": "12",
+      "answer_type": "number",
+      "tolerance": 0.01
+    }
+  ]
+}

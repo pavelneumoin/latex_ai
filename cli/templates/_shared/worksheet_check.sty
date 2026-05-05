@@ -1,0 +1,56 @@
+% ============================================================
+%  worksheet_check.sty — расширение под автопроверку рабочего листа
+%  Предоставляет \AnswerField{N} — поле ответа с экспортом координат
+%  Для РабочийЛист.ai, спринт к 2026-05-11
+% ============================================================
+\ProvidesPackage{worksheet_check}[2026/05/05 RabochiyList answer-field extension]
+
+\RequirePackage{zref-savepos}
+\RequirePackage{tikz}
+\RequirePackage{calc}
+
+% Глобальный счётчик полей ответов
+\newcounter{rlAnswerField}
+
+% Внутренние длины
+\newlength{\rlAFwidth}
+\newlength{\rlAFheight}
+\setlength{\rlAFwidth}{30mm}
+\setlength{\rlAFheight}{10mm}
+
+% Команда настройки размера (опционально)
+\newcommand{\SetAnswerFieldSize}[2]{%
+  \setlength{\rlAFwidth}{#1}%
+  \setlength{\rlAFheight}{#2}%
+}
+
+% Главная команда: \AnswerField{задача-N} — рисует бокс и пишет коорды в .aux
+\newcommand{\AnswerField}[1]{%
+  \stepcounter{rlAnswerField}%
+  \edef\rlAFseq{\arabic{rlAnswerField}}%
+  % Сохраняем top-left позицию ДО tikz-картинки
+  \zsavepos{rlAF-tl-\rlAFseq}%
+  \begin{tikzpicture}[baseline=-0.5ex]
+    \draw[thick, rounded corners=2pt, gray!60]
+      (0,0) rectangle (\rlAFwidth, \rlAFheight);
+    \node[anchor=south west, font=\footnotesize\itshape, gray!70]
+      at (1mm, \rlAFheight - 4mm) {Ответ \##1};
+  \end{tikzpicture}%
+  % Сохраняем bottom-right позицию ПОСЛЕ tikz-картинки
+  \zsavepos{rlAF-br-\rlAFseq}%
+  % Записываем маркер в .aux для extract-скрипта (ширина и высота в pt)
+  \immediate\write\@auxout{%
+    \string\rlAFmark{#1}{\rlAFseq}{\the\rlAFwidth}{\the\rlAFheight}%
+  }%
+}
+
+% Команда-маркер (определена no-op, чтобы LaTeX не падал; парсится Python-скриптом)
+\providecommand{\rlAFmark}[4]{}
+
+% Ярлык-эмблема «лист с QR» в шапке (опционально, для красоты)
+\newcommand{\WorksheetCheckBadge}{%
+  \begin{tikzpicture}[baseline=0]
+    \draw[thick, gray!50, rounded corners=2pt] (0,0) rectangle (8mm,8mm);
+    \node[font=\tiny, gray!70] at (4mm,4mm) {check};
+  \end{tikzpicture}%
+}

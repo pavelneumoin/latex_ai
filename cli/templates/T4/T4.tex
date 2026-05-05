@@ -1,0 +1,51 @@
+% T4 — Текстовые задачи: проценты / банковские. ЕГЭ профиль №10. Класс 11.
+\documentclass[a4paper,11pt]{article}
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\renewcommand{\TaskBox}[2]{%
+  \noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.8pt, rounded corners=4pt,
+          inner xsep=3mm, inner ysep=2mm,
+          text width=\dimexpr\linewidth-6mm\relax,
+          anchor=north west] (B) at (0,0) {#2};
+    \node[anchor=south west, fill=wcprimary, text=white,
+          rounded corners=2pt, inner xsep=5pt, inner ysep=1.5pt,
+          xshift=1.5pt] at (B.north west)
+      {\scriptsize\textbf{Задача №#1}};
+  \end{tikzpicture}\par\vspace{1.5mm}}
+
+\begin{document}
+
+\WorksheetTitle{Текстовые задачи. Проценты и вклады}
+\WorksheetSubtitle{ЕГЭ профиль, задание №10 \quad·\quad Класс 11 \quad·\quad T4 \quad·\quad ID: T4-percent-2026-05-11}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  Цена товара сначала повысилась на $20\%$, а затем снизилась на $10\%$. На сколько процентов в итоге изменилась цена товара по сравнению с первоначальной?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Зарплата сотрудника увеличилась на $25\%$. На сколько процентов её теперь нужно уменьшить, чтобы она снова стала равна исходной?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  За $2$ года вклад в банке вырос с $20\,000$ до $28\,800$ руб., при этом ежегодная процентная ставка не менялась. Найдите эту ставку. Ответ дайте в процентах.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Цена кофе ежегодно растёт на $30\%$. Через сколько (полных) лет цена удвоится?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  За $3$ года цена товара выросла с $1000$ до $1331$ руб., с одной и той же ежегодной процентной ставкой. Найдите ставку. Ответ дайте в процентах.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{5}%
+}
+
+\WorksheetQR{T4-percent/L1/v1}
+
+\end{document}

@@ -1,0 +1,61 @@
+% T14 — «ОГЭ-стиль»: чёрно-белый официальный, тонкие линии между задачами, акцент сверху.
+% Профиль: математика, ОГЭ задание №1-5 (числовая прямая, дроби). 11 задач, 1 кол.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: почти чёрный + один акцентный бордовый штрих сверху ---
+\definecolor{wcprimary}{HTML}{1A202C}
+\definecolor{wcprimaryLight}{HTML}{718096}
+\definecolor{wcprimaryBG}{HTML}{F7FAFC}
+\definecolor{wcaccent}{HTML}{9B2C2C}
+
+\geometry{a4paper, top=14mm, bottom=14mm, left=18mm, right=18mm}
+
+% --- Заголовок: акцентная бордовая линия + чёрный текст ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent
+  {\color{wcaccent}\rule{\linewidth}{2pt}}\par\vspace{2mm}
+  \noindent{\fontsize{16pt}{20pt}\selectfont\bfseries\color{wcprimary}#1}\par
+  \vspace{1mm}{\color{wcprimary!60}\rule{\linewidth}{0.4pt}}\par\vspace{4mm}}
+
+% --- TaskBox: «№N» жирно, тонкая линия снизу ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent
+  {\bfseries\color{wcprimary}№#1.}\ #2\par
+  \vspace{1mm}{\color{wcprimary!40}\rule{\linewidth}{0.3pt}}\par\vspace{2mm}}
+
+\SetAnswerFieldSize{28mm}{7mm}
+
+\begin{document}
+
+\WorksheetTitle{Тренировочные задания ОГЭ. Числа и вычисления}
+\par\noindent{\small\itshape\color{wcprimary!80}Часть 1 \quad·\quad Задания с кратким ответом \quad·\quad Класс 9 \quad·\quad T14 \quad·\quad ID: T14-oge15-2026-05-26}\par\vspace{3mm}
+\FirstPageHeader
+
+\TaskBox{1}{Найдите значение выражения $\dfrac{3.7}{0.5 \cdot 1.48}$.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{1}}
+
+\TaskBox{2}{Какое из чисел отмечено на координатной прямой точкой $A$, если $A$ лежит между $1.2$ и $1.4$? Варианты: $\sqrt{1.8}$, $\sqrt{2.4}$, $\sqrt{1.5}$, $\sqrt{0.9}$.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{2}}
+
+\TaskBox{3}{Найдите значение выражения $(\sqrt{18} - \sqrt{2})^2$.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{3}}
+
+\TaskBox{4}{Решите уравнение $x^2 + 5x = 0$. Если корней несколько, в ответе запишите больший.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{4}}
+
+\TaskBox{5}{Установите соответствие между графиками функций и формулами: $y = -2x + 1$, $y = 2x - 1$, $y = -2x - 1$. В ответе укажите формулу графика, проходящего через точку $(0; 1)$.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{5}}
+
+\TaskBox{6}{Найдите значение выражения $\dfrac{a^7 \cdot a^{-3}}{a^2}$ при $a = 6$.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{6}}
+
+\TaskBox{7}{Упростите выражение $(x - 3)^2 - x(x - 6)$.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{7}}
+
+\TaskBox{8}{Найдите корень уравнения $\dfrac{x}{4} - \dfrac{x - 1}{3} = 2$.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{8}}
+
+\TaskBox{9}{Прогрессия задана формулой $a_n = 5n - 2$. Найдите $a_8$.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{9}}
+
+\TaskBox{10}{Решите неравенство $\dfrac{x - 5}{x + 2} \leqslant 0$. Запишите количество целых решений.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{10}}
+
+\TaskBox{11}{В коробке $12$ красных и $8$ синих карандашей. Какова вероятность вытащить синий? Запишите десятичную дробь.\par\vspace{0.5mm}\hfill\textbf{Ответ:}~\AnswerField{11}}
+
+\WorksheetQR{T14-oge15/L1/v1}
+
+\end{document}

@@ -1,0 +1,171 @@
+{
+  "version": "1.0",
+  "updated": "2026-05-26",
+  "templates": [
+    {
+      "id": "T1",
+      "name": "Текстовые задачи. Движение по реке",
+      "description": "5 задач на движение по реке, классическая синяя рамка \\TaskBox с фиолетовым badge, 1 колонка",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "classic_wildcat_purple",
+      "task_count": 5,
+      "tags": ["ege-prof", "task-10", "river", "motion"]
+    },
+    {
+      "id": "T2",
+      "name": "Текстовые задачи. Совместная работа",
+      "description": "10 задач × 2 колонки, компактные TaskBox без рамки (только цветная линия-подчёркивание над содержимым), сжатое поле ответа",
+      "subject": "math",
+      "grade": 11,
+      "layout": "two_columns",
+      "style": "compact_underline",
+      "task_count": 10,
+      "tags": ["ege-prof", "task-10", "joint-work"]
+    },
+    {
+      "id": "T3",
+      "name": "Текстовые задачи. Концентрация и сплавы",
+      "description": "5 задач, классическая синяя рамка \\TaskBox, 1 колонка",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "classic_wildcat_purple",
+      "task_count": 5,
+      "tags": ["ege-prof", "task-10", "mixtures", "concentration"]
+    },
+    {
+      "id": "T4",
+      "name": "Текстовые задачи. Проценты и вклады",
+      "description": "Задачи на проценты и банковские расчёты, классическая синяя рамка, 1 колонка",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "classic_wildcat_purple",
+      "task_count": 5,
+      "tags": ["ege-prof", "task-10", "percent", "bank"]
+    },
+    {
+      "id": "T5",
+      "name": "Текстовые задачи. Средняя скорость",
+      "description": "Задачи на среднюю скорость, классическая синяя рамка, 1 колонка",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "classic_wildcat_purple",
+      "task_count": 5,
+      "tags": ["ege-prof", "task-10", "avg-speed", "motion"]
+    },
+    {
+      "id": "T6",
+      "name": "Производная и её применение",
+      "description": "Минимализм: без рамок, тонкая вертикальная линия слева у каждой задачи, sans-serif, серо-стальной акцент. 7 задач в 1 колонку, много воздуха",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "minimal_gray",
+      "task_count": 7,
+      "tags": ["ege-prof", "task-7", "derivative", "minimal"]
+    },
+    {
+      "id": "T7",
+      "name": "Планиметрия. Треугольники",
+      "description": "Газетный стиль: 2 колонки, узкие поля, диагональная цветная подложка заголовка, засечный TNR, тёмно-синий. 10 коротких задач",
+      "subject": "math",
+      "grade": 9,
+      "layout": "two_columns",
+      "style": "newspaper_navy",
+      "task_count": 10,
+      "tags": ["ege-base", "planimetry", "triangles", "newspaper"]
+    },
+    {
+      "id": "T8",
+      "name": "Тригонометрия. Базовые значения",
+      "description": "Журнальная вёрстка: каждая задача с толстой акцентной полосой слева и пастельно-охряным фоном, sans для заголовков, охра. 8 задач × 2 колонки",
+      "subject": "math",
+      "grade": 10,
+      "layout": "two_columns",
+      "style": "journal_amber",
+      "task_count": 8,
+      "tags": ["trigonometry", "magazine", "amber"]
+    },
+    {
+      "id": "T9",
+      "name": "Степени и корни",
+      "description": "Плитка 2×4 пастельных карточек с круглым изумрудным бэйджем номера, sans-serif, мятный фон. 8 задач в сетке",
+      "subject": "math",
+      "grade": 9,
+      "layout": "grid_2x4",
+      "style": "cards_emerald",
+      "task_count": 8,
+      "tags": ["powers", "roots", "cards", "grid"]
+    },
+    {
+      "id": "T10",
+      "name": "Квадратные уравнения. Контрольная",
+      "description": "Контрольная работа в 2 варианта параллельно (графитовые badge «Вариант 1 / Вариант 2»), строгий чёрно-серый стиль, без рамок. 5 задач × 2 варианта",
+      "subject": "math",
+      "grade": 8,
+      "layout": "variants_two",
+      "style": "control_graphite",
+      "task_count": 10,
+      "tags": ["control-work", "quadratic", "two-variants"]
+    },
+    {
+      "id": "T11",
+      "name": "Линейные неравенства",
+      "description": "Тетрадный стиль: фоновая линовка (горизонтальные синие линии + красные поля), sans-italic-bold заголовок «от руки», чернильно-синий. 6 задач в 1 колонку",
+      "subject": "math",
+      "grade": 8,
+      "layout": "single_column",
+      "style": "notebook_ink",
+      "task_count": 6,
+      "tags": ["inequalities", "notebook", "handwritten-feel"]
+    },
+    {
+      "id": "T12",
+      "name": "Логика. Таблицы истинности",
+      "description": "Терминальный стиль для информатики: моноширинный, тёмно-зелёный prompt «$ task_01:», ASCII-окно с macOS-кружками в заголовке. 6 задач, 1 колонка",
+      "subject": "informatics",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "terminal_green",
+      "task_count": 6,
+      "tags": ["ege-cs", "task-2", "logic", "truth-table", "terminal"]
+    },
+    {
+      "id": "T13",
+      "name": "Проценты вокруг нас",
+      "description": "Пастельные карточки 3×3 в трёх тонах (мятный/персиковый/лавандовый) с круглым лавандовым бэйджем, sans, скруглённые. 9 микро-задач для младшей школы",
+      "subject": "math",
+      "grade": 6,
+      "layout": "grid_3x3",
+      "style": "pastel_three_tones",
+      "task_count": 9,
+      "tags": ["percent", "trainer", "pastel", "young-students"]
+    },
+    {
+      "id": "T14",
+      "name": "Тренировочные задания ОГЭ. Числа и вычисления",
+      "description": "Официальный ОГЭ-стиль: чёрно-белый с одной бордовой акцентной линией сверху, нумерация «№1.», тонкие серые линии между задачами. 11 задач, 1 колонка",
+      "subject": "math",
+      "grade": 9,
+      "layout": "single_column",
+      "style": "oge_official_bw",
+      "task_count": 11,
+      "tags": ["oge", "official", "bw", "exam-style"]
+    },
+    {
+      "id": "T15",
+      "name": "Устный счёт. Дроби и проценты",
+      "description": "Тренажёр-сетка: 3 колонки × 6 строк микро-задач, моно-нумерация «#1», sans для условий, бирюзовый акцент, очень плотная вёрстка. 18 задач",
+      "subject": "math",
+      "grade": 7,
+      "layout": "three_columns",
+      "style": "trainer_teal",
+      "task_count": 18,
+      "tags": ["mental-math", "fractions", "percent", "trainer", "dense"]
+    }
+  ]
+}

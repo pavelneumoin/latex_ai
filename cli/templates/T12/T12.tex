@@ -1,0 +1,86 @@
+% T12 — «Терминал»: моноширинный, тёмно-зелёный, прямоугольные блоки, для информатики.
+% Профиль: информатика, ЕГЭ №2 (логика). 6 задач, 1 кол. Стиль bash-prompt.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usepackage{fancyvrb}
+
+% --- Палитра: тёмно-зелёный «терминал» ---
+\definecolor{wcprimary}{HTML}{276749}
+\definecolor{wcprimaryLight}{HTML}{C6F6D5}
+\definecolor{wcprimaryBG}{HTML}{F0FFF4}
+\definecolor{termprompt}{HTML}{38A169}
+\definecolor{termbg}{HTML}{1A202C}
+\definecolor{termfg}{HTML}{F7FAFC}
+
+% --- Заголовок: ASCII-эстетика ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \node[fill=termbg, text=termfg, font=\ttfamily\fontsize{14pt}{18pt}\selectfont,
+          inner xsep=4mm, inner ysep=3mm, text width=\dimexpr\linewidth-8mm\relax,
+          anchor=north west] (T) at (0,0)
+      {\textcolor{termprompt}{\$}\ ./worksheet --topic="\textbf{#1}" --run\\[1mm]
+       \textcolor{wcprimaryLight}{\small[ok]\ 6 tasks loaded, awaiting answers...}};
+    % Декоративные точки macOS-окна
+    \fill[red!70] ([xshift=4mm, yshift=-2.5mm]T.north west) circle (1.2mm);
+    \fill[yellow!70!orange] ([xshift=8mm, yshift=-2.5mm]T.north west) circle (1.2mm);
+    \fill[green!70] ([xshift=12mm, yshift=-2.5mm]T.north west) circle (1.2mm);
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% --- TaskBox: моноширинный prompt-стиль ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.6pt,
+          inner xsep=3mm, inner ysep=2.5mm,
+          text width=\dimexpr\linewidth-6mm\relax,
+          anchor=north west] (B) at (0,0) {%
+      {\ttfamily\bfseries\color{termprompt}\$\ task\_0#1:}\par\vspace{1mm}
+      \small #2};
+  \end{tikzpicture}\par\vspace{2.5mm}}
+
+\SetAnswerFieldSize{30mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Логика. Таблицы истинности}
+\par\noindent{\ttfamily\small\color{wcprimary!85}// ЕГЭ информатика, задание №2 | класс 11 | T12 | id=T12-logic-2026-05-26}\par\vspace{3mm}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  Логическая функция $F$ задана выражением $(\neg x \lor y) \land (x \lor \neg z)$.
+  При каких значениях переменных $(x, y, z)$ функция равна $1$? В ответ запишите количество таких наборов.\par
+  \vspace{1mm}\hfill\textbf{\ttfamily Ответ:}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Для какого из приведённых значений $x$ истинно высказывание
+  $\neg(x > 2) \land (x > 0)$? Варианты: \texttt{[-1, 0, 1, 3]}. В ответ запишите подходящее число.\par
+  \vspace{1mm}\hfill\textbf{\ttfamily Ответ:}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Сколько различных решений имеет уравнение $(A \to B) \land (B \to C) \land C = 1$, где $A$, $B$, $C$ — логические переменные?\par
+  \vspace{1mm}\hfill\textbf{\ttfamily Ответ:}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Каково наибольшее целое $x$, при котором истинно $(x - 5)(x + 3) < 0$ и $(x > 0)$?\par
+  \vspace{1mm}\hfill\textbf{\ttfamily Ответ:}~\AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Дана функция $F = (A \equiv B) \lor (\neg C)$. Сколько строк в таблице истинности дают $F = 0$?\par
+  \vspace{1mm}\hfill\textbf{\ttfamily Ответ:}~\AnswerField{5}%
+}
+
+\TaskBox{6}{%
+  Запишите Python-код, который выводит количество наборов из \texttt{itertools.product([0,1], repeat=3)}, для которых $x \lor (y \land \neg z) = 1$. \\
+  \textit{Подсказка:} \texttt{sum(1 for x,y,z in product([0,1],repeat=3) if x or (y and not z))}.\par
+  \vspace{1mm}\hfill\textbf{\ttfamily Ответ:}~\AnswerField{6}%
+}
+
+\WorksheetQR{T12-logic/L1/v1}
+
+\end{document}

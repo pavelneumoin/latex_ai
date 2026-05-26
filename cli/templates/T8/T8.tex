@@ -1,0 +1,69 @@
+% T8 — «Журнал»: цветная боковая полоса слева от каждой задачи, охра, 2 кол.
+% Профиль: математика, тригонометрия. 8 задач × 2 кол.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: тёплая охра ---
+\definecolor{wcprimary}{HTML}{B7791F}
+\definecolor{wcprimaryLight}{HTML}{F6E05E}
+\definecolor{wcprimaryBG}{HTML}{FFFAF0}
+\definecolor{wcaccent}{HTML}{744210}
+
+% --- Sans для заголовка, serif основной ---
+% --- Заголовок: журнальный, крупный с акцентной плашкой ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \fill[wcprimary] (0,0) rectangle (6mm, -18mm);
+    \node[anchor=west, text width=\dimexpr\linewidth-12mm\relax,
+          font=\fontsize{20pt}{24pt}\selectfont\bfseries\sffamily,
+          text=wcaccent]
+      at (8mm, -9mm) {#1};
+    \node[anchor=south west, text width=\dimexpr\linewidth-12mm\relax,
+          font=\footnotesize\itshape\sffamily, text=wcprimary!90]
+      at (8mm, -18mm) {— рабочая тетрадь —};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% --- TaskBox: фон + толстая боковая полоса ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent\begin{tikzpicture}
+    \node[fill=wcprimaryBG, rounded corners=2pt,
+          inner xsep=4mm, inner ysep=2.5mm,
+          text width=\dimexpr\linewidth-8mm\relax,
+          anchor=north west] (B) at (0,0) {%
+      {\bfseries\sffamily\color{wcaccent}\large №#1}\par\vspace{1mm}
+      \small #2};
+    \fill[wcprimary] ([xshift=-0.4mm]B.north west) rectangle ([xshift=2mm, yshift=0.4mm]B.south west);
+  \end{tikzpicture}\par\vspace{2.5mm}}
+
+\SetAnswerFieldSize{22mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Тригонометрия. Базовые значения}
+{\small\itshape\color{wcprimary!90}Рубрика «Формулы» \quad·\quad Класс 10 \quad·\quad T8 \quad·\quad ID: T8-trig-2026-05-26}\par\vspace{2mm}
+\FirstPageHeader
+
+\begin{multicols}{2}
+\TaskBox{1}{Найдите $\sin\alpha$, если $\cos\alpha = \tfrac{3}{5}$ и $\alpha \in (0; \tfrac{\pi}{2})$.\par\hfill\textbf{Ответ:}~\AnswerField{1}}
+
+\TaskBox{2}{Найдите значение выражения $\dfrac{6\sin 17^\circ}{\sin 197^\circ}$.\par\hfill\textbf{Ответ:}~\AnswerField{2}}
+
+\TaskBox{3}{Найдите $\tg\alpha$, если $\sin\alpha = -\tfrac{12}{13}$ и $\alpha \in (\pi; \tfrac{3\pi}{2})$.\par\hfill\textbf{Ответ:}~\AnswerField{3}}
+
+\TaskBox{4}{Найдите значение выражения $2\sqrt{3}\cos 30^\circ - 4\sin^2 45^\circ$.\par\hfill\textbf{Ответ:}~\AnswerField{4}}
+
+\TaskBox{5}{Найдите $\cos 2\alpha$, если $\sin\alpha = \tfrac{1}{3}$.\par\hfill\textbf{Ответ:}~\AnswerField{5}}
+
+\TaskBox{6}{Найдите значение выражения $\dfrac{\sin 70^\circ}{\cos 20^\circ}$.\par\hfill\textbf{Ответ:}~\AnswerField{6}}
+
+\TaskBox{7}{Найдите наименьший положительный корень уравнения $\sin\dfrac{\pi x}{3} = \dfrac{1}{2}$.\par\hfill\textbf{Ответ:}~\AnswerField{7}}
+
+\TaskBox{8}{Найдите $\sin\alpha + \cos\alpha$, если $\sin\alpha \cdot \cos\alpha = -\tfrac{3}{8}$ и $\sin\alpha + \cos\alpha > 0$.\par\hfill\textbf{Ответ:}~\AnswerField{8}}
+
+\end{multicols}
+
+\WorksheetQR{T8-trig/L1/v1}
+
+\end{document}

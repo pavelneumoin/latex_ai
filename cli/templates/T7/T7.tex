@@ -1,0 +1,71 @@
+% T7 — «Газета»: 2 колонки, засечный Times, узкие поля, диагональная подложка заголовка.
+% Профиль: математика, планиметрия. 10 задач × 2 кол.
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Узкие поля под «газетную» вёрстку ---
+\geometry{a4paper, top=12mm, bottom=14mm, left=12mm, right=12mm}
+
+% --- Палитра: глубокий тёмно-синий ---
+\definecolor{wcprimary}{HTML}{1A365D}
+\definecolor{wcprimaryLight}{HTML}{A0AEC0}
+\definecolor{wcprimaryBG}{HTML}{EBF4FF}
+
+% --- «Газетный» заголовок: подложка с поворотом + крупная засечная типографика ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    % Диагональная цветная подложка
+    \fill[wcprimary] (-1mm,-2mm) rectangle ([yshift=-14mm]\linewidth+1mm,2mm);
+    \fill[wcprimary!75, rotate around={-1.2:(0,0)}]
+      (-2mm,-15mm) rectangle (\linewidth+2mm, -1mm);
+    % Лента-блик
+    \fill[wcprimaryLight!50, rotate around={-1.2:(0,0)}]
+      (-2mm,-15.5mm) rectangle (\linewidth+2mm, -14.5mm);
+    % Текст заголовка
+    \node[anchor=west, text=white, font=\fontsize{22pt}{26pt}\selectfont\bfseries]
+      at (3mm, -7mm) {#1};
+  \end{tikzpicture}\par\vspace{6mm}}
+
+% --- TaskBox: газетная заметка — небольшой capital номер + текст ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak
+  \noindent{\bfseries\color{wcprimary}\fontsize{11pt}{13pt}\selectfont\textsc{Задача №#1.}}\ %
+  \small #2\par
+  \vspace{0.5mm}{\color{wcprimaryLight}\rule{\linewidth}{0.3pt}}\par\vspace{2mm}}
+
+\SetAnswerFieldSize{22mm}{7mm}
+
+\begin{document}
+
+\WorksheetTitle{Планиметрия. Треугольники}
+\par{\small\itshape\color{wcprimary!80}\textsc{Вестник геометра} \quad·\quad ЕГЭ профиль, задание №1 \quad·\quad Класс 9 \quad·\quad T7 \quad·\quad ID: T7-planim-2026-05-26}\par\vspace{2mm}
+\FirstPageHeader
+
+\begin{multicols}{2}
+\TaskBox{1}{В треугольнике $ABC$ угол $C$ равен $90^\circ$, $AC = 6$, $BC = 8$. Найдите гипотенузу.\par\hfill\textbf{Ответ:}~\AnswerField{1}}
+
+\TaskBox{2}{Стороны треугольника равны $5$, $12$ и $13$. Найдите его площадь.\par\hfill\textbf{Ответ:}~\AnswerField{2}}
+
+\TaskBox{3}{Один острый угол прямоугольного треугольника равен $25^\circ$. Найдите второй острый угол. Ответ в градусах.\par\hfill\textbf{Ответ:}~\AnswerField{3}}
+
+\TaskBox{4}{Найдите площадь равнобедренного треугольника с основанием $12$ и боковой стороной $10$.\par\hfill\textbf{Ответ:}~\AnswerField{4}}
+
+\TaskBox{5}{В треугольнике две стороны равны $7$ и $24$, а угол между ними прямой. Найдите медиану, проведённую к гипотенузе.\par\hfill\textbf{Ответ:}~\AnswerField{5}}
+
+\TaskBox{6}{Сумма двух углов треугольника равна $135^\circ$. Найдите третий угол. Ответ в градусах.\par\hfill\textbf{Ответ:}~\AnswerField{6}}
+
+\TaskBox{7}{Биссектриса прямого угла треугольника делит гипотенузу на отрезки $3$ и $4$. Найдите длину биссектрисы.\par\hfill\textbf{Ответ:}~\AnswerField{7}}
+
+\TaskBox{8}{В равнобедренном треугольнике боковая сторона равна $13$, а основание $10$. Найдите высоту, проведённую к основанию.\par\hfill\textbf{Ответ:}~\AnswerField{8}}
+
+\TaskBox{9}{Найдите радиус окружности, описанной около прямоугольного треугольника с катетами $9$ и $12$.\par\hfill\textbf{Ответ:}~\AnswerField{9}}
+
+\TaskBox{10}{Внешний угол треугольника при одной из вершин равен $110^\circ$. Найдите сумму двух других углов, не смежных с этим внешним. Ответ в градусах.\par\hfill\textbf{Ответ:}~\AnswerField{10}}
+
+\end{multicols}
+
+\WorksheetQR{T7-planim/L1/v1}
+
+\end{document}

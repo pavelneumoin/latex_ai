@@ -1,0 +1,284 @@
+// РабочийЛист.ai — основная схема БД
+// SQLite для dev и MVP. Перед v1.0 — миграция на PostgreSQL (Yandex Managed).
+// Утром: при необходимости поменять provider на "postgresql" и DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────── AUTH (NextAuth-совместимая часть) ───────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  passwordHash  String?
+
+  // Профиль учителя
+  school        String?
+  subjects      String?   // CSV "math,informatics"
+  grades        String?   // CSV "5,6,9,11"
+  logoPath      String?
+  watermark     String?
+  accentColor   String?
+
+  role          String    @default("user") // user | moderator | admin
+  status        String    @default("active") // active | pending | banned
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  worksheets    Worksheet[]
+  uploads       Upload[]
+  publications  Publication[]
+  subscription  Subscription?
+  payments      Payment[]
+  credits       Credit[]
+  favorites     Favorite[]
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─────────────────────────────── WORKSHEETS ───────────────────────────────
+
+model Template {
+  id          String  @id           // "T1" .. "T15" и далее
+  name        String
+  description String?
+  subject     String                 // math | informatics | mixed
+  grade       Int?
+  layout      String                 // single_column | two_columns | grid_2x4 | ...
+  style       String                 // minimal_gray | newspaper | ...
+  taskCount   Int                    // ориентировочно
+  tags        String                 // CSV
+  isActive    Boolean @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  worksheets  Worksheet[]
+}
+
+model Worksheet {
+  id            String   @id @default(cuid())
+  userId        String?                       // null = анонимная сессия
+  templateId    String
+  title         String
+  topic         String?
+  subject       String?
+  grade         Int?
+  status        String   @default("draft")    // draft | generating | ready | failed
+  variant       String   @default("A")        // A | B | C | ... (для доп-вариантов)
+  difficulty    String   @default("medium")   // easy | medium | hard
+  parentId      String?                       // для усложнённых/доп-вариантов
+  promptUsed    String?                       // ключ промпта (generate_from_topic | generate_from_material | ...)
+  llmProvider   String?                       // mock | gigachat | claude | deepseek | openai
+  llmModel      String?
+
+  // Исходные параметры генерации (JSON)
+  paramsJson    String?
+
+  // Сгенерированный контент (JSON: title, subtitle, tasks: [{n, condition, expected, ...}])
+  contentJson   String?
+
+  // Артефакты
+  pdfPath       String?
+  answerKeyPath String?
+
+  // Публикация
+  isPublic      Boolean  @default(false)
+  publishedAt   DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  template      Template  @relation(fields: [templateId], references: [id])
+  parent        Worksheet?  @relation("WorksheetVariants", fields: [parentId], references: [id], onDelete: SetNull)
+  children      Worksheet[] @relation("WorksheetVariants")
+  uploads       Upload[]
+  publication   Publication?
+  favorites     Favorite[]
+
+  @@index([userId, createdAt])
+  @@index([isPublic, createdAt])
+}
+
+model Upload {
+  id          String   @id @default(cuid())
+  userId      String?
+  worksheetId String?
+  filename    String
+  mimeType    String
+  size        Int
+  path        String                    // относительно storage root
+  purpose     String                    // material | photo | logo | check_photo
+  extractedText String?                 // OCR / pdf extract результат
+
+  createdAt   DateTime @default(now())
+
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  worksheet Worksheet? @relation(fields: [worksheetId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}
+
+// ─────────────────────────────── МАРКЕТПЛЕЙС ───────────────────────────────
+
+model Publication {
+  id            String   @id @default(cuid())
+  worksheetId   String   @unique
+  userId        String                          // автор
+  title         String
+  description   String?
+  tags          String                          // CSV
+  price         Int      @default(0)            // в копейках; 0 = бесплатно
+  downloads     Int      @default(0)
+  rating        Float    @default(0)
+  ratingCount   Int      @default(0)
+  isFeatured    Boolean  @default(false)        // отбор «лучших» вручную или авто
+  isBestlist    Boolean  @default(false)        // попало во внутреннюю базу лучших
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  worksheet     Worksheet @relation(fields: [worksheetId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id])
+  favorites     Favorite[]
+
+  @@index([isFeatured, downloads])
+  @@index([isBestlist])
+}
+
+model Favorite {
+  id            String   @id @default(cuid())
+  userId        String
+  worksheetId   String?
+  publicationId String?
+  createdAt     DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  worksheet   Worksheet?   @relation(fields: [worksheetId], references: [id], onDelete: Cascade)
+  publication Publication? @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, worksheetId])
+  @@unique([userId, publicationId])
+}
+
+// ─────────────────────────────── БИЛЛИНГ ───────────────────────────────
+
+model Plan {
+  id              String   @id                     // "free" | "pro" | "school"
+  name            String
+  description     String?
+  priceMonthly    Int                              // копейки
+  worksheetsLimit Int                              // -1 = безлимит
+  variantsLimit   Int                              // -1 = безлимит
+  checksLimit     Int                              // -1 = безлимит
+  marketplaceCommissionPct Int @default(20)
+  isActive        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  subscriptions   Subscription[]
+}
+
+model Subscription {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  planId       String
+  status       String   @default("active")        // active | past_due | cancelled
+  currentPeriodStart DateTime @default(now())
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean @default(false)
+
+  // Лимиты текущего периода
+  usedWorksheets Int @default(0)
+  usedVariants   Int @default(0)
+  usedChecks     Int @default(0)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan         Plan @relation(fields: [planId], references: [id])
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  userId          String
+  amount          Int                              // копейки
+  currency        String   @default("RUB")
+  status          String                           // pending | succeeded | failed | cancelled
+  provider        String                           // yookassa | qiwi | tinkoff | mock
+  providerPaymentId String?                        // id у платёжной системы
+  purpose         String                           // subscription | credits | one_time
+  metadata        String?                          // JSON
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([providerPaymentId])
+}
+
+model Credit {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int                                    // штук «генераций» или копейки — определяется balance kind
+  kind      String                                 // worksheets | tokens | rubles
+  reason    String                                 // bonus | purchase | usage | refund
+  refId     String?                                // payment.id / worksheet.id
+  createdAt DateTime @default(now())
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}

@@ -1,0 +1,71 @@
+% T13 — «Пастель»: карточки 3×3 с пастельной заливкой разных тонов, sans, скруглённые.
+% Профиль: математика, проценты для младших классов. 9 задач (3 строки × 3 столбца).
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\geometry{a4paper, top=15mm, bottom=15mm, left=12mm, right=12mm}
+
+% --- Палитра: лавандовый акцент + три пастельных фона ---
+\definecolor{wcprimary}{HTML}{6B46C1}
+\definecolor{wcprimaryLight}{HTML}{D6BCFA}
+\definecolor{wcprimaryBG}{HTML}{FAF5FF}
+
+\definecolor{pmint}{HTML}{C6F6D5}
+\definecolor{ppeach}{HTML}{FED7AA}
+\definecolor{plavender}{HTML}{E9D8FD}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Заголовок ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \node[fill=plavender, rounded corners=12pt,
+          inner xsep=6mm, inner ysep=4mm,
+          text width=\dimexpr\linewidth-12mm\relax,
+          font=\fontsize{20pt}{24pt}\selectfont\bfseries,
+          text=wcprimary, anchor=north west, align=center] (T) at (0,0) {#1};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% --- TileTask: карточка с цветом-параметром ---
+\newcommand{\PastelTask}[3]{% #1=color, #2=num, #3=content
+  \begin{tikzpicture}
+    \node[fill=#1, rounded corners=10pt,
+          inner xsep=3mm, inner ysep=3mm,
+          text width=55mm, minimum height=46mm,
+          anchor=north west, align=left] (T) at (0,0) {%
+      \footnotesize #3};
+    \node[circle, fill=white, draw=wcprimary, line width=0.8pt,
+          text=wcprimary, font=\bfseries\sffamily\small,
+          minimum size=7mm, inner sep=0pt]
+      at ([xshift=3mm, yshift=-3mm]T.north west) {#2};
+  \end{tikzpicture}}
+
+% --- Старый TaskBox — заглушка (в этом шаблоне используем PastelTask напрямую) ---
+\renewcommand{\TaskBox}[2]{\PastelTask{pmint}{#1}{#2}}
+
+\SetAnswerFieldSize{22mm}{7mm}
+
+\begin{document}
+
+\WorksheetTitle{Проценты вокруг нас}
+{\small\itshape\color{wcprimary!80}\centerline{Тренажёр \quad·\quad Класс 6 \quad·\quad T13 \quad·\quad ID: T13-percent6-2026-05-26}}\par\vspace{3mm}
+\FirstPageHeader
+
+\noindent
+\begin{tabular}{@{}l@{\hspace{1.5mm}}l@{\hspace{1.5mm}}l@{}}
+\PastelTask{pmint}{1}{Найдите $25\%$ от $80$.\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{1}} &
+\PastelTask{ppeach}{2}{Найдите $10\%$ от $250$.\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{2}} &
+\PastelTask{plavender}{3}{Найдите $50\%$ от $124$.\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{3}}\\[2.5mm]
+\PastelTask{ppeach}{4}{Число $48$ — это $40\%$ от какого числа?\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{4}} &
+\PastelTask{plavender}{5}{Сколько процентов число $9$ составляет от $36$?\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{5}} &
+\PastelTask{pmint}{6}{Цена $200$~р выросла на $15\%$. Новая цена?\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{6}}\\[2.5mm]
+\PastelTask{plavender}{7}{$70\%$ класса — $21$ ученик. Сколько всего?\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{7}} &
+\PastelTask{pmint}{8}{Скидка $20\%$ от $500$~р: сколько платить?\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{8}} &
+\PastelTask{ppeach}{9}{В банке $5\%$ годовых. Сколько процентов в месяц (приближённо)?\par\vspace{1.5mm}\hfill\textbf{\color{wcprimary}=}~\AnswerField{9}}\\
+\end{tabular}
+
+\WorksheetQR{T13-percent6/L1/v1}
+
+\end{document}

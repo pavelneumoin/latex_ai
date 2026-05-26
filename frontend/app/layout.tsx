@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AppProviders } from "./_components/AppProviders";
 
 export const metadata: Metadata = {
   title: "РабочийЛист.ai — рабочий лист за минуту",
@@ -14,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <body>{children}</body>
+      <body>
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }

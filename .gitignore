@@ -16,6 +16,29 @@ out/
 .env*.local
 npm-debug.log*
 
+# TS build cache
+*.tsbuildinfo
+
+# Yandex.Disk duplicate files
+* (1).*
+* (2).*
+* (3).*
+
+# Prisma — local dev SQLite + auto-generated client
+frontend/prisma/*.db
+frontend/prisma/*.db-journal
+frontend/prisma/migrations/dev.db*
+
+# Storage — uploaded files, generated PDFs, logos
+frontend/storage/uploads/*
+frontend/storage/worksheets/*
+frontend/storage/logos/*
+frontend/storage/_temp_uploads/*
+!frontend/storage/uploads/.gitkeep
+!frontend/storage/worksheets/.gitkeep
+!frontend/storage/logos/.gitkeep
+!frontend/storage/_temp_uploads/.gitkeep
+
 # Python
 __pycache__/
 *.pyc

@@ -10,12 +10,16 @@ type Props = {
   isPublic: boolean;
 };
 
-export function WorksheetActions({ worksheetId, hasPdf, pdfPath, isPublic }: Props) {
+export function WorksheetActions({ worksheetId, isPublic }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  async function call(path: string, body?: Record<string, unknown>, method: "POST" | "DELETE" = "POST"): Promise<Response> {
+  async function call(
+    path: string,
+    body?: Record<string, unknown>,
+    method: "POST" | "DELETE" = "POST"
+  ): Promise<Response> {
     return fetch(path, {
       method,
       headers: body ? { "Content-Type": "application/json" } : undefined,
@@ -28,11 +32,8 @@ export function WorksheetActions({ worksheetId, hasPdf, pdfPath, isPublic }: Pro
     setErr(null);
     try {
       const r = await call(`/api/worksheets/${worksheetId}/variants`, {});
-      if (!r.ok) {
-        setErr("Не удалось создать вариант");
-      } else {
-        router.refresh();
-      }
+      if (!r.ok) setErr("Не удалось создать вариант");
+      else router.refresh();
     } finally {
       setBusy(null);
     }
@@ -43,11 +44,8 @@ export function WorksheetActions({ worksheetId, hasPdf, pdfPath, isPublic }: Pro
     setErr(null);
     try {
       const r = await call(`/api/worksheets/${worksheetId}/harder`, { complexityStep: 2 });
-      if (!r.ok) {
-        setErr("Не удалось создать усложнённый вариант");
-      } else {
-        router.refresh();
-      }
+      if (!r.ok) setErr("Не удалось создать усложнённый вариант");
+      else router.refresh();
     } finally {
       setBusy(null);
     }
@@ -58,11 +56,8 @@ export function WorksheetActions({ worksheetId, hasPdf, pdfPath, isPublic }: Pro
     setErr(null);
     try {
       const r = await call(`/api/worksheets/${worksheetId}/publish`, {});
-      if (!r.ok) {
-        setErr("Не удалось опубликовать");
-      } else {
-        router.refresh();
-      }
+      if (!r.ok) setErr("Не удалось опубликовать");
+      else router.refresh();
     } finally {
       setBusy(null);
     }
@@ -87,73 +82,203 @@ export function WorksheetActions({ worksheetId, hasPdf, pdfPath, isPublic }: Pro
     }
   }
 
+  async function onExport(format: "pdf" | "docx" | "latex" | "zip"): Promise<void> {
+    setBusy(`exp-${format}`);
+    setErr(null);
+    try {
+      const path =
+        format === "zip"
+          ? `/api/worksheets/${worksheetId}/latex-zip`
+          : `/api/worksheets/${worksheetId}/export?format=${format}`;
+      const r = await fetch(path);
+      if (!r.ok) {
+        const data = await r.json().catch(() => ({}));
+        setErr(
+          data?.hint ||
+            data?.detail ||
+            (format === "pdf"
+              ? "PDF недоступен: на сервере нет xelatex"
+              : `Не удалось скачать ${format.toUpperCase()}`)
+        );
+        return;
+      }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const filename =
+        r.headers.get("Content-Disposition")?.match(/filename="?([^"]+)"?/)?.[1] ||
+        `worksheet.${format === "zip" ? "zip" : format}`;
+      a.download = decodeURIComponent(filename);
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function onOverleaf(): void {
+    // Открывается в новой вкладке: маршрут отдаёт HTML с авто-сабмитом формы в Overleaf.
+    window.open(`/api/worksheets/${worksheetId}/overleaf`, "_blank", "noopener,noreferrer");
+  }
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {hasPdf ? (
-          <a
-            href={pdfPath ?? "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-blue"
-          >
-            Скачать PDF
-          </a>
-        ) : (
-          <span
-            title="PDF будет готов после подключения LLM утром"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: "10px 16px",
-              minHeight: 40,
-              borderRadius: 10,
-              fontSize: 14,
-              fontWeight: 600,
-              background: "var(--surface-2)",
-              color: "var(--fg-3)",
-              cursor: "not-allowed",
-            }}
-          >
-            PDF (в работе)
-          </span>
-        )}
-        <button
-          type="button"
-          className="btn btn-outline"
-          disabled={Boolean(busy)}
-          onClick={onVariant}
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* ──── Экспорт ──── */}
+      <div>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--fg-3)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            marginBottom: 8,
+          }}
         >
-          {busy === "variant" ? "Создаём..." : "Ещё вариант"}
-        </button>
-        <button
-          type="button"
-          className="btn btn-outline"
-          disabled={Boolean(busy)}
-          onClick={onHarder}
-        >
-          {busy === "harder" ? "Усложняем..." : "Усложнить"}
-        </button>
-        {!isPublic && (
+          Скачать
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn-blue"
             disabled={Boolean(busy)}
-            onClick={onPublish}
+            onClick={() => onExport("pdf")}
+            title="PDF для печати (требует xelatex на сервере)"
           >
-            {busy === "publish" ? "Публикуем..." : "Опубликовать"}
+            {busy === "exp-pdf" ? "..." : "PDF"}
           </button>
-        )}
+          <button
+            type="button"
+            className="btn btn-outline"
+            disabled={Boolean(busy)}
+            onClick={() => onExport("docx")}
+            title="Word (.docx) для редактирования"
+          >
+            {busy === "exp-docx" ? "..." : "DOCX"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            disabled={Boolean(busy)}
+            onClick={() => onExport("latex")}
+            title="Исходник .tex"
+          >
+            {busy === "exp-latex" ? "..." : ".tex"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            disabled={Boolean(busy)}
+            onClick={() => onExport("zip")}
+            title="ZIP с .tex и README для локальной компиляции"
+          >
+            {busy === "exp-zip" ? "..." : "ZIP"}
+          </button>
+        </div>
+      </div>
+
+      {/* ──── Overleaf ──── */}
+      <div>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--fg-3)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            marginBottom: 8,
+          }}
+        >
+          Редактировать
+        </div>
         <button
           type="button"
-          className="btn btn-ghost"
+          className="btn"
           disabled={Boolean(busy)}
-          onClick={onDelete}
-          style={{ color: "var(--error)" }}
+          onClick={onOverleaf}
+          style={{
+            background: "#138A07",
+            color: "white",
+            width: "100%",
+          }}
+          title="Открыть LaTeX-исходник в Overleaf для правки"
         >
-          {busy === "delete" ? "Удаляем..." : "Удалить"}
+          ✎ Открыть в Overleaf
         </button>
       </div>
+
+      {/* ──── LLM-действия ──── */}
+      <div>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--fg-3)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            marginBottom: 8,
+          }}
+        >
+          Нейросеть
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className="btn btn-outline"
+            disabled={Boolean(busy)}
+            onClick={onVariant}
+          >
+            {busy === "variant" ? "Создаём..." : "Ещё вариант"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            disabled={Boolean(busy)}
+            onClick={onHarder}
+          >
+            {busy === "harder" ? "Усложняем..." : "Усложнить"}
+          </button>
+        </div>
+      </div>
+
+      {/* ──── Публикация ──── */}
+      <div>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--fg-3)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            marginBottom: 8,
+          }}
+        >
+          Поделиться
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {!isPublic && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={Boolean(busy)}
+              onClick={onPublish}
+            >
+              {busy === "publish" ? "Публикуем..." : "В маркетплейс"}
+            </button>
+          )}
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={Boolean(busy)}
+            onClick={onDelete}
+            style={{ color: "var(--error)" }}
+          >
+            {busy === "delete" ? "Удаляем..." : "Удалить"}
+          </button>
+        </div>
+      </div>
+
       {err && (
         <div
           style={{

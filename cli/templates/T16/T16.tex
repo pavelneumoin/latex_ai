@@ -1,0 +1,71 @@
+% T16 — «Скандинав»: белый минимализм, только типографика, тонкая hairline.
+% Профиль: математика, 11 класс. 5 задач, 1 кол. Sans, много воздуха.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: монохром, акцент — почти невидимый светло-серый ---
+\definecolor{wcprimary}{HTML}{1A1A1A}
+\definecolor{wcprimaryLight}{HTML}{E5E5E5}
+\definecolor{wcprimaryBG}{HTML}{FFFFFF}
+\definecolor{scandimuted}{HTML}{9CA3AF}
+
+% --- Поля: широкие, по-скандинавски ---
+\geometry{a4paper, top=28mm, bottom=28mm, left=28mm, right=28mm}
+
+% --- Sans глобально ---
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Заголовок: тонкий, очень крупный, без украшений ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent
+  {\fontsize{9pt}{12pt}\selectfont\color{scandimuted}\MakeUppercase{Worksheet}}\par
+  \vspace{1mm}
+  {\fontsize{26pt}{30pt}\selectfont\color{wcprimary}#1}\par
+  \vspace{8mm}}
+
+% --- TaskBox: только номер мелким + hairline + содержимое. Без рамок ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\vspace{4mm}\noindent
+  {\fontsize{9pt}{11pt}\selectfont\color{scandimuted}\MakeUppercase{Задача\ \ #1}}\par
+  \vspace{0.8mm}{\color{wcprimaryLight}\rule{18mm}{0.4pt}}\par
+  \vspace{2.5mm}#2\par
+  \vspace{4mm}}
+
+\SetAnswerFieldSize{34mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Исследование функций}
+\par\noindent{\fontsize{9pt}{11pt}\selectfont\color{scandimuted}Класс 11 \ \ \ T16 \ \ \ ID: T16-research-2026-05-27}\par\vspace{6mm}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  Найдите наибольшее значение функции $y = 12\cos x + 5\sin x - 7$.\par
+  \vspace{2mm}\hfill{\footnotesize\color{scandimuted}Ответ}\ \AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Точка максимума функции $y = (x + 7)^2 \cdot e^{-x}$ лежит в интервале $(a;\,a+1)$, где $a$~--- целое число. Найдите $a$.\par
+  \vspace{2mm}\hfill{\footnotesize\color{scandimuted}Ответ}\ \AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Найдите наименьшее значение функции $y = x\sqrt{x} - 3x + 2$ на отрезке $[1;\,9]$.\par
+  \vspace{2mm}\hfill{\footnotesize\color{scandimuted}Ответ}\ \AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Прямая $y = 3x + 4$ является касательной к графику функции $y = x^3 + 3x^2 + 2x + 3$. Найдите абсциссу точки касания.\par
+  \vspace{2mm}\hfill{\footnotesize\color{scandimuted}Ответ}\ \AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Найдите точку минимума функции $y = (x - 4)e^{x - 3}$.\par
+  \vspace{2mm}\hfill{\footnotesize\color{scandimuted}Ответ}\ \AnswerField{5}%
+}
+
+\WorksheetQR{T16-research/L1/v1}
+
+\end{document}

@@ -1,0 +1,99 @@
+% T24 — «Графики»: 4 задачи с большой клетчатой областью под чертёж, чёрно-зелёный.
+% Профиль: математика 9 класс, 4 задачи.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: чёрный + изумрудно-зелёный акцент ---
+\definecolor{wcprimary}{HTML}{065F46}
+\definecolor{wcprimaryLight}{HTML}{A7F3D0}
+\definecolor{wcprimaryBG}{HTML}{ECFDF5}
+\definecolor{gridline}{HTML}{D1D5DB}
+\definecolor{gridaxis}{HTML}{1F2937}
+\definecolor{darkgreen}{HTML}{064E3B}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\geometry{a4paper, top=14mm, bottom=14mm, left=14mm, right=14mm}
+
+% --- Заголовок: блок с координатной плоскостью-иконкой ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -14mm);
+    % мини-график
+    \draw[white, line width=0.6pt] (4mm, -3mm) -- (4mm, -11mm);
+    \draw[white, line width=0.6pt] (4mm, -11mm) -- (16mm, -11mm);
+    \draw[wcprimaryLight, line width=0.8pt]
+      plot[smooth] coordinates {(4mm,-11mm) (7mm,-6mm) (11mm,-9mm) (15mm,-4mm)};
+    \node[anchor=west, text=white, font=\sffamily\bfseries\fontsize{15pt}{18pt}\selectfont]
+      at (20mm, -7mm) {#1};
+    \node[anchor=east, text=wcprimaryLight, font=\sffamily\footnotesize]
+      at ([xshift=-4mm]\linewidth, -7mm) {Графики функций};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+% --- GraphZone: прямоугольник с клеткой для чертежа ---
+\newcommand{\GraphZone}[2]{% #1=width in mm, #2=height in mm
+  \begin{tikzpicture}
+    % фон
+    \fill[white] (0,0) rectangle (#1 mm, #2 mm);
+    % клетка
+    \foreach \x in {0,5,...,#1}
+      \draw[gridline, line width=0.2pt] (\x mm, 0) -- (\x mm, #2 mm);
+    \foreach \y in {0,5,...,#2}
+      \draw[gridline, line width=0.2pt] (0, \y mm) -- (#1 mm, \y mm);
+    % центральные оси
+    \draw[gridaxis, line width=0.5pt, -{Stealth[length=2mm]}]
+      (0, #2/2 mm) -- (#1 mm, #2/2 mm);
+    \draw[gridaxis, line width=0.5pt, -{Stealth[length=2mm]}]
+      (#1/2 mm, 0) -- (#1/2 mm, #2 mm);
+    \node[anchor=south west, font=\sffamily\tiny, text=gridaxis]
+      at (#1 mm - 3mm, #2/2 mm + 0.5mm) {$x$};
+    \node[anchor=south west, font=\sffamily\tiny, text=gridaxis]
+      at (#1/2 mm + 0.5mm, #2 mm - 3mm) {$y$};
+    % рамка
+    \draw[wcprimary, line width=0.6pt] (0,0) rectangle (#1 mm, #2 mm);
+  \end{tikzpicture}}
+
+% --- TaskBox: условие — графика — AnswerField ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.6pt, rounded corners=3pt,
+          fill=wcprimaryBG,
+          inner xsep=4mm, inner ysep=2mm,
+          text width=\dimexpr\linewidth-8mm\relax,
+          anchor=north west, font=\sffamily\small] (B) at (0,0) {%
+      {\bfseries\color{wcprimary}№#1.}\ #2};
+  \end{tikzpicture}\par}
+
+\SetAnswerFieldSize{32mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Графики и системы}
+\par\noindent{\sffamily\small\color{darkgreen}Класс 9 \quad·\quad T24 \quad·\quad ID: T24-graphs-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\TaskBox{1}{Постройте график функции $y = -x^2 + 2x + 3$. Найдите её наибольшее значение и запишите.}
+\par\vspace{1mm}
+\centerline{\GraphZone{90}{55}}
+\par\vspace{1mm}\hfill\textit{Наибольшее значение:}\ \AnswerField{1}\par\vspace{3mm}
+
+\TaskBox{2}{Постройте графики функций $y = x + 1$ и $y = -2x + 7$. Найдите $x$-координату точки пересечения.}
+\par\vspace{1mm}
+\centerline{\GraphZone{90}{55}}
+\par\vspace{1mm}\hfill\textit{Точка пересечения, $x$:}\ \AnswerField{2}\par\vspace{3mm}
+
+\TaskBox{3}{Постройте график функции $y = |x - 2| - 1$. Запишите количество точек, в которых график пересекает ось $Ox$.}
+\par\vspace{1mm}
+\centerline{\GraphZone{90}{55}}
+\par\vspace{1mm}\hfill\textit{Количество точек:}\ \AnswerField{3}\par\vspace{3mm}
+
+\TaskBox{4}{Постройте график функции $y = \dfrac{4}{x}$. Запишите ординату точки графика, у которой абсцисса равна $-2$.}
+\par\vspace{1mm}
+\centerline{\GraphZone{90}{55}}
+\par\vspace{1mm}\hfill\textit{Ордината:}\ \AnswerField{4}\par\vspace{2mm}
+
+\WorksheetQR{T24-graphs/L1/v1}
+
+\end{document}

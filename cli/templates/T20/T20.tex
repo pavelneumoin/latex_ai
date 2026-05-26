@@ -1,0 +1,116 @@
+% T20 — «Бланк ЕГЭ»: гриф, водяной знак «ТРЕНАЖЁР» по диагонали, поле ФИО, вариант.
+% Профиль: математика 11 класс, 7 задач, 1 кол.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usepackage{eso-pic}
+
+% --- Палитра: серый + чёрный, без эмоций ---
+\definecolor{wcprimary}{HTML}{2D3748}
+\definecolor{wcprimaryLight}{HTML}{CBD5E0}
+\definecolor{wcprimaryBG}{HTML}{F7FAFC}
+\definecolor{examgray}{HTML}{4A5568}
+\definecolor{examwm}{HTML}{E2E8F0}
+
+% Засечный (по умолчанию из preamble — Times)
+\renewcommand{\familydefault}{\rmdefault}
+
+\geometry{a4paper, top=20mm, bottom=20mm, left=18mm, right=18mm}
+
+% --- Водяной знак «ТРЕНАЖЁР» по диагонали через eso-pic ---
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[rotate=45, anchor=center, font=\sffamily\bfseries\fontsize{72pt}{72pt}\selectfont,
+          text=examwm, opacity=0.45]
+      at (current page.center) {ТРЕНАЖЁР};
+  \end{tikzpicture}}
+
+% --- Заголовок: официальный гриф, бланк ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    % Верхняя серая полоска
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -2mm);
+    \node[anchor=north west, font=\sffamily\bfseries\fontsize{9pt}{11pt}\selectfont,
+          text=wcprimary] at (0, -4mm)
+      {ТРЕНИРОВОЧНАЯ РАБОТА В ФОРМАТЕ ЕГЭ \ \ \textbar\ \ ПРОФИЛЬНЫЙ УРОВЕНЬ};
+    \node[anchor=north east, font=\sffamily\fontsize{9pt}{11pt}\selectfont,
+          text=examgray] at (\linewidth, -4mm)
+      {Вариант \No 1};
+  \end{tikzpicture}\par
+  \vspace{5mm}
+  \noindent{\fontsize{18pt}{22pt}\selectfont\bfseries\color{wcprimary}#1}\par
+  \vspace{1mm}{\color{wcprimary}\rule{\linewidth}{0.6pt}}\par
+  \vspace{4mm}}
+
+% --- TaskBox: ¹Задание N — узкая шапка, тонкая линия снизу ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent
+  \begin{tikzpicture}
+    \node[fill=wcprimary, text=white, font=\sffamily\bfseries\footnotesize,
+          inner xsep=3mm, inner ysep=1mm, anchor=west] (T) at (0,0)
+      {ЗАДАНИЕ \No #1};
+  \end{tikzpicture}\par\vspace{1.5mm}
+  \noindent #2\par
+  \vspace{1mm}{\color{wcprimary!40}\rule{\linewidth}{0.3pt}}\par\vspace{3mm}}
+
+\SetAnswerFieldSize{34mm}{8mm}
+
+% Кастомный header с ФИО+класс+школа+дата
+\newcommand{\ExamFormHeader}{%
+  \noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.8pt, inner sep=2.5mm,
+          text width=\linewidth, font=\sffamily\small] {%
+      \textbf{Фамилия:}\ \rule{0.32\linewidth}{0.4pt}\hfill
+      \textbf{Имя:}\ \rule{0.22\linewidth}{0.4pt}\hfill
+      \textbf{Отчество:}\ \rule{0.22\linewidth}{0.4pt}\\[2mm]
+      \textbf{Школа:}\ \rule{0.40\linewidth}{0.4pt}\hfill
+      \textbf{Класс:}\ \rule{0.08\linewidth}{0.4pt}\hfill
+      \textbf{Дата:}\ \rule{0.15\linewidth}{0.4pt}};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+\begin{document}
+
+\WorksheetTitle{Контрольно-измерительные материалы}
+\par\noindent{\sffamily\small\color{examgray}Демонстрационный вариант \quad·\quad класс 11 \quad·\quad T20 \quad·\quad ID: T20-exam-2026-05-27}\par\vspace{3mm}
+\ExamFormHeader
+
+\TaskBox{1}{%
+  Найдите значение выражения $\dfrac{14^{2{,}7}}{14^{0{,}7}}$.\par
+  \vspace{1mm}\hfill\textbf{Ответ:}\ \AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Поезд, двигаясь равномерно со скоростью $60$~км/ч, проезжает мимо стоящего у обочины пешехода за $20$~секунд. Найдите длину поезда в метрах.\par
+  \vspace{1mm}\hfill\textbf{Ответ:}\ \AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  В равнобедренном треугольнике $ABC$ боковая сторона $AB = 10$, основание $AC = 12$. Найдите радиус вписанной окружности.\par
+  \vspace{1mm}\hfill\textbf{Ответ:}\ \AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Решите уравнение $\log_3(x - 2) + \log_3(x + 6) = 2$.\par
+  \vspace{1mm}\hfill\textbf{Ответ:}\ \AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Найдите наименьшее значение функции $y = e^{2x} - 4e^x + 7$.\par
+  \vspace{1mm}\hfill\textbf{Ответ:}\ \AnswerField{5}%
+}
+
+\TaskBox{6}{%
+  Найдите площадь треугольника со сторонами $5$, $12$ и $13$.\par
+  \vspace{1mm}\hfill\textbf{Ответ:}\ \AnswerField{6}%
+}
+
+\TaskBox{7}{%
+  Вероятность того, что батарейка бракованная, равна $0{,}05$. Найдите вероятность, что среди двух взятых батареек обе исправны. Округлите до сотых.\par
+  \vspace{1mm}\hfill\textbf{Ответ:}\ \AnswerField{7}%
+}
+
+\WorksheetQR{T20-exam/L1/v1}
+
+\end{document}

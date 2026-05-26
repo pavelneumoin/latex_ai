@@ -1,0 +1,106 @@
+% T19 — «Викторианский»: засечный, двойная орнаментальная рамка, заглавная буква-инициал, бордо.
+% Профиль: математика 11 класс, 5 изысканных задач.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usepackage{eso-pic}
+
+% --- Палитра: глубокий бордо + кремовый ---
+\definecolor{wcprimary}{HTML}{742A2A}
+\definecolor{wcprimaryLight}{HTML}{FED7D7}
+\definecolor{wcprimaryBG}{HTML}{FFFAF0}
+\definecolor{victcream}{HTML}{FFF8E7}
+\definecolor{victgold}{HTML}{B7791F}
+\definecolor{victink}{HTML}{2D1B0F}
+
+% --- Засечный шрифт по умолчанию (preamble уже Times) ---
+\renewcommand{\familydefault}{\rmdefault}
+
+\geometry{a4paper, top=24mm, bottom=24mm, left=24mm, right=24mm}
+
+% --- Орнаментальная двойная рамка вокруг страницы ---
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture, overlay]
+    % внешняя рамка
+    \draw[wcprimary, line width=1.4pt]
+      ([xshift=14mm, yshift=-14mm]current page.north west)
+      rectangle
+      ([xshift=-14mm, yshift=14mm]current page.south east);
+    % внутренняя тонкая
+    \draw[wcprimary, line width=0.4pt]
+      ([xshift=17mm, yshift=-17mm]current page.north west)
+      rectangle
+      ([xshift=-17mm, yshift=17mm]current page.south east);
+    % уголки-ромбики
+    \foreach \crn in {north west, north east, south west, south east} {
+      \node[wcprimary, font=\bfseries] at
+        ([xshift={\crn=={north west} || \crn=={south west} ? 15.5mm : -15.5mm},
+          yshift={\crn=={north west} || \crn=={north east} ? -15.5mm : 15.5mm}]current page.\crn) {\char"2756};
+    }
+    % верхняя «вензельная» полоска
+    \draw[victgold, line width=0.3pt]
+      ([xshift=17mm, yshift=-19mm]current page.north west)
+      -- ([xshift=-17mm, yshift=-19mm]current page.north east);
+  \end{tikzpicture}}
+
+% --- Заголовок: вензельная вертикальная подложка + крупный засечный ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{center}
+    {\fontsize{10pt}{12pt}\selectfont\color{victgold}\textsc{$\sim$\ \ ad astra \ \ $\sim$}}\par
+    \vspace{1.5mm}
+    {\fontsize{22pt}{26pt}\selectfont\bfseries\itshape\color{wcprimary}#1}\par
+    \vspace{2mm}{\color{victgold}\rule{0.4\linewidth}{0.6pt}}\par
+    \vspace{0.5mm}{\color{victgold}\rule{0.25\linewidth}{0.3pt}}
+  \end{center}\par\vspace{6mm}}
+
+% --- TaskBox: большая буквица-инициал и блок текста засечками ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent
+  \begin{tikzpicture}[baseline=(B.north)]
+    \node[fill=wcprimary, text=victcream, font=\bfseries\itshape\fontsize{22pt}{22pt}\selectfont,
+          minimum width=11mm, minimum height=11mm, anchor=north west,
+          inner sep=0pt] (N) at (0,0) {#1};
+    \node[anchor=north west, text width=\dimexpr\linewidth-13mm\relax,
+          align=justify, inner sep=0pt] (B) at ([xshift=13mm]N.north west)
+      {#2};
+  \end{tikzpicture}\par\vspace{1mm}%
+  {\color{victgold}\rule{0.25\linewidth}{0.3pt}}\par\vspace{4mm}}
+
+\SetAnswerFieldSize{30mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Изящные задачи на тригонометрию}
+\par\noindent\begin{center}{\itshape\small\color{wcprimary!75}Сборникъ упражненiй \quad·\quad классъ XI \quad·\quad T19 \quad·\quad ID: T19-victorian-2026-05-27}\end{center}\par\vspace{3mm}
+\FirstPageHeader
+
+\TaskBox{I}{%
+  \textsl{Найдите значение выражения $\dfrac{\sin 75^\circ - \sin 15^\circ}{\cos 75^\circ + \cos 15^\circ}$.}\par
+  \vspace{1.5mm}\hfill\textit{Ответъ:}\ \AnswerField{1}%
+}
+
+\TaskBox{II}{%
+  \textsl{Решите уравненiе $2\cos^2 x - \sin x = 1$ на отрезке $[0;\,\pi]$. Найдите наибольшiй корень в градусахъ.}\par
+  \vspace{1.5mm}\hfill\textit{Ответъ:}\ \AnswerField{2}%
+}
+
+\TaskBox{III}{%
+  \textsl{Вычислите $\tg 75^\circ - \tg 15^\circ$, представив результат в виде десятичной дроби (округлите до сотыхъ).}\par
+  \vspace{1.5mm}\hfill\textit{Ответъ:}\ \AnswerField{3}%
+}
+
+\TaskBox{IV}{%
+  \textsl{Найдите наибольшее значенiе выраженiя $5\sin x + 12\cos x + 7$.}\par
+  \vspace{1.5mm}\hfill\textit{Ответъ:}\ \AnswerField{4}%
+}
+
+\TaskBox{V}{%
+  \textsl{Известно, что $\sin \alpha + \cos \alpha = 0{,}8$. Найдите $\sin 2\alpha$.}\par
+  \vspace{1.5mm}\hfill\textit{Ответъ:}\ \AnswerField{5}%
+}
+
+\WorksheetQR{T19-victorian/L1/v1}
+
+\end{document}

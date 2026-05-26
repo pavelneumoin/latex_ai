@@ -1,0 +1,68 @@
+% T30 — «Большая таблица задач»: все задачи в одной tabular
+% Колонки: №, Условие, Ответ (AnswerField). Math, класс 9, 10 задач.
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usepackage{array}
+\usepackage{colortbl}
+
+\geometry{a4paper, top=12mm, bottom=12mm, left=12mm, right=12mm}
+
+% --- Палитра: серо-стальной ---
+\definecolor{wcprimary}{HTML}{2B3A55}
+\definecolor{wcprimaryLight}{HTML}{C8D2E2}
+\definecolor{wcprimaryBG}{HTML}{F4F6FA}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Заголовок: тонкая полоса с номером таблицы ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -12mm);
+    \node[anchor=west, text=white, font=\bfseries\Large\sffamily]
+      at (3mm, -4mm) {ТАБЛИЦА ЗАДАЧ};
+    \node[anchor=west, text=wcprimaryLight, font=\bfseries\sffamily]
+      at (3mm, -9mm) {#1};
+    \node[anchor=east, text=white, font=\ttfamily\small]
+      at ([xshift=-3mm]\linewidth, -6mm) {N = 10};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+\SetAnswerFieldSize{34mm}{8mm}
+
+% Сокращение для строки таблицы
+\newcommand{\TaskRow}[3]{% #1 номер #2 условие #3 (без аргументов, поле ответа само)
+  {\bfseries\color{wcprimary}#1} & #2 & \AnswerField{#1} \\[1mm]
+  \arrayrulecolor{wcprimaryLight}\hline\arrayrulecolor{black}}
+
+\begin{document}
+
+\WorksheetTitle{Алгебра. Подготовка к ОГЭ}
+{\small\itshape\color{wcprimary!85}Класс 9 \quad·\quad T30 \quad·\quad ID: T30-table-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\noindent
+\renewcommand{\arraystretch}{1.4}
+\arrayrulecolor{wcprimaryLight}
+\begin{tabular}{|>{\centering\arraybackslash}p{8mm}|p{105mm}|>{\centering\arraybackslash}p{40mm}|}
+\hline
+\rowcolor{wcprimary!85}
+{\color{white}\bfseries\sffamily \#} &
+{\color{white}\bfseries\sffamily Условие задачи} &
+{\color{white}\bfseries\sffamily Ответ} \\\hline
+\TaskRow{1}{Найди корень уравнения $5x - 14 = 2x + 1$.}{}
+\TaskRow{2}{Реши неравенство $2x + 7 \le 15$. Запиши наибольшее целое решение.}{}
+\TaskRow{3}{Упрости выражение $\dfrac{a^2-9}{a-3}$ при $a=11$.}{}
+\TaskRow{4}{Найди значение выражения $\sqrt{169} + \sqrt{36}$.}{}
+\TaskRow{5}{Реши уравнение $x^2 - 7x + 12 = 0$. Запиши меньший корень.}{}
+\TaskRow{6}{Найди $25\%$ от $480$.}{}
+\TaskRow{7}{Решение прогрессии: $a_1=3$, $d=4$, найди $a_{10}$.}{}
+\TaskRow{8}{Вычисли $\dfrac{3}{4} : \dfrac{1}{8}$.}{}
+\TaskRow{9}{Найди значение $2^7 - 2^5$.}{}
+\TaskRow{10}{Реши уравнение $\dfrac{x}{3} + \dfrac{x}{6} = 9$.}{}
+\end{tabular}
+
+\WorksheetQR{T30-table/L1/v1}
+
+\end{document}

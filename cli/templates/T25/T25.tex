@@ -1,0 +1,111 @@
+% T25 — «Олимпиада / премиум»: золотая линия сверху, кремовый фон, римские цифры, засечный.
+% Профиль: математика 11 класс, 4 сложные задачи.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usepackage{pagecolor}
+\usepackage{eso-pic}
+
+% --- Палитра: бордо + золото + кремовая бумага ---
+\definecolor{wcprimary}{HTML}{4A1D1F}
+\definecolor{wcprimaryLight}{HTML}{D4A574}
+\definecolor{wcprimaryBG}{HTML}{FBF5E5}
+\definecolor{olympgold}{HTML}{B7891C}
+\definecolor{olympink}{HTML}{2D1810}
+\definecolor{olympcream}{HTML}{FBF5E5}
+\definecolor{olympmuted}{HTML}{8B6F47}
+
+% --- Кремовый фон страницы ---
+\pagecolor{olympcream}
+\color{olympink}
+
+\renewcommand{\familydefault}{\rmdefault}
+
+\geometry{a4paper, top=24mm, bottom=24mm, left=24mm, right=24mm}
+
+% --- Декор: тонкие золотые линии по краям через eso-pic ---
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture, overlay]
+    % верхняя жирная золотая
+    \draw[olympgold, line width=2.4pt]
+      ([xshift=18mm, yshift=-15mm]current page.north west)
+      -- ([xshift=-18mm, yshift=-15mm]current page.north east);
+    % тонкая под ней
+    \draw[olympgold, line width=0.4pt]
+      ([xshift=18mm, yshift=-17mm]current page.north west)
+      -- ([xshift=-18mm, yshift=-17mm]current page.north east);
+    % нижняя пара
+    \draw[olympgold, line width=0.4pt]
+      ([xshift=18mm, yshift=17mm]current page.south west)
+      -- ([xshift=-18mm, yshift=17mm]current page.south east);
+    \draw[olympgold, line width=1.4pt]
+      ([xshift=18mm, yshift=15mm]current page.south west)
+      -- ([xshift=-18mm, yshift=15mm]current page.south east);
+    % боковые тонкие
+    \draw[olympgold, line width=0.3pt]
+      ([xshift=14mm, yshift=-20mm]current page.north west)
+      -- ([xshift=14mm, yshift=20mm]current page.south west);
+    \draw[olympgold, line width=0.3pt]
+      ([xshift=-14mm, yshift=-20mm]current page.north east)
+      -- ([xshift=-14mm, yshift=20mm]current page.south east);
+  \end{tikzpicture}}
+
+% --- Заголовок: «PRAEMIUM» курсивом, монограммный ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{center}
+    {\itshape\fontsize{11pt}{14pt}\selectfont\color{olympgold}
+     $\bigstar$\ \ Olympiad\ \ $\cdot$\ \ Premium\ \ $\bigstar$}\par
+    \vspace{2mm}
+    {\fontsize{24pt}{28pt}\selectfont\bfseries\color{wcprimary}#1}\par
+    \vspace{2mm}{\color{olympgold}\rule{0.35\linewidth}{1.4pt}}\par
+    \vspace{0.5mm}{\color{olympgold}\rule{0.18\linewidth}{0.4pt}}
+  \end{center}\par\vspace{6mm}}
+
+% --- TaskBox: римская цифра + засечный текст + золотая разделительная линия ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\vspace{2mm}\noindent
+  \begin{tikzpicture}[baseline=(B.north)]
+    \node[anchor=north west, text=wcprimary,
+          font=\bfseries\itshape\fontsize{20pt}{22pt}\selectfont,
+          inner sep=0pt, minimum width=14mm] (N) at (0,0) {#1.};
+    \node[anchor=north west, text width=\dimexpr\linewidth-16mm\relax,
+          inner sep=0pt, align=justify] (B) at ([xshift=16mm]N.north west)
+      {#2};
+  \end{tikzpicture}\par\vspace{2mm}%
+  \noindent{\color{olympgold}\rule{0.18\linewidth}{0.3pt}}\par\vspace{4mm}}
+
+\SetAnswerFieldSize{36mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Олимпиадный листъ}
+\par\noindent\begin{center}{\itshape\small\color{olympmuted}Заочный туръ \quad·\quad классъ XI \quad·\quad T25 \quad·\quad ID: T25-olymp-2026-05-27}\end{center}\par\vspace{4mm}
+\FirstPageHeader
+
+\TaskBox{I}{%
+  При каких значениях параметра $a$ уравнение $x^2 - (a + 3)x + 3a = 0$ имеет два различных корня, оба больше $2$?\par
+  \vspace{1.5mm}\hfill\textit{Ответ:}\ \AnswerField{1}%
+}
+
+\TaskBox{II}{%
+  Найдите все натуральные $n$, при которых число $n^2 + n + 41$ не является простым, и в ответе укажите наименьшее такое $n$.\par
+  \vspace{1.5mm}\hfill\textit{Ответ:}\ \AnswerField{2}%
+}
+
+\TaskBox{III}{%
+  В правильной четырёхугольной пирамиде $SABCD$ длина бокового ребра равна $13$, длина стороны основания равна $10$. Найдите длину отрезка, соединяющего вершину $S$ с серединой ребра $AB$.\par
+  \vspace{1.5mm}\hfill\textit{Ответ:}\ \AnswerField{3}%
+}
+
+\TaskBox{IV}{%
+  Найдите наименьшее значение функции $f(x, y) = x^2 + y^2 - 4x - 6y + 18$ на множестве пар $(x, y)$, удовлетворяющих условию $x + y = 5$.\par
+  \vspace{1.5mm}\hfill\textit{Ответ:}\ \AnswerField{4}%
+}
+
+\vspace{4mm}\noindent\begin{center}{\itshape\small\color{olympmuted}--- ПОЛНЫЕ РЕШЕНИЯ ПРИКЛАДЫВАЙТЕ НА ОТДЕЛЬНЫХЪ ЛИСТАХЪ ---}\end{center}
+
+\WorksheetQR{T25-olymp/L1/v1}
+
+\end{document}

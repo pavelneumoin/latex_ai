@@ -166,6 +166,226 @@
       "style": "trainer_teal",
       "task_count": 18,
       "tags": ["mental-math", "fractions", "percent", "trainer", "dense"]
+    },
+    {
+      "id": "T16",
+      "name": "Скандинавский минимализм",
+      "description": "Белый минимализм: только чёрная типографика, без рамок и фонов, тонкая hairline под номером задачи, много воздуха",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "scandi_white",
+      "task_count": 5,
+      "tags": ["minimalism", "sans", "hairline", "monochrome", "airy"]
+    },
+    {
+      "id": "T17",
+      "name": "Ретро-машинка 90-х",
+      "description": "Печатная машинка: моноширинный шрифт для всего, нумерация (1), ALL CAPS заголовок, чёрно-белый",
+      "subject": "math",
+      "grade": 9,
+      "layout": "single_column",
+      "style": "retro_typewriter",
+      "task_count": 6,
+      "tags": ["typewriter", "monospace", "bw", "vintage", "caps"]
+    },
+    {
+      "id": "T18",
+      "name": "Космос (тёмная тема)",
+      "description": "Тёмная тема: чёрный фон, белый текст, фиолетово-синий звёздный градиент в заголовке. Для информатики",
+      "subject": "informatics",
+      "grade": 10,
+      "layout": "single_column",
+      "style": "space_dark",
+      "task_count": 5,
+      "tags": ["dark", "cosmos", "stars", "gradient", "sci-fi"]
+    },
+    {
+      "id": "T19",
+      "name": "Викторианский стиль",
+      "description": "Засечный с орнаментальной двойной рамкой, бордовый акцент, буквица-инициал",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "victorian_ornate",
+      "task_count": 5,
+      "tags": ["ornate", "serif", "double-border", "bordeaux", "classical"]
+    },
+    {
+      "id": "T20",
+      "name": "Бланк официального экзамена",
+      "description": "Гриф «Тренировочная работа в формате ЕГЭ», водяной знак ТРЕНАЖЁР, поля для ФИО, засечный, 7 задач",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "exam_form",
+      "task_count": 7,
+      "tags": ["exam", "watermark", "serif", "official", "kim"]
+    },
+    {
+      "id": "T21",
+      "name": "Самостоятельная 15 минут",
+      "description": "Компактная одностраничка с явным таймером в шапке (15 МИН), 2 варианта по 2 задачи, оранжевый акцент",
+      "subject": "math",
+      "grade": 8,
+      "layout": "variants_two",
+      "style": "quick_15min",
+      "task_count": 4,
+      "tags": ["timer", "orange", "compact", "two-variants", "quick"]
+    },
+    {
+      "id": "T22",
+      "name": "Устный счёт 5×5",
+      "description": "25 микро-карточек в сетке 5×5, по одной короткой операции в каждой. Светло-бирюзовый фон",
+      "subject": "math",
+      "grade": 6,
+      "layout": "grid_5x5",
+      "style": "mental_grid_5x5",
+      "task_count": 25,
+      "tags": ["mental-math", "teal", "microcards", "primary", "grid"]
+    },
+    {
+      "id": "T23",
+      "name": "Программирование Python",
+      "description": "Каждая задача — готовый кусок Python кода с подсветкой ключевых слов, IDE-шапка с MacOS-точками",
+      "subject": "informatics",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "code_python",
+      "task_count": 5,
+      "tags": ["python", "code", "ide", "dark", "syntax"]
+    },
+    {
+      "id": "T24",
+      "name": "Графики и диаграммы",
+      "description": "Много пустого места под чертёж: условие → большой прямоугольник с клеткой → AnswerField",
+      "subject": "math",
+      "grade": 9,
+      "layout": "single_column",
+      "style": "graphs_grid",
+      "task_count": 4,
+      "tags": ["graphs", "grid", "coordinate", "emerald", "plotting"]
+    },
+    {
+      "id": "T25",
+      "name": "Олимпиадный лист (премиум)",
+      "description": "Золотая акцентная линия, гриф «Олимпиадный лист», засечный, нумерация римскими, кремовый фон",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "olympiad_premium",
+      "task_count": 4,
+      "tags": ["olympiad", "gold", "premium", "cream", "roman"]
+    },
+    {
+      "id": "T26",
+      "name": "Морская тематика",
+      "description": "Синие волны в шапке, нумерация в круге-«спасательном круге», светло-голубой фон, для начальной школы",
+      "subject": "math",
+      "grade": 5,
+      "layout": "single_column",
+      "style": "sea_navy",
+      "task_count": 6,
+      "tags": ["sea", "waves", "primary-school", "sans", "lifebuoy"]
+    },
+    {
+      "id": "T27",
+      "name": "Лес и природа",
+      "description": "Зелёная гамма, листики-маркеры, уютный sans, светло-кремовый фон. Дроби и проценты",
+      "subject": "math",
+      "grade": 6,
+      "layout": "single_column",
+      "style": "forest_green",
+      "task_count": 6,
+      "tags": ["forest", "green", "fractions", "primary-school", "cozy"]
+    },
+    {
+      "id": "T28",
+      "name": "Бинго-карта",
+      "description": "Сетка 4×4 = 16 микро-задач, заголовок «БИНГО», цветные диагональные линии в углах ячеек",
+      "subject": "math",
+      "grade": 6,
+      "layout": "grid_4x4",
+      "style": "bingo_card",
+      "task_count": 16,
+      "tags": ["bingo", "mental-math", "grid", "primary", "game"]
+    },
+    {
+      "id": "T29",
+      "name": "Лабиринт задач",
+      "description": "Задачи 1→2→3 связаны стрелками вниз, ответ предыдущей нужен для следующей, фиолетовый акцент",
+      "subject": "math",
+      "grade": 8,
+      "layout": "single_column",
+      "style": "maze_flow",
+      "task_count": 5,
+      "tags": ["maze", "flow", "chained", "purple", "arrows"]
+    },
+    {
+      "id": "T30",
+      "name": "Большая таблица задач",
+      "description": "Все задачи в одной таблице: №, Условие, Ответ. Плотная вёрстка, для повторения большим списком",
+      "subject": "math",
+      "grade": 9,
+      "layout": "single_column",
+      "style": "table_grid",
+      "task_count": 10,
+      "tags": ["table", "compact", "review", "oge", "list"]
+    },
+    {
+      "id": "T31",
+      "name": "Алгоритмы и блок-схемы",
+      "description": "Для информатики: каждая задача содержит блок-схему (ромб/прямоугольник, стрелки) + условие сверху",
+      "subject": "informatics",
+      "grade": 9,
+      "layout": "single_column",
+      "style": "algo_flowchart",
+      "task_count": 4,
+      "tags": ["algo", "flowchart", "tikz", "trace", "informatics"]
+    },
+    {
+      "id": "T32",
+      "name": "Итоговая работа за год",
+      "description": "Жирная синяя шапка с эмблемой, 2 части (А-тест 4 задачи + Б-задачи 2 шт), нумерация А1...Б2",
+      "subject": "math",
+      "grade": 9,
+      "layout": "single_column",
+      "style": "final_year_premium",
+      "task_count": 6,
+      "tags": ["final", "year", "premium", "emblem", "official"]
+    },
+    {
+      "id": "T33",
+      "name": "Письмо ученику",
+      "description": "Стилизовано под рукописное письмо: засечный italic, обращение «Дорогой ученик!», задачи внутри текста",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "letter_format",
+      "task_count": 5,
+      "tags": ["letter", "italic", "epistolary", "narrative", "cozy"]
+    },
+    {
+      "id": "T34",
+      "name": "Флешкарты двусторонние",
+      "description": "Лист разделён горизонтально на 2 половины: верх — условие, низ — крупное место для ответа",
+      "subject": "math",
+      "grade": 7,
+      "layout": "grid_1x2",
+      "style": "flashcards_dual",
+      "task_count": 4,
+      "tags": ["flashcards", "dual", "large-answer", "coral", "fold"]
+    },
+    {
+      "id": "T35",
+      "name": "Японский ваби-саби",
+      "description": "Асимметричная вёрстка: столбец задач сдвинут влево, пустое поле справа, серый акцент, тонкий sans",
+      "subject": "math",
+      "grade": 10,
+      "layout": "single_column",
+      "style": "wabisabi_asymmetric",
+      "task_count": 5,
+      "tags": ["wabisabi", "asymmetric", "sans", "gray", "minimal"]
     }
   ]
 }

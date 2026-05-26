@@ -1,0 +1,111 @@
+% T21 — «Самостоятельная 15 минут»: одностраничка, таймер-полоска в шапке, 2 варианта × 2 задачи.
+% Профиль: математика 8 класс, 4 задачи всего.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: апельсиновый ---
+\definecolor{wcprimary}{HTML}{C05621}
+\definecolor{wcprimaryLight}{HTML}{FEEBC8}
+\definecolor{wcprimaryBG}{HTML}{FFFAF0}
+\definecolor{orangedeep}{HTML}{9C4221}
+\definecolor{orangetimer}{HTML}{ED8936}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\geometry{a4paper, top=14mm, bottom=14mm, left=15mm, right=15mm}
+
+% --- Заголовок: блок с большим «15 МИН» + полоска-таймер + иконка часов ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    % Основной блок
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -18mm);
+    % Стилизованные «часы» — круг с двумя стрелками слева
+    \fill[white] (12mm, -9mm) circle (6mm);
+    \draw[wcprimary, line width=0.6pt] (12mm, -9mm) circle (6mm);
+    \draw[wcprimary, line width=1pt] (12mm, -9mm) -- (12mm, -5mm);
+    \draw[wcprimary, line width=1.2pt] (12mm, -9mm) -- (15mm, -9mm);
+    \foreach \a in {0,30,60,90,120,150,180,210,240,270,300,330}
+      \fill[wcprimary] ([shift={(\a:5.4mm)}]12mm,-9mm) circle (0.18mm);
+    % Заголовок и подпись
+    \node[anchor=west, text=white, font=\sffamily\bfseries\fontsize{16pt}{18pt}\selectfont]
+      at (24mm, -6mm) {#1};
+    \node[anchor=west, text=wcprimaryLight, font=\sffamily\fontsize{10pt}{12pt}\selectfont]
+      at (24mm, -12mm) {Самостоятельная работа};
+    % «15 МИН» крупно справа
+    \node[anchor=east, text=white, font=\sffamily\bfseries\fontsize{28pt}{28pt}\selectfont]
+      at ([xshift=-5mm]\linewidth, -9mm) {15};
+    \node[anchor=east, text=wcprimaryLight, font=\sffamily\bfseries\footnotesize]
+      at ([xshift=-5mm]\linewidth, -15mm) {МИНУТ};
+  \end{tikzpicture}\par
+  \vspace{1.5mm}
+  % Полоска-таймер: 15 ячеек
+  \noindent\begin{tikzpicture}
+    \foreach \i in {0,...,14} {
+      \fill[orangetimer!\the\numexpr 30 + 5*\i\relax] (\i*8.5mm, 0) rectangle (\i*8.5mm + 8mm, -2.5mm);
+    }
+    \node[anchor=west, font=\sffamily\tiny, text=wcprimary]
+      at (0, -4.5mm) {0:00};
+    \node[anchor=east, font=\sffamily\tiny, text=wcprimary]
+      at (15*8.5mm, -4.5mm) {15:00};
+  \end{tikzpicture}\par
+  \vspace{4mm}}
+
+% --- TaskBox: компактный, с круглым номером в кружке ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent\begin{tikzpicture}
+    \node[anchor=north west, text width=\linewidth, inner sep=0pt] (B) at (0,0) {%
+      \begin{minipage}[t]{\linewidth}
+        \begin{tikzpicture}[baseline=(N.center)]
+          \node[circle, fill=wcprimary, text=white, font=\sffamily\bfseries\small,
+                minimum size=6mm, inner sep=0pt] (N) {#1};
+        \end{tikzpicture}\ \small #2
+      \end{minipage}};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+% Вариантный блок
+\newcommand{\VariantTitle}[1]{%
+  \par\noindent{\sffamily\bfseries\color{wcprimary}\fontsize{13pt}{15pt}\selectfont
+   ВАРИАНТ\ #1}\par
+  \vspace{0.5mm}{\color{wcprimary}\rule{0.25\linewidth}{0.6pt}}\par\vspace{2mm}}
+
+\SetAnswerFieldSize{30mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Системы линейных уравнений}
+\par\noindent{\sffamily\small\itshape\color{orangedeep}Класс 8 \quad·\quad T21 \quad·\quad ID: T21-quick15-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\noindent\begin{minipage}[t]{0.48\linewidth}
+\VariantTitle{1}
+\TaskBox{1}{%
+  Решите систему: $\begin{cases} 2x + y = 7 \\ x - y = 2 \end{cases}$.
+  В ответе укажите $x + y$.\par
+  \vspace{1mm}\hfill\textit{Ответ:}\ \AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  При каком значении $a$ система $\begin{cases} x + 2y = 5 \\ ax - y = 3 \end{cases}$ имеет решение $(1;\,2)$?\par
+  \vspace{1mm}\hfill\textit{Ответ:}\ \AnswerField{2}%
+}
+\end{minipage}\hfill\begin{minipage}[t]{0.48\linewidth}
+\VariantTitle{2}
+\TaskBox{3}{%
+  Решите систему: $\begin{cases} 3x - 2y = 4 \\ x + y = 7 \end{cases}$.
+  В ответе укажите $x \cdot y$.\par
+  \vspace{1mm}\hfill\textit{Ответ:}\ \AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Сумма двух чисел равна $30$, а разность их утроенных значений равна $24$. Найдите большее число.\par
+  \vspace{1mm}\hfill\textit{Ответ:}\ \AnswerField{4}%
+}
+\end{minipage}
+
+\vspace{6mm}\noindent{\sffamily\small\color{wcprimary}\rule{8mm}{2pt}\ \textbf{Удачи!}}
+
+\WorksheetQR{T21-quick15/L1/v1}
+
+\end{document}

@@ -1,0 +1,94 @@
+% T34 — «Карточки-флешкарты двусторонние»: 2 крупные задачи на A4.
+% Каждый блок: ВЕРХ — условие, низ — ответ крупно. Math, класс 7, 4 задачи (2 листа).
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\geometry{a4paper, top=14mm, bottom=14mm, left=14mm, right=14mm}
+
+% --- Палитра: тёплый коралл ---
+\definecolor{wcprimary}{HTML}{C0392B}
+\definecolor{wcprimaryLight}{HTML}{F4C7C0}
+\definecolor{wcprimaryBG}{HTML}{FFF8F6}
+\definecolor{wcdivider}{HTML}{E67E22}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Заголовок ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \draw[wcprimary, line width=3pt] (0,0) -- (\linewidth,0);
+    \node[anchor=west, text=wcprimary, font=\bfseries\Large\sffamily]
+      at (0, -7mm) {ФЛЕШКАРТЫ};
+    \node[anchor=east, text=wcprimary!85, font=\bfseries\sffamily]
+      at (\linewidth, -7mm) {#1};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% Большая флешкарта: верх (условие), линия-сгиб, низ (ответ крупно)
+\newcommand{\Flashcard}[3]{% #1 номер #2 условие #3 высота условия в мм
+  \par\vspace{2mm}\noindent\begin{tikzpicture}
+    % Внешняя рамка
+    \draw[wcprimary, line width=1.1pt, rounded corners=4pt]
+      (0,0) rectangle (\linewidth, -#3mm);
+    % Метка номера
+    \node[anchor=north west, fill=wcprimary, text=white,
+          font=\bfseries\sffamily, inner sep=2.5mm, rounded corners=1pt]
+      at (2mm, -2mm) {КАРТА \##1};
+    % Условие
+    \node[anchor=north west, text width=\dimexpr\linewidth-8mm\relax,
+          font=\large\sffamily, inner sep=4mm, yshift=-8mm]
+      at (0,0) {#2};
+    % Линия сгиба
+    \draw[wcdivider, line width=0.9pt, dashed]
+      (4mm, -\dimexpr#3mm-22mm\relax) -- (\linewidth-4mm, -\dimexpr#3mm-22mm\relax);
+    \node[anchor=center, fill=wcprimaryBG, text=wcdivider,
+          font=\scriptsize\itshape, inner sep=1mm]
+      at (15mm, -\dimexpr#3mm-22mm\relax) {ОТВЕТ ↓};
+    % Поле ответа (крупное, по центру нижней зоны)
+    \node[anchor=center, font=\bfseries\large\sffamily\color{wcprimary}]
+      at (\linewidth/2, -\dimexpr#3mm-11mm\relax)
+      {Ответ: \AnswerField{#1}};
+  \end{tikzpicture}\par}
+
+\SetAnswerFieldSize{44mm}{12mm}
+
+\begin{document}
+
+\WorksheetTitle{Алгебра 7~класса}
+{\small\itshape\color{wcprimary!85}Класс 7 \quad·\quad T34 \quad·\quad ID: T34-flash-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\Flashcard{1}{%
+  Упростите выражение и найдите его значение при $a = -2$:\par
+  \vspace{2mm}
+  $$3a^2(a - 4) - a(3a^2 - 12a + 1).$$
+}{60}
+
+\Flashcard{2}{%
+  Решите систему уравнений:\par
+  \vspace{2mm}
+  $$\begin{cases} 2x + 3y = 16, \\ 5x - y = 6. \end{cases}$$\par
+  \vspace{1mm}
+  В ответе укажите произведение $x \cdot y$.
+}{60}
+
+\newpage
+
+\Flashcard{3}{%
+  В треугольнике один из углов равен $48^\circ$, а другой~--- $72^\circ$.
+  Найдите внешний угол, не смежный с этими двумя.\par
+  \vspace{1mm}\textit{Ответ дай в градусах.}
+}{60}
+
+\Flashcard{4}{%
+  Разложите многочлен на множители:\par
+  \vspace{2mm}
+  $$x^4 - 5x^2 + 4.$$\par
+  \vspace{1mm}
+  В ответе запиши сумму всех целых корней соответствующего уравнения.
+}{60}
+
+\WorksheetQR{T34-flash/L1/v1}
+
+\end{document}

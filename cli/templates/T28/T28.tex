@@ -1,0 +1,71 @@
+% T28 — «Бинго-карта»: сетка 4×4 = 16 микро-задач в равных квадратах.
+% Math, класс 5-7, устный счёт.
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\geometry{a4paper, top=12mm, bottom=12mm, left=12mm, right=12mm}
+
+% --- Палитра ---
+\definecolor{wcprimary}{HTML}{C0392B}
+\definecolor{wcprimaryLight}{HTML}{F4D6D2}
+\definecolor{wcprimaryBG}{HTML}{FFFCF7}
+\definecolor{wcalerted}{HTML}{F39C12}
+\definecolor{wccyan}{HTML}{0E7C9D}
+\definecolor{wcgreen}{HTML}{2E8B57}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Заголовок «БИНГО» ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \node[anchor=north west, font=\bfseries\fontsize{38pt}{40pt}\selectfont\sffamily, text=wcprimary]
+      at (0,0) {Б\,И\,Н\,Г\,О};
+    \draw[wcprimary, line width=2pt] (0,-12mm) -- (\linewidth,-12mm);
+    \node[anchor=east, font=\bfseries\large\sffamily, text=wcprimary]
+      at (\linewidth, -5mm) {#1};
+    \node[anchor=east, font=\itshape\small, text=wcprimary!75]
+      at (\linewidth, -10mm) {Закрой все 16 клеток~--- получишь линию!};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% Ячейка бинго: квадрат с угловыми диагоналями и AnswerField внизу.
+\newcommand{\BingoCell}[3]{% #1 номер #2 задача #3 цвет угла
+  \begin{tikzpicture}[baseline=(C.center)]
+    \node[draw=wcprimary, line width=0.9pt, rounded corners=2pt,
+          inner sep=2mm, minimum width=38mm, minimum height=38mm,
+          align=center] (C) {};
+    % Угловые диагональки
+    \draw[#3, line width=1.3pt] (C.north west) -- ++(4mm,-4mm);
+    \draw[#3, line width=1.3pt] (C.north east) -- ++(-4mm,-4mm);
+    \draw[#3, line width=1.3pt] (C.south west) -- ++(4mm,4mm);
+    \draw[#3, line width=1.3pt] (C.south east) -- ++(-4mm,4mm);
+    % Номер
+    \node[anchor=north west, font=\bfseries\footnotesize\color{wcprimary}]
+      at ([xshift=1.5mm,yshift=-1.5mm]C.north west) {\##1};
+    % Условие
+    \node[font=\small, align=center, text width=32mm]
+      at ([yshift=2mm]C.center) {#2};
+    % Поле ответа
+    \node[anchor=south, yshift=2mm] at (C.south)
+      {\AnswerField{#1}};
+  \end{tikzpicture}}
+
+\SetAnswerFieldSize{22mm}{6mm}
+
+\begin{document}
+
+\WorksheetTitle{Устный счёт 4×4}
+{\small\itshape\color{wcprimary!85}Класс 5--7 \quad·\quad T28 \quad·\quad ID: T28-bingo-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\noindent\begin{tabular}{@{\hskip 0pt}c@{\hskip 1.5mm}c@{\hskip 1.5mm}c@{\hskip 1.5mm}c@{\hskip 0pt}}
+\BingoCell{1}{$48+27$}{wcalerted}     & \BingoCell{2}{$9\cdot 7$}{wccyan}       & \BingoCell{3}{$144:12$}{wcgreen}    & \BingoCell{4}{$100-37$}{wcprimary}    \\[2mm]
+\BingoCell{5}{$\tfrac{1}{2}+\tfrac{1}{4}$}{wccyan}  & \BingoCell{6}{$15\%$ от $80$}{wcgreen} & \BingoCell{7}{$0{,}3\cdot 0{,}4$}{wcalerted} & \BingoCell{8}{$\tfrac{3}{4}\cdot 8$}{wcprimary} \\[2mm]
+\BingoCell{9}{$13^2$}{wcgreen}        & \BingoCell{10}{$\sqrt{169}$}{wcprimary} & \BingoCell{11}{$2^5$}{wccyan}       & \BingoCell{12}{$\tfrac{5}{6}-\tfrac{1}{3}$}{wcalerted} \\[2mm]
+\BingoCell{13}{$56:8+3$}{wcprimary}   & \BingoCell{14}{$25\%$ от $60$}{wcalerted}& \BingoCell{15}{$0{,}1+0{,}25$}{wcgreen} & \BingoCell{16}{$7\cdot 9 - 5$}{wccyan} \\
+\end{tabular}
+
+\WorksheetQR{T28-bingo/L1/v1}
+
+\end{document}

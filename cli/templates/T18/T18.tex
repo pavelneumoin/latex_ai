@@ -1,0 +1,102 @@
+% T18 — «Космос»: тёмный фон, белый текст, фиолетово-синий звёздный градиент в шапке.
+% Профиль: информатика 10 класс, 5 задач (логика, системы счисления).
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usepackage{pagecolor}
+
+% --- Палитра: космос ---
+\definecolor{wcprimary}{HTML}{9F7AEA}
+\definecolor{wcprimaryLight}{HTML}{B794F4}
+\definecolor{wcprimaryBG}{HTML}{0B0B1E}
+\definecolor{spacebg}{HTML}{0B0B1E}
+\definecolor{spacepurple}{HTML}{6B46C1}
+\definecolor{spaceblue}{HTML}{4299E1}
+\definecolor{spacestar}{HTML}{FFFFFF}
+\definecolor{spacemuted}{HTML}{A0AEC0}
+
+% --- Тёмный фон страницы ---
+\pagecolor{spacebg}
+\color{spacestar}
+
+\geometry{a4paper, top=15mm, bottom=18mm, left=18mm, right=18mm}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Заголовок: фиолетово-синий градиент через слои tikz + звёзды ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    % градиент-имитация: 3 слоя
+    \fill[spacepurple] (0,0) rectangle (\linewidth, -16mm);
+    \shade[left color=spacepurple, right color=spaceblue]
+      (0,0) rectangle (\linewidth, -16mm);
+    % звёзды-точки
+    \foreach \x/\y in {12/-2, 28/-5, 47/-3, 65/-11, 82/-7, 95/-13, 38/-12, 55/-8, 72/-2, 8/-13} {
+      \fill[spacestar, opacity=0.85] (\x mm, \y mm) circle (0.25mm);
+    }
+    \foreach \x/\y in {20/-9, 60/-4, 88/-10, 105/-6, 130/-3} {
+      \fill[spacestar, opacity=0.6] (\x mm, \y mm) circle (0.18mm);
+    }
+    \node[anchor=west, text=spacestar, font=\bfseries\fontsize{18pt}{22pt}\selectfont]
+      at (4mm, -8mm) {#1};
+    \node[anchor=east, text=spacestar!85, font=\ttfamily\footnotesize]
+      at ([xshift=-4mm]\linewidth, -12mm) {/* mission worksheet */};
+  \end{tikzpicture}\par\vspace{5mm}}
+
+% --- TaskBox: лёгкая фиолетовая рамка на тёмном фоне ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent\begin{tikzpicture}
+    \node[draw=wcprimary!60, line width=0.6pt, rounded corners=4pt,
+          inner xsep=4mm, inner ysep=3mm,
+          text width=\dimexpr\linewidth-8mm\relax,
+          text=spacestar, anchor=north west] (B) at (0,0) {%
+      {\bfseries\color{wcprimaryLight}\textsf{> Задача \##1}}\par
+      \vspace{1.2mm}#2};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+\SetAnswerFieldSize{32mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Системы счисления и логика}
+\par\noindent{\sffamily\small\color{spacemuted}// orbit: ЕГЭ-инф \quad·\quad класс 10 \quad·\quad T18 \quad·\quad id=T18-space-2026-05-27}\par\vspace{4mm}
+
+% Локальная шапка — переопределим, чтобы не было светлой рамки на тёмном фоне
+\noindent\begin{tikzpicture}
+  \node[draw=wcprimary!50, line width=0.6pt, rounded corners=3pt,
+        inner sep=2mm, text width=\linewidth, text=spacestar]
+    {\textbf{\color{wcprimaryLight}ФИО:}\ \color{spacemuted}\rule{0.42\linewidth}{0.3pt}%
+     \hfill \textbf{\color{wcprimaryLight}Класс:}\ \color{spacemuted}\rule{0.07\linewidth}{0.3pt}%
+     \hfill \textbf{\color{wcprimaryLight}Дата:}\ \color{spacemuted}\rule{0.14\linewidth}{0.3pt}};
+\end{tikzpicture}\par\vspace{5mm}
+
+\TaskBox{1}{%
+  Переведите число $173_{10}$ в двоичную систему. В ответе запишите количество единиц в записи.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimaryLight}>}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Чему равна сумма $1101_2 + 110_2$? Ответ запишите в десятичной системе.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimaryLight}>}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Сколько различных решений имеет уравнение $(x_1 \lor x_2) \land (\neg x_2 \lor x_3) = 1$?\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimaryLight}>}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Дано число $A = 5F_{16}$. Запишите его в восьмеричной системе.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimaryLight}>}~\AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Для скольких целых $x$ от $1$ до $100$ выражение $(x \bmod 3 = 0) \to (x \bmod 5 = 0)$ ложно?\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimaryLight}>}~\AnswerField{5}%
+}
+
+\WorksheetQR{T18-space/L1/v1}
+
+\end{document}

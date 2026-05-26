@@ -1,0 +1,94 @@
+% T29 — «Лабиринт задач»: задачи 1→2→3→4→5 связаны стрелками вниз.
+% Ответ предыдущей нужен для следующей. Math, класс 8.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: тёмно-фиолетовый акцент ---
+\definecolor{wcprimary}{HTML}{4B2A82}
+\definecolor{wcprimaryLight}{HTML}{C6B9E6}
+\definecolor{wcprimaryBG}{HTML}{F4F0FC}
+\definecolor{wcarrow}{HTML}{6E3FD9}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Компактный заголовок ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \node[anchor=west, text=wcprimary, font=\bfseries\fontsize{20pt}{22pt}\selectfont\sffamily]
+      at (0,0) {LABYRINTH};
+    \draw[wcprimary, line width=2pt] (0,-7mm) -- (\linewidth,-7mm);
+    \draw[wcprimaryLight, line width=2pt] (0,-9.5mm) -- (\linewidth,-9.5mm);
+    \node[anchor=west, text=wcprimary, font=\itshape\large]
+      at (0,-13mm) {#1};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% Шаг лабиринта: бокс задачи с номером шага и AnswerField справа.
+\newcommand{\MazeStep}[2]{% #1 номер #2 содержимое
+  \par\noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=1pt, rounded corners=4pt,
+          fill=wcprimaryBG, inner sep=3.5mm,
+          text width=\dimexpr\linewidth-22mm\relax,
+          anchor=north west] (B) at (15mm,0) {#2};
+    % Шаг (номер в круге слева)
+    \draw[wcprimary, line width=1.4pt, fill=white] (5mm,-7mm) circle (5mm);
+    \node[font=\bfseries\large\color{wcprimary}] at (5mm,-7mm) {#1};
+    \node[anchor=north, font=\tiny\sffamily\color{wcprimary!80}]
+      at (5mm,-14mm) {ШАГ};
+  \end{tikzpicture}\par}
+
+% Стрелка вниз между шагами.
+\newcommand{\MazeArrow}{%
+  \par\noindent\begin{tikzpicture}
+    \draw[-stealth, wcarrow, line width=1.6pt]
+      (5mm, 1mm) -- (5mm, -7mm);
+    \node[anchor=west, font=\itshape\small\color{wcarrow}]
+      at (10mm, -3mm) {ответ предыдущей задачи~--- вход в следующую};
+  \end{tikzpicture}\par\vspace{1.5mm}}
+
+\SetAnswerFieldSize{28mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Лабиринт уравнений}
+{\small\itshape\color{wcprimary!85}Класс 8 \quad·\quad T29 \quad·\quad ID: T29-maze-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\MazeStep{1}{%
+  Реши уравнение $3x - 7 = 8$. Получившееся число обозначим $a_1$.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}$a_1=$}~\AnswerField{1}%
+}
+
+\MazeArrow
+
+\MazeStep{2}{%
+  Используя $a_1$ из шага~1, вычисли $a_2 = a_1^2 - 4$.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}$a_2=$}~\AnswerField{2}%
+}
+
+\MazeArrow
+
+\MazeStep{3}{%
+  Найди $a_3$: дискриминант уравнения $x^2 - 5x + a_2 = 0$.
+  (Подставь $a_2$ из шага~2.)\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}$a_3=$}~\AnswerField{3}%
+}
+
+\MazeArrow
+
+\MazeStep{4}{%
+  Из $a_3$ извлеки $\sqrt{a_3}$ и обозначь $a_4 = \sqrt{a_3}$.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}$a_4=$}~\AnswerField{4}%
+}
+
+\MazeArrow
+
+\MazeStep{5}{%
+  Найди финальное число: $a_5 = a_1 + a_4 \cdot 10$.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}$a_5=$}~\AnswerField{5}%
+}
+
+\WorksheetQR{T29-maze/L1/v1}
+
+\end{document}

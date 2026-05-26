@@ -1,0 +1,99 @@
+% T26 — «Морская тематика»: волны в шапке, нумерация в «спасательном круге».
+% Для начальной школы. Math, класс 5, 6 простых задач.
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usepackage{eso-pic}
+
+% --- Палитра: морской синий ---
+\definecolor{wcprimary}{HTML}{0B4F8A}
+\definecolor{wcprimaryLight}{HTML}{8FCDEA}
+\definecolor{wcprimaryBG}{HTML}{E8F4FB}
+\definecolor{wcsand}{HTML}{F2E2B6}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Светло-голубой фон страницы ---
+\AddToShipoutPictureBG{%
+  \AtPageLowerLeft{%
+    \color{wcprimaryBG}\rule{\paperwidth}{\paperheight}}}
+
+% --- Заголовок с волнами ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    % Тёмная полоса-небо
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -18mm);
+    % Волны (синусоида)
+    \draw[wcprimaryLight, line width=1.4pt, domain=0:\linewidth, samples=120, smooth]
+      plot (\x, {-15mm + 1.5mm*sin(\x*30)});
+    \draw[white, line width=0.8pt, domain=0:\linewidth, samples=120, smooth]
+      plot (\x, {-17mm + 1.2mm*sin(\x*30 + 60)});
+    % Солнце-кружок справа
+    \fill[wcsand] ([xshift=-12mm,yshift=-7mm]\linewidth,0) circle (4mm);
+    \node[anchor=west, text=white, font=\bfseries\Large\sffamily]
+      at (4mm, -6mm) {МОРСКАЯ МАТЕМАТИКА};
+    \node[anchor=west, text=wcprimaryLight, font=\bfseries\large\sffamily]
+      at (4mm, -12mm) {#1};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% --- TaskBox: номер в «спасательном круге» (concentric circles) ---
+\renewcommand{\TaskBox}[2]{%
+  \par\noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=1pt, rounded corners=6pt,
+          fill=white, inner sep=4mm,
+          text width=\dimexpr\linewidth-22mm\relax,
+          anchor=north west] (B) at (12mm,0) {#2};
+    % Спасательный круг
+    \draw[wcprimary, line width=1.8pt, fill=white] (5mm, -5mm) circle (5mm);
+    \draw[wcsand, line width=1.4pt] (5mm, -5mm) circle (3.5mm);
+    \node[font=\bfseries\large\color{wcprimary}] at (5mm, -5mm) {#1};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+\SetAnswerFieldSize{32mm}{9mm}
+
+\begin{document}
+
+\WorksheetTitle{Путешествие капитана Игрека}
+{\small\itshape\color{wcprimary!85}Класс 5 \quad·\quad T26 \quad·\quad ID: T26-sea-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  Корабль вышел из порта в $7$ часов утра и прибыл к острову в $11$ часов того же дня.
+  Сколько часов длилось плавание?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  В трюме корабля $48$ ящиков с апельсинами. Их разложили поровну на $6$ полок.
+  Сколько ящиков на каждой полке?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Рыбак поймал $23$ рыбы, а его сын~--- на $8$ рыб меньше.
+  Сколько всего рыб у них в лодке?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Маяк светит каждые $15$ секунд. Сколько раз он мигнёт за $3$ минуты?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  В порту стоят $7$ парусников и $12$ катеров.
+  На сколько катеров больше, чем парусников?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{5}%
+}
+
+\TaskBox{6}{%
+  Капитан проплыл $128$ морских миль за $4$ дня поровну.
+  Сколько миль он проходил за день?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{6}%
+}
+
+\WorksheetQR{T26-sea/L1/v1}
+
+\end{document}

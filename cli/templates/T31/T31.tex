@@ -1,0 +1,129 @@
+% T31 — «Алгоритмы и блок-схемы»: каждая задача = блок-схема + условие.
+% Информатика, класс 9, 4 задачи на трассировку.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usetikzlibrary{shapes.geometric, shapes.misc, arrows.meta, positioning}
+
+% --- Палитра: техно-индиго ---
+\definecolor{wcprimary}{HTML}{1F3A93}
+\definecolor{wcprimaryLight}{HTML}{B9C5E8}
+\definecolor{wcprimaryBG}{HTML}{F0F3FB}
+\definecolor{wcprocess}{HTML}{2D7DD2}
+\definecolor{wcdecision}{HTML}{F18F01}
+\definecolor{wcio}{HTML}{2EB872}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% Стили узлов блок-схемы
+\tikzset{
+  bsstart/.style={rounded rectangle, draw=wcprimary, fill=wcprimaryBG,
+                  line width=0.7pt, minimum width=18mm, minimum height=6mm, font=\small},
+  bsproc/.style ={rectangle, draw=wcprocess, fill=white,
+                  line width=0.7pt, minimum width=24mm, minimum height=6mm, font=\small},
+  bsdec/.style  ={diamond, draw=wcdecision, fill=white,
+                  line width=0.7pt, aspect=2, minimum width=22mm, font=\small},
+  bsio/.style   ={trapezium, trapezium left angle=70, trapezium right angle=110,
+                  draw=wcio, fill=white, line width=0.7pt, font=\small, minimum width=20mm},
+  bsarrow/.style={-stealth, line width=0.8pt, wcprimary!80}}
+
+% --- Заголовок ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -14mm);
+    \node[anchor=west, text=white, font=\bfseries\Large\ttfamily]
+      at (3mm, -5mm) {algorithm.trace()};
+    \node[anchor=west, text=wcprimaryLight, font=\bfseries\large\sffamily]
+      at (3mm, -11mm) {#1};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% TaskBox с блок-схемой
+\renewcommand{\TaskBox}[2]{%
+  \par\noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.8pt, rounded corners=3pt,
+          fill=white, inner sep=3mm,
+          text width=\dimexpr\linewidth-6mm\relax,
+          anchor=north west] (B) at (0,0) {#2};
+    \node[anchor=south west, fill=wcprimary, text=white,
+          rounded corners=1pt, inner xsep=5pt, inner ysep=1.5pt,
+          xshift=1.5pt] at (B.north west)
+      {\scriptsize\bfseries\ttfamily TASK \##1};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+\SetAnswerFieldSize{34mm}{9mm}
+
+\begin{document}
+
+\WorksheetTitle{Трассировка алгоритмов}
+{\small\itshape\color{wcprimary!85}Информатика \quad·\quad Класс 9 \quad·\quad T31 \quad·\quad ID: T31-algo-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  \textbf{Найди значение $s$ после выполнения алгоритма.}\par
+  Вход: $n = 5$.\par
+  \vspace{1.5mm}
+  \centering
+  \begin{tikzpicture}[node distance=4mm]
+    \node[bsstart]                       (n1) {start};
+    \node[bsio,    below=of n1]          (n2) {read $n$};
+    \node[bsproc,  below=of n2]          (n3) {$s := 0,\ i := 1$};
+    \node[bsdec,   below=of n3, yshift=-1mm] (n4) {$i \le n$?};
+    \node[bsproc,  right=12mm of n4]     (n5) {$s := s + i;\ i := i + 1$};
+    \node[bsio,    below=of n4, yshift=-1mm] (n6) {print $s$};
+    \node[bsstart, below=of n6]          (n7) {end};
+    \draw[bsarrow] (n1) -- (n2);
+    \draw[bsarrow] (n2) -- (n3);
+    \draw[bsarrow] (n3) -- (n4);
+    \draw[bsarrow] (n4) -- node[above,font=\scriptsize]{да} (n5);
+    \draw[bsarrow] (n5) |- ([yshift=1mm]n3.east) -- (n3);
+    \draw[bsarrow] (n4) -- node[right,font=\scriptsize]{нет} (n6);
+    \draw[bsarrow] (n6) -- (n7);
+  \end{tikzpicture}\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}$s=$}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  \textbf{Какое значение примет переменная $k$?}\par
+  Вход: $a = 18,\ b = 12$ (алгоритм Евклида).\par
+  \vspace{1.5mm}
+  \centering
+  \begin{tikzpicture}[node distance=4mm]
+    \node[bsstart]                       (m1) {start};
+    \node[bsio,   below=of m1]           (m2) {read $a,b$};
+    \node[bsdec,  below=of m2, yshift=-1mm] (m3) {$a \ne b$?};
+    \node[bsdec,  right=10mm of m3]      (m4) {$a > b$?};
+    \node[bsproc, above right=2mm and 8mm of m4] (m5) {$a := a-b$};
+    \node[bsproc, below right=2mm and 8mm of m4] (m6) {$b := b-a$};
+    \node[bsproc, below=of m3, yshift=-1mm] (m7) {$k := a$};
+    \node[bsio,   below=of m7]           (m8) {print $k$};
+    \draw[bsarrow] (m1) -- (m2);
+    \draw[bsarrow] (m2) -- (m3);
+    \draw[bsarrow] (m3) -- node[above,font=\scriptsize]{да}(m4);
+    \draw[bsarrow] (m4) -- node[above,font=\scriptsize]{да}(m5);
+    \draw[bsarrow] (m4) -- node[below,font=\scriptsize]{нет}(m6);
+    \draw[bsarrow] (m5) -| ([xshift=8mm]m3.north) -- (m3);
+    \draw[bsarrow] (m6) -| ([xshift=8mm]m3.north) -- (m3);
+    \draw[bsarrow] (m3) -- node[right,font=\scriptsize]{нет}(m7);
+    \draw[bsarrow] (m7) -- (m8);
+  \end{tikzpicture}\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}$k=$}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  \textbf{Сколько раз выведется слово ``HELLO''?}\par
+  $i$ перебирает значения от $1$ до $20$, печать срабатывает только если $i$~--- чётное и $i$ делится на $3$.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  \textbf{Что будет в массиве $A$ после прохода?}\par
+  $A[1..5] = [3, 1, 4, 1, 5]$. Цикл $i=2..5$: $A[i] := A[i] + A[i-1]$.
+  Выпиши $A[5]$.\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}$A[5]=$}~\AnswerField{4}%
+}
+
+\WorksheetQR{T31-algo/L1/v1}
+
+\end{document}

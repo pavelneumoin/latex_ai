@@ -1,0 +1,102 @@
+% T27 — «Лес/природа»: зелёная гамма, листики-маркеры, кремовый фон.
+% Math, класс 6, 6 задач (дроби и проценты).
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\usepackage{eso-pic}
+
+% --- Палитра: лесной зелёный + кремовый ---
+\definecolor{wcprimary}{HTML}{2F6E3F}
+\definecolor{wcprimaryLight}{HTML}{B8D9B8}
+\definecolor{wcprimaryBG}{HTML}{FBF6E7}
+\definecolor{wcleaf}{HTML}{6CA86B}
+\definecolor{wcbark}{HTML}{8B6A4A}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Кремовый фон страницы ---
+\AddToShipoutPictureBG{%
+  \AtPageLowerLeft{%
+    \color{wcprimaryBG}\rule{\paperwidth}{\paperheight}}}
+
+% --- Заголовок с листиками ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    % Зелёная полоса
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -16mm);
+    % Листики справа (овальные)
+    \begin{scope}[shift={([xshift=-22mm,yshift=-8mm]\linewidth,0)}]
+      \fill[wcleaf, rotate=-25] (0,0) ellipse (5mm and 2.2mm);
+      \fill[wcleaf!85, rotate=20]  (3mm,1mm) ellipse (4mm and 1.8mm);
+      \fill[wcleaf!70, rotate=-5]  (6mm,-1mm) ellipse (4.5mm and 2mm);
+    \end{scope}
+    \node[anchor=west, text=white, font=\bfseries\Large\sffamily]
+      at (4mm, -5mm) {ЛЕСНАЯ МАТЕМАТИКА};
+    \node[anchor=west, text=wcprimaryLight, font=\bfseries\large\sffamily]
+      at (4mm, -11mm) {#1};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+% --- TaskBox: листик-маркер с номером ---
+\renewcommand{\TaskBox}[2]{%
+  \par\noindent\begin{tikzpicture}
+    \node[draw=wcleaf, line width=0.9pt, rounded corners=5pt,
+          fill=white, inner sep=3.5mm,
+          text width=\dimexpr\linewidth-18mm\relax,
+          anchor=north west] (B) at (10mm,0) {#2};
+    % Листик
+    \fill[wcleaf, rotate around={-20:(4mm,-4mm)}]
+      (4mm,-4mm) ellipse (5mm and 3mm);
+    \draw[wcprimary, line width=0.8pt, rotate around={-20:(4mm,-4mm)}]
+      (-1mm,-4mm) -- (9mm,-4mm);
+    \node[font=\bfseries\color{white}] at (4mm,-4mm) {#1};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+\SetAnswerFieldSize{30mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Дроби и проценты в лесу}
+{\small\itshape\color{wcprimary!85}Класс 6 \quad·\quad T27 \quad·\quad ID: T27-forest-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  В лесу растёт $120$ деревьев. $\dfrac{1}{4}$ из них~--- ели.
+  Сколько в лесу елей?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Белка собрала $80$ орехов. $25\%$ из них она спрятала в дупло.
+  Сколько орехов она спрятала?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Ёжик прошёл $\dfrac{2}{5}$ пути за час. Весь путь~--- $25$~км.
+  Сколько километров он прошёл?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  В кленовом букете $40$ листьев. $30\%$ из них~--- красные, остальные~--- жёлтые.
+  Сколько жёлтых листьев?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Лесник посадил $\dfrac{3}{8}$ от $480$ саженцев в первый день.
+  Сколько саженцев он посадил?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{5}%
+}
+
+\TaskBox{6}{%
+  В заповеднике $50$ лосей. После расселения их стало на $20\%$ больше.
+  Сколько лосей стало в заповеднике?\par
+  \vspace{1.5mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{6}%
+}
+
+\WorksheetQR{T27-forest/L1/v1}
+
+\end{document}

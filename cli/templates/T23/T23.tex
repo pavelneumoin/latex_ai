@@ -1,0 +1,135 @@
+% T23 — «Python»: блок кода с тёмно-синим фоном и подсветкой, светлая зона для условия.
+% Профиль: информатика 11 класс, 5 задач (ЕГЭ задание 17/19).
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: тёмно-синий код + индиго акцент ---
+\definecolor{wcprimary}{HTML}{3730A3}
+\definecolor{wcprimaryLight}{HTML}{C7D2FE}
+\definecolor{wcprimaryBG}{HTML}{EEF2FF}
+\definecolor{codebg}{HTML}{1E1B4B}
+\definecolor{codefg}{HTML}{E0E7FF}
+\definecolor{codekw}{HTML}{F472B6}      % розовый: ключевые слова
+\definecolor{codenum}{HTML}{FBBF24}     % жёлтый: числа
+\definecolor{codestr}{HTML}{34D399}     % зелёный: строки
+\definecolor{codecmt}{HTML}{94A3B8}     % серый: комментарии
+\definecolor{codeline}{HTML}{4338CA}    % акцент: номера строк
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\geometry{a4paper, top=15mm, bottom=15mm, left=14mm, right=14mm}
+
+% --- Хелперы для подсветки ---
+\newcommand{\kw}[1]{\textcolor{codekw}{\bfseries #1}}
+\newcommand{\num}[1]{\textcolor{codenum}{#1}}
+\newcommand{\str}[1]{\textcolor{codestr}{#1}}
+\newcommand{\cmt}[1]{\textcolor{codecmt}{\textit{#1}}}
+
+% --- Заголовок: «IDE-стиль» с табами файлов ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \fill[codebg] (0,0) rectangle (\linewidth, -16mm);
+    % три точки macOS
+    \fill[red!70]    (4mm, -3mm) circle (1.2mm);
+    \fill[yellow!80] (8mm, -3mm) circle (1.2mm);
+    \fill[green!70]  (12mm, -3mm) circle (1.2mm);
+    % таб
+    \fill[wcprimary] (18mm, -1mm) rectangle (50mm, -6mm);
+    \node[anchor=west, text=white, font=\ttfamily\footnotesize]
+      at (19mm, -3.5mm) {worksheet.py};
+    % заголовок
+    \node[anchor=west, text=white, font=\sffamily\bfseries\fontsize{15pt}{18pt}\selectfont]
+      at (4mm, -11mm) {#1};
+    \node[anchor=east, text=codecmt, font=\ttfamily\footnotesize]
+      at ([xshift=-4mm]\linewidth, -11mm) {Python 3.11 ·\ 5 заданий};
+  \end{tikzpicture}\par\vspace{4mm}}
+
+% --- Кодовый блок: тёмный фон, моноширинный текст ---
+\newcommand{\CodeBlock}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \node[fill=codebg, text=codefg, font=\ttfamily\footnotesize,
+          inner xsep=4mm, inner ysep=3mm,
+          text width=\dimexpr\linewidth-8mm\relax,
+          rounded corners=3pt, anchor=north west]
+      at (0,0) {#1};
+  \end{tikzpicture}\par}
+
+% --- TaskBox: светлая зона для условия + индиго ярлык ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\vspace{2mm}\noindent\begin{tikzpicture}
+    \node[fill=wcprimary, text=white, font=\sffamily\bfseries\footnotesize,
+          rounded corners=2pt, inner xsep=4mm, inner ysep=1mm, anchor=west] (L) at (0,0)
+      {def\ task\_#1():};
+  \end{tikzpicture}\par\vspace{1mm}
+  \noindent\begin{tikzpicture}
+    \node[fill=wcprimaryBG, draw=wcprimaryLight, line width=0.4pt,
+          rounded corners=4pt, inner xsep=4mm, inner ysep=3mm,
+          text width=\dimexpr\linewidth-8mm\relax,
+          anchor=north west] (B) at (0,0)
+      {\small #2};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+\SetAnswerFieldSize{34mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Алгоритмы и Python}
+\par\noindent{\sffamily\small\color{wcprimary}\#\ ЕГЭ задание 17/19 \quad·\quad класс 11 \quad·\quad T23 \quad·\quad id=T23-python-2026-05-27}\par\vspace{3mm}
+\FirstPageHeader
+
+\TaskBox{1}{%
+\textbf{Что выведет программа?}
+\CodeBlock{%
+\kw{def}\ f(n):\\
+\ \ \ \ \kw{if}\ n\ <\ \num{2}:\\
+\ \ \ \ \ \ \ \ \kw{return}\ \num{1}\\
+\ \ \ \ \kw{return}\ n\ *\ f(n\ -\ \num{1})\\
+\\
+\kw{print}(f(\num{5}))\ \ \cmt{\#\ что выведет?}}\par
+\vspace{2mm}\hfill\textbf{Ответ:}\ \AnswerField{1}}
+
+\TaskBox{2}{%
+\textbf{Сколько раз выполнится тело цикла?}
+\CodeBlock{%
+s = \num{0}\\
+\kw{for}\ i\ \kw{in}\ \kw{range}(\num{1}, \num{50}):\\
+\ \ \ \ \kw{if}\ i\ \%\ \num{3}\ ==\ \num{0}:\\
+\ \ \ \ \ \ \ \ s\ +=\ \num{1}\\
+\kw{print}(s)}\par
+\vspace{2mm}\hfill\textbf{Ответ:}\ \AnswerField{2}}
+
+\TaskBox{3}{%
+\textbf{Найдите наименьшее $n$, при котором $f(n) > 1000$:}
+\CodeBlock{%
+\kw{def}\ f(n):\\
+\ \ \ \ \kw{if}\ n\ ==\ \num{0}:\\
+\ \ \ \ \ \ \ \ \kw{return}\ \num{1}\\
+\ \ \ \ \kw{return}\ f(n\ -\ \num{1})\ *\ \num{2}\ +\ \num{1}}\par
+\vspace{2mm}\hfill\textbf{Ответ:}\ \AnswerField{3}}
+
+\TaskBox{4}{%
+\textbf{Сколько различных значений примет переменная} \texttt{x}?
+\CodeBlock{%
+\kw{from}\ itertools\ \kw{import}\ product\\
+result\ =\ \kw{set}()\\
+\kw{for}\ a, b, c\ \kw{in}\ product([\num{1},\num{2},\num{3}], repeat=\num{3}):\\
+\ \ \ \ x\ =\ a + b * c\\
+\ \ \ \ result.add(x)\\
+\kw{print}(\kw{len}(result))}\par
+\vspace{2mm}\hfill\textbf{Ответ:}\ \AnswerField{4}}
+
+\TaskBox{5}{%
+\textbf{Что выведет программа?} (Рекурсивный обход)
+\CodeBlock{%
+\kw{def}\ g(n):\\
+\ \ \ \ \kw{if}\ n\ <\ \num{1}: \kw{return}\ \str{""}\\
+\ \ \ \ \kw{return}\ g(n // \num{2})\ +\ \kw{str}(n \% \num{2})\\
+\\
+\kw{print}(g(\num{45}))}\par
+\vspace{2mm}\hfill\textbf{Ответ:}\ \AnswerField{5}}
+
+\WorksheetQR{T23-python/L1/v1}
+
+\end{document}

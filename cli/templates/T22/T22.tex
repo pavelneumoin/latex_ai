@@ -1,0 +1,91 @@
+% T22 — «Устный счёт 5×5»: плотная сетка 25 микро-карточек, бирюзовый фон, sans.
+% Профиль: математика 5-6 класс, 25 задач.
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: бирюзово-голубой ---
+\definecolor{wcprimary}{HTML}{0E7490}
+\definecolor{wcprimaryLight}{HTML}{A5F3FC}
+\definecolor{wcprimaryBG}{HTML}{ECFEFF}
+\definecolor{mentalcard}{HTML}{CFFAFE}
+\definecolor{mentalcardalt}{HTML}{E0F7FA}
+\definecolor{mentaldeep}{HTML}{155E75}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\geometry{a4paper, top=13mm, bottom=13mm, left=10mm, right=10mm}
+
+% --- Заголовок: компактный, со счётчиком 25 ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \node[fill=wcprimary, rounded corners=6pt, text=white,
+          inner xsep=6mm, inner ysep=3mm,
+          text width=\dimexpr\linewidth-12mm\relax,
+          font=\sffamily, anchor=north west] (T) at (0,0) {%
+      {\fontsize{16pt}{18pt}\selectfont\bfseries#1}\hfill
+      {\fontsize{22pt}{22pt}\selectfont\bfseries 25}\par
+      \vspace{0.5mm}{\fontsize{10pt}{12pt}\selectfont\color{wcprimaryLight}Устный счёт ·\ без калькулятора}};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+% --- Микро-карточка: одна строка-выражение + крошечный AnswerField ---
+\SetAnswerFieldSize{14mm}{5mm}
+
+\newcommand{\MentalCard}[3]{% #1 = N, #2 = bg color, #3 = expression
+  \begin{tikzpicture}
+    \node[fill=#2, rounded corners=4pt,
+          minimum width=35mm, minimum height=20mm,
+          inner xsep=2mm, inner ysep=1.5mm,
+          anchor=north west, align=center,
+          font=\sffamily] (C) at (0,0) {%
+      {\tiny\color{mentaldeep}\##1}\par
+      \vspace{0.3mm}{\bfseries\small\color{mentaldeep}#3}\par
+      \vspace{0.8mm}};
+    \node[anchor=south, yshift=1.5mm] at (C.south) {\AnswerField{#1}};
+  \end{tikzpicture}}
+
+% --- Старый TaskBox оставляем no-op, чтобы трекинг не падал ---
+\renewcommand{\TaskBox}[2]{}
+
+\begin{document}
+
+\WorksheetTitle{Устный счёт. Дроби и проценты}
+\par\noindent{\sffamily\small\color{mentaldeep}Класс 5–6 \quad·\quad T22 \quad·\quad ID: T22-mental5x5-2026-05-27}\par\vspace{2mm}
+\FirstPageHeader
+
+\noindent
+\begin{tabular}{@{}c@{\hspace{1.2mm}}c@{\hspace{1.2mm}}c@{\hspace{1.2mm}}c@{\hspace{1.2mm}}c@{}}
+\MentalCard{1}{mentalcard}{$7 \times 8 = $} &
+\MentalCard{2}{mentalcardalt}{$56 : 7 = $} &
+\MentalCard{3}{mentalcard}{$15 + 27 = $} &
+\MentalCard{4}{mentalcardalt}{$\tfrac{1}{2} + \tfrac{1}{4} = $} &
+\MentalCard{5}{mentalcard}{$100 - 38 = $} \\[1.5mm]
+\MentalCard{6}{mentalcardalt}{$9 \times 6 = $} &
+\MentalCard{7}{mentalcard}{$72 : 8 = $} &
+\MentalCard{8}{mentalcardalt}{$\tfrac{2}{3} \cdot 9 = $} &
+\MentalCard{9}{mentalcard}{$10\%$ от $60$} &
+\MentalCard{10}{mentalcardalt}{$25 + 49 = $} \\[1.5mm]
+\MentalCard{11}{mentalcard}{$8 \times 7 = $} &
+\MentalCard{12}{mentalcardalt}{$144 : 12 = $} &
+\MentalCard{13}{mentalcard}{$\tfrac{3}{5} \cdot 10 = $} &
+\MentalCard{14}{mentalcardalt}{$50\%$ от $84$} &
+\MentalCard{15}{mentalcard}{$200 - 67 = $} \\[1.5mm]
+\MentalCard{16}{mentalcardalt}{$11 \times 11 = $} &
+\MentalCard{17}{mentalcard}{$81 : 9 = $} &
+\MentalCard{18}{mentalcardalt}{$\tfrac{3}{4} - \tfrac{1}{2} = $} &
+\MentalCard{19}{mentalcard}{$0{,}2 \cdot 50 = $} &
+\MentalCard{20}{mentalcardalt}{$45 + 38 = $} \\[1.5mm]
+\MentalCard{21}{mentalcard}{$12 \times 9 = $} &
+\MentalCard{22}{mentalcardalt}{$96 : 8 = $} &
+\MentalCard{23}{mentalcard}{$\tfrac{5}{6} - \tfrac{1}{3} = $} &
+\MentalCard{24}{mentalcardalt}{$20\%$ от $150$} &
+\MentalCard{25}{mentalcard}{$1000 - 273 = $} \\
+\end{tabular}
+
+\vspace{4mm}
+\noindent{\sffamily\footnotesize\color{mentaldeep}\textbf{Норматив:} \textit{отлично} — 25 верных за 5 мин · \textit{хорошо} — 20 верных за 7 мин.}
+
+\WorksheetQR{T22-mental5x5/L1/v1}
+
+\end{document}

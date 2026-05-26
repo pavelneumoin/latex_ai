@@ -1,0 +1,109 @@
+% T32 — «Финал года»: официальная итоговая работа, синяя шапка с гербом,
+% части А (тест) и Б (задачи), нумерация А1, А2, Б1. Math, класс 9.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: официальный тёмно-синий + золото ---
+\definecolor{wcprimary}{HTML}{0E2A56}
+\definecolor{wcprimaryLight}{HTML}{B5C3DD}
+\definecolor{wcprimaryBG}{HTML}{F2F4FA}
+\definecolor{wcgold}{HTML}{C9A227}
+
+% Шрифт оставляем serif (Times) для официальности
+
+% --- Заголовок с гербом-щитом ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{tikzpicture}
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -22mm);
+    % Тонкая золотая полоса
+    \fill[wcgold] (0,-22mm) rectangle (\linewidth, -23mm);
+    % Щит-герб (упрощённый)
+    \begin{scope}[shift={(15mm, -11mm)}, scale=0.6]
+      \fill[wcgold] (0,0) -- (4mm, 0) -- (4mm, -5mm) .. controls (4mm,-9mm) and (0,-10mm) .. (0,-12mm) -- cycle;
+      \fill[wcgold] (0,0) -- (-4mm,0) -- (-4mm,-5mm) .. controls (-4mm,-9mm) and (0,-10mm) .. (0,-12mm) -- cycle;
+      \draw[white, line width=0.5pt] (0,0) -- (0,-12mm);
+      % Звезда внутри
+      \foreach \a in {90, 162, 234, 306, 18}
+        \fill[wcprimary] (\a:1.5mm) -- (\a+36:0.6mm) -- (\a-36:0.6mm) -- cycle;
+    \end{scope}
+    \node[anchor=west, text=white, font=\bfseries\Large]
+      at (25mm, -7mm) {ИТОГОВАЯ РАБОТА};
+    \node[anchor=west, text=wcgold, font=\bfseries]
+      at (25mm, -13mm) {за учебный год};
+    \node[anchor=west, text=wcprimaryLight, font=\itshape]
+      at (25mm, -18mm) {#1};
+  \end{tikzpicture}\par\vspace{5mm}}
+
+% Разделитель частей
+\newcommand{\PartBanner}[2]{% #1=буква, #2=название
+  \par\vspace{4mm}\noindent\begin{tikzpicture}
+    \fill[wcprimary] (0,0) rectangle (\linewidth, -8mm);
+    \fill[wcgold] (0,-8mm) rectangle (\linewidth,-8.6mm);
+    \node[anchor=west, text=wcgold, font=\bfseries\Large]
+      at (3mm, -4mm) {ЧАСТЬ\,#1};
+    \node[anchor=west, text=white, font=\bfseries]
+      at (28mm, -4mm) {#2};
+  \end{tikzpicture}\par\vspace{3mm}}
+
+% TaskBox с префиксом-буквой части (А1, А2, Б1, ...)
+\newcommand{\ExamTask}[3]{% #1 префикс (А или Б) #2 номер #3 содержимое
+  \par\noindent\begin{tikzpicture}
+    \node[draw=wcprimary, line width=0.7pt, rounded corners=2pt,
+          fill=white, inner sep=3mm,
+          text width=\dimexpr\linewidth-6mm\relax,
+          anchor=north west] (B) at (0,0) {#3};
+    \node[anchor=south west, fill=wcgold, text=wcprimary,
+          rounded corners=1pt, inner xsep=5pt, inner ysep=2pt,
+          xshift=1.5pt] at (B.north west)
+      {\scriptsize\bfseries Задание #1#2};
+  \end{tikzpicture}\par\vspace{2.5mm}}
+
+\SetAnswerFieldSize{30mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Математика. 9 класс}
+{\small\itshape\color{wcprimary!85}T32 \quad·\quad ID: T32-final-2026-05-27 \quad·\quad на выполнение~--- 90 минут}\par\vspace{2mm}
+\FirstPageHeader
+
+\PartBanner{А}{краткий ответ}
+
+\ExamTask{А}{1}{%
+  Найдите значение выражения $\dfrac{2{,}8 \cdot 1{,}5}{0{,}7}$.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{1}%
+}
+
+\ExamTask{А}{2}{%
+  Решите уравнение $x^2 - 9x + 14 = 0$. В ответе укажите больший корень.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{2}%
+}
+
+\ExamTask{А}{3}{%
+  В арифметической прогрессии $a_1 = 7$, $d = 4$. Найдите $a_{12}$.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{3}%
+}
+
+\ExamTask{А}{4}{%
+  Найдите площадь прямоугольного треугольника с катетами $8$~см и $15$~см.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{4}%
+}
+
+\PartBanner{Б}{задачи с подробным решением}
+
+\ExamTask{Б}{1}{%
+  Велосипедист проехал из пункта~А в пункт~Б за $4$ часа, а обратно~--- за $5$ часов,
+  так как скорость уменьшилась на $3$~км/ч. Найдите расстояние между~А и~Б.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimary}Ответ (км):}~\AnswerField{5}%
+}
+
+\ExamTask{Б}{2}{%
+  В прямоугольном треугольнике гипотенуза равна $25$, а один из катетов равен $7$.
+  Найдите площадь треугольника.\par
+  \vspace{1mm}\hfill\textbf{\color{wcprimary}Ответ:}~\AnswerField{6}%
+}
+
+\WorksheetQR{T32-final/L1/v1}
+
+\end{document}

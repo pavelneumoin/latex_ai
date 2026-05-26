@@ -1,0 +1,79 @@
+% T17 — «Ретро-машинка»: моноширинный ВСЁ, ч/б, заголовок ALL CAPS, нумерация (N).
+% Профиль: математика 9 класс, 6 задач, 1 кол.
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+% --- Палитра: только чёрный, без цвета ---
+\definecolor{wcprimary}{HTML}{000000}
+\definecolor{wcprimaryLight}{HTML}{000000}
+\definecolor{wcprimaryBG}{HTML}{FFFFFF}
+\definecolor{retrofade}{HTML}{4A4A4A}
+
+% --- Поля ---
+\geometry{a4paper, top=20mm, bottom=20mm, left=22mm, right=22mm}
+
+% --- Моноширинный шрифт глобально (Courier New / cmtt) ---
+\renewcommand{\familydefault}{\ttdefault}
+\linespread{1.25}
+
+% --- Заголовок: ALL CAPS, разрядка, тройная подчёркивающая линия ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent\begin{center}
+    {\ttfamily\bfseries\fontsize{16pt}{20pt}\selectfont
+     \MakeUppercase{#1}}\par
+    \vspace{1.5mm}
+    \rule{\linewidth}{0.8pt}\\[0.6mm]
+    \rule{\linewidth}{0.3pt}\\[0.6mm]
+    \rule{\linewidth}{0.8pt}
+  \end{center}\par\vspace{4mm}}
+
+% --- TaskBox: ( N )<TAB>содержимое, тонкое подчёркивание ---
+\renewcommand{\TaskBox}[2]{%
+  \par\nopagebreak\noindent
+  {\ttfamily\bfseries(\,#1\,)}\quad #2\par
+  \vspace{1.5mm}{\color{retrofade}\hbox to \linewidth{\leaders\hbox to 2.5mm{\hss.\hss}\hfill}}\par
+  \vspace{3mm}}
+
+\SetAnswerFieldSize{32mm}{8mm}
+
+\begin{document}
+
+\WorksheetTitle{Контрольная работа \No 4}
+\par\noindent{\ttfamily\small\textsc{ШКОЛА \No 1234} \quad ·\quad КЛАСС 9 \quad ·\quad T17 \quad ·\quad ID: T17-retro-2026-05-27}\par\vspace{3mm}
+\FirstPageHeader
+
+\TaskBox{1}{%
+  Упростите выражение $\dfrac{a^2 - 9}{a + 3} - a$. В ответе укажите число.\par
+  \vspace{1mm}\hfill{\ttfamily ОТВЕТ:}\ \AnswerField{1}%
+}
+
+\TaskBox{2}{%
+  Найдите корни квадратного уравнения $x^2 - 7x + 12 = 0$. В ответе запишите больший.\par
+  \vspace{1mm}\hfill{\ttfamily ОТВЕТ:}\ \AnswerField{2}%
+}
+
+\TaskBox{3}{%
+  Решите систему: $\begin{cases} x + 2y = 10 \\ 3x - y = 9 \end{cases}$. В ответе запишите значение $x$.\par
+  \vspace{1mm}\hfill{\ttfamily ОТВЕТ:}\ \AnswerField{3}%
+}
+
+\TaskBox{4}{%
+  Арифметическая прогрессия: $a_1 = 3$, $d = 5$. Найдите $a_{20}$.\par
+  \vspace{1mm}\hfill{\ttfamily ОТВЕТ:}\ \AnswerField{4}%
+}
+
+\TaskBox{5}{%
+  Найдите значение выражения $\sqrt{45} \cdot \sqrt{20}$.\par
+  \vspace{1mm}\hfill{\ttfamily ОТВЕТ:}\ \AnswerField{5}%
+}
+
+\TaskBox{6}{%
+  Решите неравенство $x^2 - 5x + 6 \leqslant 0$. Запишите количество целых решений.\par
+  \vspace{1mm}\hfill{\ttfamily ОТВЕТ:}\ \AnswerField{6}%
+}
+
+\WorksheetQR{T17-retro/L1/v1}
+
+\end{document}

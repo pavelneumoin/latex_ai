@@ -1,0 +1,116 @@
+% T33 — «Письмо ученику»: стилизация под рукописное письмо.
+% Засечный italic, без рамок, задачи как «Пункт 1.», «Пункт 2.». Math, класс 11.
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{../../../../Lessons/_templates/preamble_worksheet}
+\usepackage{../_shared/worksheet_check}
+
+\geometry{a4paper, margin=22mm}
+
+\usepackage{eso-pic}
+
+% --- Палитра: чернильный синий + кремовая бумага ---
+\definecolor{wcprimary}{HTML}{1B2D5C}
+\definecolor{wcprimaryLight}{HTML}{C1C8DC}
+\definecolor{wcprimaryBG}{HTML}{FBF7EE}
+\definecolor{wcink}{HTML}{2A3D6D}
+
+% Шрифт оставим Times (засечки)
+
+% --- Кремовый фон ---
+\AddToShipoutPictureBG{%
+  \AtPageLowerLeft{%
+    \color{wcprimaryBG}\rule{\paperwidth}{\paperheight}}}
+
+% --- Минимальный заголовок: только подпись и дата ---
+\renewcommand{\WorksheetTitle}[1]{%
+  \par\noindent
+  {\Large\itshape\color{wcink} #1}\par
+  \vspace{1mm}
+  {\color{wcink}\rule{30mm}{0.4pt}}\par
+  \vspace{4mm}}
+
+% Пункт письма
+\newcommand{\LetterPara}[2]{% #1 номер #2 содержание
+  \par\vspace{2mm}
+  \noindent
+  \textbf{\itshape\color{wcink}Пункт #1.}\ #2
+  \par}
+
+\SetAnswerFieldSize{36mm}{8mm}
+
+% Переопределим FirstPageHeader, чтобы без рамки
+\renewcommand{\FirstPageHeader}{%
+  \par\noindent
+  {\itshape\color{wcink}\rule{0pt}{4mm}Москва, \today}\hfill
+  {\itshape\color{wcink}кому: \underline{\hspace{50mm}}}\par
+  \vspace{4mm}}
+
+% QR без рамок будет сам по себе
+
+\begin{document}
+
+\WorksheetTitle{Дорогой ученик!}
+\FirstPageHeader
+
+\noindent
+\itshape
+Сегодня я хочу поделиться с тобой пятью задачами, которые помогут вспомнить
+самое важное из курса алгебры и начала анализа. Не торопись~--- читай,
+размышляй, и пусть каждый пункт станет небольшим открытием.\par
+\upshape
+\vspace{2mm}
+
+\LetterPara{1}{%
+  \itshape
+  Вспомни производную. Найди $f'(x)$, если $f(x) = x^3 - 6x^2 + 9x + 2$,
+  и определи, при каком целом $x$ функция достигает локального максимума.\par
+  \upshape\vspace{1mm}
+  \hfill\textbf{\color{wcink}Ответ:}~\AnswerField{1}%
+}
+
+\LetterPara{2}{%
+  \itshape
+  Логарифмы~--- это просто, если помнить их свойства. Реши уравнение
+  $\log_2(x-1) + \log_2(x+3) = 5$. Подумай, какое из решений подходит по~ОДЗ.\par
+  \upshape\vspace{1mm}
+  \hfill\textbf{\color{wcink}Ответ:}~\AnswerField{2}%
+}
+
+\LetterPara{3}{%
+  \itshape
+  Тригонометрия. Найди наибольшее значение функции $y = 4\sin x - 3\cos x$.
+  Помни про вспомогательный угол.\par
+  \upshape\vspace{1mm}
+  \hfill\textbf{\color{wcink}Ответ:}~\AnswerField{3}%
+}
+
+\LetterPara{4}{%
+  \itshape
+  Геометрическая задача, которая ждёт твоего внимания: в правильной
+  четырёхугольной пирамиде сторона основания равна $6$, а высота равна $4$.
+  Найди объём пирамиды.\par
+  \upshape\vspace{1mm}
+  \hfill\textbf{\color{wcink}Ответ:}~\AnswerField{4}%
+}
+
+\LetterPara{5}{%
+  \itshape
+  И напоследок~--- задача с параметром. При каком значении $a$ уравнение
+  $x^2 - 2ax + a + 6 = 0$ имеет ровно один корень? Запиши их сумму.\par
+  \upshape\vspace{1mm}
+  \hfill\textbf{\color{wcink}Ответ:}~\AnswerField{5}%
+}
+
+\vspace{4mm}
+\noindent
+\itshape
+Удачи тебе! Помни: математика не наказание, а способ навести порядок в мыслях.\par
+\vspace{2mm}
+\hfill {\itshape\color{wcink}Твой учитель.}
+\upshape
+\par
+
+\WorksheetQR{T33-letter/L1/v1}
+
+\end{document}

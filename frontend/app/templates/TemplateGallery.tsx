@@ -165,55 +165,71 @@ export function TemplateGallery({ templates }: { templates: Template[] }) {
 
 function TemplateCard({ template }: { template: Template }) {
   const palette = STYLE_PALETTE[template.style] ?? STYLE_PALETTE.classic_wildcat_purple;
-  const isDark = palette.bg && palette.bg.startsWith("#0");
   return (
     <div
-      className="card"
+      className="card template-card"
       style={{
         padding: 0,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
       }}
     >
-      {/* Mini-превью: имитация шапки листа в стиле шаблона */}
+      {/* Реальное PDF-превью шаблона (сгенерировано через xelatex) */}
       <div
         style={{
-          padding: 18,
-          background: palette.bg || "var(--surface)",
-          borderBottom: `3px solid ${palette.primary}`,
-          minHeight: 90,
-          color: isDark ? "#fff" : "var(--fg)",
           position: "relative",
+          background: "#f5f5f7",
+          borderBottom: `3px solid ${palette.primary}`,
+          overflow: "hidden",
+          aspectRatio: "210 / 297",
+          maxHeight: 380,
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`/templates/${template.id}.png`}
+          alt={`Превью шаблона ${template.id}: ${template.name}`}
+          loading="lazy"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "top center",
+            display: "block",
+          }}
+        />
         <div
           style={{
-            display: "inline-block",
+            position: "absolute",
+            top: 8,
+            left: 8,
             padding: "2px 8px",
             borderRadius: 4,
             background: palette.primary,
             color: "#fff",
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: 600,
-            marginBottom: 8,
+            letterSpacing: "0.02em",
           }}
         >
           {template.id}
-        </div>
-        <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>
-          {template.name}
         </div>
         {palette.label && (
           <div
             style={{
               position: "absolute",
-              top: 14,
-              right: 14,
+              top: 8,
+              right: 8,
+              padding: "2px 8px",
+              borderRadius: 4,
+              background: "rgba(255,255,255,0.92)",
+              color: palette.primary,
               fontSize: 10,
-              color: isDark ? "rgba(255,255,255,0.6)" : "var(--fg-3)",
+              fontWeight: 600,
               textTransform: "uppercase",
-              letterSpacing: "0.05em",
+              letterSpacing: "0.06em",
             }}
           >
             {palette.label}
@@ -221,7 +237,10 @@ function TemplateCard({ template }: { template: Template }) {
         )}
       </div>
       <div style={{ padding: 14, flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-        <div style={{ fontSize: 12, color: "var(--fg-3)", lineHeight: 1.45, minHeight: 50 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>
+          {template.name}
+        </div>
+        <div style={{ fontSize: 12, color: "var(--fg-3)", lineHeight: 1.45 }}>
           {template.description}
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 4 }}>

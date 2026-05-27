@@ -43,8 +43,11 @@ export default function Landing() {
           </span>
         </div>
         <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <Link href="/catalog" style={{ color: "var(--fg-2)", textDecoration: "none", fontSize: 14 }}>
-            Каталог
+          <Link href="/templates" style={{ color: "var(--fg-2)", textDecoration: "none", fontSize: 14 }}>
+            Шаблоны
+          </Link>
+          <Link href="/check" style={{ color: "var(--fg-2)", textDecoration: "none", fontSize: 14 }}>
+            Проверка
           </Link>
           <Link href="/login" style={{ color: "var(--fg-2)", textDecoration: "none", fontSize: 14 }}>
             Войти
@@ -107,8 +110,9 @@ export default function Landing() {
               marginBottom: 32,
             }}
           >
-            Опиши тему — нейросеть соберёт задачи, оформит, добавит твоё лого. Скачай готовый PDF. Раздай детям.
-            После урока — загрузи фото работ и получи проверку по ответам.
+            Опиши тему — нейросеть GigaChat соберёт задачи. Или возьми готовые из банка ФИПИ
+            (8500+ задач ЕГЭ/ОГЭ). 35 стилей оформления, твоё лого, водяной знак.
+            После урока — оценка ученикам по таблице ответов автоматически.
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Link
@@ -130,7 +134,7 @@ export default function Landing() {
               Создать лист →
             </Link>
             <Link
-              href="/catalog"
+              href="/templates"
               style={{
                 background: "var(--bg)",
                 color: "var(--fg)",
@@ -142,12 +146,12 @@ export default function Landing() {
                 border: "1px solid var(--border-2)",
               }}
             >
-              Посмотреть пример
+              Посмотреть 35 шаблонов →
             </Link>
           </div>
 
           <p style={{ marginTop: 28, color: "var(--fg-3)", fontSize: 14 }}>
-            Бесплатно во время бета-теста · 5 шаблонов · QR на VK · автопроверка
+            Бесплатно в бете · 35 стилей PDF/DOCX · 8500+ задач ФИПИ · оценка 2–5 за 5 секунд
           </p>
         </div>
 
@@ -217,9 +221,9 @@ export default function Landing() {
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
             {[
-              { n: 1, t: "Опиши тему", d: "«Производная сложной функции, 11 класс, 12 задач. С теорией и клеткой»." },
-              { n: 2, t: "Выбери опции", d: "Теория с пропусками, клетчатое поле, ответы отдельно, своё лого." },
-              { n: 3, t: "Скачай PDF", d: "Готовый рабочий лист — печатай и раздавай. После — загрузи фото на проверку." },
+              { n: 1, t: "Опиши тему или возьми банк", d: "GigaChat сгенерирует задачи по теме. Или выбери задание из банка ФИПИ — реальные задачи ЕГЭ/ОГЭ." },
+              { n: 2, t: "Выбери шаблон", d: "35 стилей: от классики до неоновой контрольной. Со своим лого и цветом школы." },
+              { n: 3, t: "Скачай и проверь", d: "PDF, DOCX, .tex или Overleaf. После урока — введи ответы в форму, получи оценки 2–5 автоматически." },
             ].map((s) => (
               <div
                 key={s.n}

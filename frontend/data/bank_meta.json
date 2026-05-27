@@ -1,0 +1,15 @@
+{
+  "total": 8591,
+  "by_source": {
+    "kompege": 5429,
+    "sdamgia": 1930,
+    "fipi": 1232
+  },
+  "skipped": {
+    "no_dir": 0,
+    "no_md": 0,
+    "no_data": 3499,
+    "image_only": 0,
+    "no_answer": 0
+  }
+}

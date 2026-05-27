@@ -14,8 +14,9 @@ export interface WorksheetContent {
     n: number;
     condition: string;
     expected_answer?: string;
-    answer_type?: "number" | "string" | "list";
+    answer_type?: "number" | "fraction" | "expression" | "string" | "list";
     tolerance?: number;
+    solution?: string;
     hint?: string;
     image?: string; // optional path/url
   }>;

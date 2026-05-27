@@ -62,3 +62,6 @@ cli/output/*/T*.toc
 *.key
 *.pem
 .anthropic_key
+
+# Bank of tasks — built from Lessons/vault, copied to server via scp (too big for git)
+frontend/data/bank.json

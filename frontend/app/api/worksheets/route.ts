@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/session";
 import {
   checkWorksheetLimit,
   generateWorksheetContent,
+  generateFromBank,
   incrementWorksheetUsage,
   safeParseJson,
 } from "@/lib/worksheets";
@@ -17,6 +18,14 @@ const createSchema = z.object({
   subject: z.enum(["math", "informatics", "mixed"]).optional(),
   grade: z.number().int().min(1).max(11).optional(),
   difficulty: z.enum(["easy", "medium", "hard"]).optional(),
+  source: z.enum(["llm", "bank"]).optional().default("llm"),
+  bank_filter: z.object({
+    subject: z.enum(["math", "informatics"]).optional(),
+    exam: z.enum(["ege", "ege_base", "oge"]).optional(),
+    zadanie_n: z.number().int().min(1).max(30).optional(),
+    topic: z.string().max(200).optional(),
+    source: z.enum(["kompege", "fipi", "sdamgia", "umschool", "mathege", "mathege_base"]).optional(),
+  }).optional(),
   params: z.record(z.unknown()).optional(),
 });
 
@@ -80,22 +89,34 @@ export async function POST(req: NextRequest) {
       grade: data.grade ?? tpl.grade ?? null,
       difficulty: data.difficulty ?? "medium",
       status: "generating",
-      promptUsed: "generate_from_topic",
+      promptUsed: data.source === "bank" ? "bank_filter" : "generate_from_topic",
       paramsJson: data.params ? JSON.stringify(data.params) : null,
     },
   });
 
   // Генерация
   try {
-    const gen = await generateWorksheetContent("generate_from_topic", {
-      topic: data.topic ?? tpl.name,
-      subject: data.subject ?? tpl.subject,
-      grade: data.grade ?? tpl.grade ?? undefined,
-      difficulty: data.difficulty ?? "medium",
-      task_count: tpl.taskCount,
-      template: tpl.id,
-      ...(data.params ?? {}),
-    });
+    const gen =
+      data.source === "bank"
+        ? await generateFromBank(
+            {
+              subject: data.bank_filter?.subject ?? (data.subject === "mixed" ? undefined : data.subject),
+              exam: data.bank_filter?.exam,
+              zadanie_n: data.bank_filter?.zadanie_n,
+              topic: data.bank_filter?.topic ?? data.topic,
+              source: data.bank_filter?.source,
+            },
+            tpl.taskCount
+          )
+        : await generateWorksheetContent("generate_from_topic", {
+            topic: data.topic ?? tpl.name,
+            subject: data.subject ?? tpl.subject,
+            grade: data.grade ?? tpl.grade ?? undefined,
+            difficulty: data.difficulty ?? "medium",
+            task_count: tpl.taskCount,
+            template: tpl.id,
+            ...(data.params ?? {}),
+          });
 
     const updated = await prisma.worksheet.update({
       where: { id: ws.id },

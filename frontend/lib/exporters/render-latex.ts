@@ -143,13 +143,25 @@ ${tasksTex}
 
 /** Stand-alone версия LaTeX-кода — без \usepackage путей к локальной Lessons-преамбуле.
  *  Используется для выгрузки в Overleaf (где соседнего Lessons-репо нет).
- *  Подключает минимальный набор пакетов из CTAN. */
+ *  Подключает минимальный набор пакетов из CTAN.
+ *  brand.accentColor (HEX `#RRGGBB`) переопределяет цвет шаблона — это «брендинг учителя».
+ *  brand.watermark — серый полупрозрачный диагональный знак на каждой странице. */
 export async function renderLatexStandalone(
   content: WorksheetContent,
   styleSlug: string,
-  brand?: { teacherName?: string; school?: string }
+  brand?: {
+    teacherName?: string;
+    school?: string;
+    accentColor?: string;
+    watermark?: string;
+    logoPath?: string;
+  }
 ): Promise<RenderedLatex> {
   const style = STYLE_MAP[styleSlug] ?? STYLE_MAP.classic_wildcat_purple;
+  // Брендинг переопределяет цвет шаблона, если указан (HEX «#RRGGBB» → без #).
+  const accentHex = brand?.accentColor && /^#?[0-9a-fA-F]{6}$/.test(brand.accentColor)
+    ? brand.accentColor.replace(/^#/, "")
+    : style.accent;
   const titleSafe = escapeButPreserveMath(content.title);
   const subtitleSafe = content.subtitle
     ? escapeButPreserveMath(content.subtitle)
@@ -164,6 +176,18 @@ export async function renderLatexStandalone(
 
   const teacherLine = brand?.teacherName
     ? `\\textit{${escapeLatex(brand.teacherName)}${brand.school ? ` --- ${escapeLatex(brand.school)}` : ""}}\\par\\vspace{2mm}`
+    : "";
+
+  // Брендинг: водяной знак на каждой странице, если задан.
+  const watermarkPreamble = brand?.watermark
+    ? `\\usepackage{eso-pic}
+\\AddToShipoutPictureBG{%
+  \\AtPageCenter{%
+    \\makebox(0,0){%
+      \\rotatebox{45}{\\color{gray!18}\\fontsize{60pt}{72pt}\\bfseries\\sffamily ${escapeLatex(brand.watermark)}}%
+    }%
+  }%
+}`
     : "";
 
   // Самодостаточный standalone: всё из CTAN, никаких ссылок на Lessons/_templates.
@@ -184,8 +208,9 @@ export async function renderLatexStandalone(
 \\usepackage{enumitem}
 \\usepackage{fancyhdr}
 
-\\definecolor{wcprimary}{HTML}{${style.accent}}
+\\definecolor{wcprimary}{HTML}{${accentHex}}
 ${style.extraPreamble ?? ""}
+${watermarkPreamble}
 
 % Поле для ответа ученика
 \\newcommand{\\AnswerField}[1]{%

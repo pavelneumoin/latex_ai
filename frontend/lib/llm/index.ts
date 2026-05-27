@@ -2,15 +2,23 @@
 // Утром: добавьте свой провайдер в registerProvider() и переключите LLM_PROVIDER в .env.
 
 import { MockProvider } from "./mock";
+import { ClaudeProvider } from "./providers/claude";
+import { GigaChatProvider } from "./providers/gigachat";
+import { DeepSeekProvider } from "./providers/deepseek";
+import { OpenAIProvider } from "./providers/openai";
 import type { LLMProvider, ProviderKey } from "./types";
 
 const registry = new Map<ProviderKey, LLMProvider>();
 
 registry.set("mock", new MockProvider());
+registry.set("claude", new ClaudeProvider());
+registry.set("gigachat", new GigaChatProvider());
+registry.set("deepseek", new DeepSeekProvider());
+registry.set("openai", new OpenAIProvider("openai"));
+registry.set("openrouter", new OpenAIProvider("openrouter"));
 
-// ─────────────── Заглушки для других провайдеров ───────────────
-// Реальные имплементации добавляются в lib/llm/providers/<name>.ts
-// и регистрируются здесь. Пока — все падают на mock, если ключа нет.
+// Активный провайдер выбирается через LLM_PROVIDER в .env.local.
+// Если ключ не задан — isReady() вернёт false и пройдёт fallback на mock.
 
 export function registerProvider(key: ProviderKey, provider: LLMProvider) {
   registry.set(key, provider);

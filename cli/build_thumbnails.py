@@ -26,6 +26,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent  # WorksheetAI/
 REGISTRY = ROOT / "cli" / "templates" / "registry.json"
 OUT_DIR = ROOT / "frontend" / "public" / "templates"
+SKELETONS_DIR = ROOT / "frontend" / "lib" / "exporters" / "templates"
 
 # Mirror of frontend/lib/exporters/render-latex.ts STYLE_MAP (slug -> accent HEX + font + extra).
 STYLE_MAP: dict[str, dict] = {
@@ -115,12 +116,29 @@ def make_tex(tmpl: dict) -> str:
 
     pool = INF_TASKS if tmpl.get("subject") == "informatics" else MATH_TASKS
     # Take 3 tasks — enough to fill a thumbnail.
-    tasks = pool[:3]
+    n_tasks = min(int(tmpl.get("task_count", 3) or 3), 4)
+    tasks = (pool * 3)[:n_tasks]
     tasks_tex = "\n\n".join(
         f"\\begin{{taskbox}}{{{i+1}}}\n{_preserve_math_escape(t)}\\par\\vspace{{1.5mm}}\n"
         f"\\hfill\\textbf{{\\color{{wcprimary}}Ответ:}}~\\AnswerField{{{i+1}}}\n\\end{{taskbox}}"
         for i, t in enumerate(tasks)
     )
+
+    # Если для этого шаблона есть кастомный skeleton .tex.tpl — используем его.
+    skel_path = SKELETONS_DIR / f"{tmpl['id']}.tex.tpl"
+    if skel_path.exists():
+        skel = skel_path.read_text(encoding="utf-8")
+        return (
+            skel
+            .replace("{{accent_hex}}", accent)
+            .replace("{{title}}", title)
+            .replace("{{subtitle}}", subtitle)
+            .replace("{{tasks_tex}}", tasks_tex)
+            .replace("{{teacher_line}}", "")
+            .replace("{{watermark_preamble}}", "")
+            .replace("{{font_cmd}}", font_cmd)
+            .replace("{{extra_preamble}}", extra)
+        )
 
     return rf"""% Thumbnail preview — {tmpl['id']} ({style_slug})
 \documentclass[a4paper,11pt]{{article}}

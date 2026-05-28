@@ -190,6 +190,22 @@ export async function renderLatexStandalone(
 }`
     : "";
 
+  // Если для этого шаблона есть свой skeleton .tex.tpl — используем его.
+  // Это даёт по-настоящему разные шаблоны (не только цвет), сохраняя контракт WorksheetContent.
+  const custom = await loadCustomTemplate(content.templateId);
+  if (custom) {
+    const filled = custom
+      .replace(/\{\{accent_hex\}\}/g, accentHex)
+      .replace(/\{\{title\}\}/g, titleSafe)
+      .replace(/\{\{subtitle\}\}/g, subtitleSafe)
+      .replace(/\{\{tasks_tex\}\}/g, tasksTex)
+      .replace(/\{\{teacher_line\}\}/g, teacherLine)
+      .replace(/\{\{watermark_preamble\}\}/g, watermarkPreamble)
+      .replace(/\{\{font_cmd\}\}/g, style.fontCmd)
+      .replace(/\{\{extra_preamble\}\}/g, style.extraPreamble ?? "");
+    return { texSource: filled, auxFiles: [] };
+  }
+
   // Самодостаточный standalone: всё из CTAN, никаких ссылок на Lessons/_templates.
   const texSource = `% РабочийЛист.ai — самодостаточный LaTeX для Overleaf / локальной правки.
 % Чтобы скомпилировать: xelatex (рекомендуется) или pdflatex.

@@ -23,6 +23,7 @@ export function Header() {
 
   const navItems: { href: string; label: string }[] = [
     { href: "/create", label: "Создать" },
+    { href: "/upload", label: "Загрузить" },
     { href: "/templates", label: "Шаблоны" },
     { href: "/my", label: "Мои листы" },
     { href: "/check", label: "Проверка" },

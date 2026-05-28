@@ -386,6 +386,116 @@
       "style": "wabisabi_asymmetric",
       "task_count": 5,
       "tags": ["wabisabi", "asymmetric", "sans", "gray", "minimal"]
+    },
+    {
+      "id": "T36",
+      "name": "Экзаменационный бланк",
+      "description": "Строгий школьный экзаменационный лист: блок ФИО/класс/дата/вариант/балл сверху, нумерованные задачи в синей рамке с грифом «ЗАДАНИЕ №N»",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "exam_form",
+      "task_count": 6,
+      "tags": ["exam", "official", "header-block", "skeleton"]
+    },
+    {
+      "id": "T37",
+      "name": "Рабочая тетрадь в клетку",
+      "description": "Каждая задача занимает ~1/3 страницы: условие → клетчатое поле для решения (5мм клетка) → строчка для ответа. Sans, синий акцент.",
+      "subject": "math",
+      "grade": 7,
+      "layout": "single_column",
+      "style": "notebook_ink",
+      "task_count": 3,
+      "tags": ["workbook", "grid", "spacious", "skeleton"]
+    },
+    {
+      "id": "T38",
+      "name": "Устный счёт (2 колонки)",
+      "description": "12 коротких задач в 2 узких колонки, мини-бэйджи номеров, sans, фиолетовый. Для разминки в начале урока.",
+      "subject": "math",
+      "grade": 5,
+      "layout": "two_columns",
+      "style": "compact_underline",
+      "task_count": 12,
+      "tags": ["warmup", "mental-math", "compact", "skeleton"]
+    },
+    {
+      "id": "T39",
+      "name": "Карточки 2×2 (для разрезания)",
+      "description": "Landscape A4 → 4 карточки с пунктиром-разрезанием посередине. Каждая карточка — задача + поле ответа. Идеально для парной/групповой работы.",
+      "subject": "math",
+      "grade": 6,
+      "layout": "grid_2x4",
+      "style": "cards_emerald",
+      "task_count": 4,
+      "tags": ["flashcards", "landscape", "cut-out", "skeleton"]
+    },
+    {
+      "id": "T40",
+      "name": "Олимпиадный лист",
+      "description": "Академический строгий стиль: римская нумерация Задача I, II, III, без рамок, текст в две лапы, монохром. Серьёзный.",
+      "subject": "math",
+      "grade": 11,
+      "layout": "single_column",
+      "style": "olympiad_premium",
+      "task_count": 5,
+      "tags": ["olympiad", "academic", "monochrome", "skeleton"]
+    },
+    {
+      "id": "T41",
+      "name": "Blueprint / чертёж",
+      "description": "Тёмно-синий фон с сеткой 5мм, белый шрифт, технический инженерный стиль. Для информатики и физики.",
+      "subject": "informatics",
+      "grade": 10,
+      "layout": "single_column",
+      "style": "code_python",
+      "task_count": 5,
+      "tags": ["blueprint", "dark", "technical", "skeleton"]
+    },
+    {
+      "id": "T42",
+      "name": "«Математический вестник»",
+      "description": "Газетная вёрстка в 3 колонки, тонкие линии-разделители, засечный шрифт, шапка-баннер. Стилизация под старую газету.",
+      "subject": "math",
+      "grade": 10,
+      "layout": "three_columns",
+      "style": "newspaper_navy",
+      "task_count": 12,
+      "tags": ["newspaper", "three-cols", "serif", "skeleton"]
+    },
+    {
+      "id": "T43",
+      "name": "Лестница уровней",
+      "description": "Задачи как «уровни» от простого к сложному, плашка УРОВЕНЬ-N, звёздочки сложности сверху. Геймифицировано.",
+      "subject": "math",
+      "grade": 8,
+      "layout": "single_column",
+      "style": "quick_15min",
+      "task_count": 5,
+      "tags": ["levels", "gamified", "progress", "skeleton"]
+    },
+    {
+      "id": "T44",
+      "name": "Конспект Корнелла",
+      "description": "Лист поделён вертикально 36мм:остальное — слева пустая колонка для ключевых слов, справа условие. Cornell Notes методика.",
+      "subject": "math",
+      "grade": 9,
+      "layout": "single_column",
+      "style": "trainer_teal",
+      "task_count": 4,
+      "tags": ["cornell-notes", "study", "method", "skeleton"]
+    },
+    {
+      "id": "T45",
+      "name": "Стикеры с тенью",
+      "description": "Каждая задача — стилизованная наклейка с тенью, скруглёнными углами, контурным заголовком. Для младших классов.",
+      "subject": "math",
+      "grade": 5,
+      "layout": "single_column",
+      "style": "bingo_card",
+      "task_count": 5,
+      "tags": ["stickers", "rounded", "shadow", "kids", "skeleton"]
     }
   ]
 }

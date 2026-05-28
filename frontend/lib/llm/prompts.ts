@@ -12,7 +12,9 @@ export type PromptId =
   | "generate_from_material"
   | "generate_more_variants"
   | "generate_harder"
-  | "check_worksheet";
+  | "check_worksheet"
+  | "refine_worksheet"
+  | "parse_pdf_to_tasks";
 
 interface ParsedPrompt {
   system: string;

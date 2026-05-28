@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { prisma } from "@/lib/db";
-import { getSessionUser } from "@/lib/session";
+import { getSessionUser, requireUser } from "@/lib/session";
 import { safeParseJson } from "@/lib/worksheets";
 
 export const runtime = "nodejs";
@@ -62,4 +64,36 @@ export async function GET(
         : null,
     },
   });
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  let user;
+  try {
+    user = await requireUser();
+  } catch {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const ws = await prisma.worksheet.findUnique({ where: { id: params.id } });
+  if (!ws) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  if (ws.userId !== user.id) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  // Удаляем файлы артефактов на диске (если есть).
+  for (const p of [ws.pdfPath, ws.answerKeyPath]) {
+    if (p) {
+      const abs = path.isAbsolute(p) ? p : path.join(process.cwd(), p);
+      fs.unlink(abs).catch(() => { /* файл мог не существовать */ });
+    }
+  }
+
+  // Удаляем сам лист. Связанные записи (Upload.worksheetId, Favorite, Publication, children)
+  // сконфигурированы на onDelete: SetNull / Cascade в schema.prisma.
+  await prisma.worksheet.delete({ where: { id: params.id } });
+
+  return NextResponse.json({ ok: true, deletedId: params.id });
 }

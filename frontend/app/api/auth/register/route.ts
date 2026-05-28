@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { registerUser } from "@/lib/auth";
+import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,10 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Anti-abuse: не более 5 регистраций с одного IP за 10 минут.
+  const r = checkRate("register", ipFromReq(req), { limit: 5, windowMs: 10 * 60_000 });
+  if (!r.ok) return rateLimited(r);
+
   let body: unknown;
   try {
     body = await req.json();

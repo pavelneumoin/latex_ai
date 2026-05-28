@@ -119,7 +119,7 @@ function asString(v: unknown): string | undefined {
   return undefined;
 }
 
-function normalizeWorksheetContent(parsed: unknown): unknown {
+export function normalizeWorksheetContent(parsed: unknown): unknown {
   if (!parsed || typeof parsed !== "object") return parsed;
   const root = parsed as AnyRec;
   const rawTasks =

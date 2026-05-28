@@ -9,6 +9,7 @@ import {
   incrementWorksheetUsage,
   safeParseJson,
 } from "@/lib/worksheets";
+import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -36,6 +37,11 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+
+  // Anti-burn-LLM-quota: не более 30 листов в час на пользователя (поверх плановых лимитов).
+  // Лимиты подписки проверяются ниже отдельно.
+  const r = checkRate("worksheets-create", user.id, { limit: 30, windowMs: 60 * 60_000 });
+  if (!r.ok) return rateLimited(r);
 
   let body: unknown;
   try {
@@ -90,7 +96,12 @@ export async function POST(req: NextRequest) {
       difficulty: data.difficulty ?? "medium",
       status: "generating",
       promptUsed: data.source === "bank" ? "bank_filter" : "generate_from_topic",
-      paramsJson: data.params ? JSON.stringify(data.params) : null,
+      paramsJson: JSON.stringify({
+        ...(data.params ?? {}),
+        ...(data.source === "bank"
+          ? { source: "bank", bank_filter: data.bank_filter ?? {} }
+          : { source: "llm" }),
+      }),
     },
   });
 
@@ -118,6 +129,14 @@ export async function POST(req: NextRequest) {
             ...(data.params ?? {}),
           });
 
+    // Если в parsed-контенте есть осмысленный title — используем его как название
+    // листа, чтобы карточка /my/[id] не показывала «черновик».
+    let finalTitle: string | undefined;
+    try {
+      const c = JSON.parse(gen.contentJson) as { title?: unknown };
+      if (typeof c.title === "string" && c.title.trim()) finalTitle = c.title.trim();
+    } catch { /* parsed JSON может быть пустым — оставляем исходный title */ }
+
     const updated = await prisma.worksheet.update({
       where: { id: ws.id },
       data: {
@@ -125,6 +144,7 @@ export async function POST(req: NextRequest) {
         contentJson: gen.contentJson,
         llmProvider: gen.provider,
         llmModel: gen.model,
+        ...(finalTitle ? { title: finalTitle } : {}),
       },
     });
 

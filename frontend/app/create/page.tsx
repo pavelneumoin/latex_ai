@@ -54,6 +54,8 @@ export default function CreatePage() {
 
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [bankPreview, setBankPreview] = useState<Array<{ id: string; condition: string; expected_answer?: string; source: string }> | null>(null);
+  const [bankPreviewLoading, setBankPreviewLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/templates").then((r) => r.json()).then((d) => {
@@ -67,6 +69,34 @@ export default function CreatePage() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Подтягиваем 3 примера из банка при изменении фильтра (debounce 350ms).
+  useEffect(() => {
+    if (source !== "bank") {
+      setBankPreview(null);
+      return;
+    }
+    setBankPreviewLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const sp = new URLSearchParams();
+        const subj = subject === "mixed" ? "" : subject;
+        if (subj) sp.set("subject", subj);
+        sp.set("exam", bankExam);
+        if (bankZadanieN) sp.set("zadanie_n", bankZadanieN);
+        if (topic.trim()) sp.set("topic", topic.trim());
+        sp.set("limit", "3");
+        const r = await fetch(`/api/bank/search?${sp.toString()}`);
+        const data = await r.json();
+        setBankPreview(data.tasks ?? []);
+      } catch {
+        setBankPreview([]);
+      } finally {
+        setBankPreviewLoading(false);
+      }
+    }, 350);
+    return () => clearTimeout(t);
+  }, [source, subject, bankExam, bankZadanieN, topic]);
 
   const tpl = useMemo(
     () => templates?.find((t) => t.id === templateId) ?? null,
@@ -239,6 +269,48 @@ export default function CreatePage() {
                 <strong>{bankMatchCount.toLocaleString("ru")}</strong> задач в банке
                 {bankZadanieN && ` · задание №${bankZadanieN}`}
                 {topic && ` · по теме «${topic}»`}
+              </div>
+
+              {/* Превью 3 задач из выборки — учитель видит ДО клика. */}
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--fg-2)", marginBottom: 6 }}>
+                  Примеры задач из выборки {bankPreviewLoading && <span style={{ color: "var(--fg-3)", fontWeight: 400 }}>· обновляется…</span>}
+                </div>
+                {bankPreview && bankPreview.length === 0 && (
+                  <div style={{ fontSize: 13, color: "var(--fg-3)", padding: 10, border: "1px dashed var(--border-2)", borderRadius: 8 }}>
+                    Пусто. Попробуй убрать фильтр по теме или номеру задания.
+                  </div>
+                )}
+                {bankPreview && bankPreview.length > 0 && (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {bankPreview.map((t, i) => (
+                      <div
+                        key={t.id}
+                        style={{
+                          padding: 10,
+                          background: "var(--bg)",
+                          border: "1px solid var(--border)",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                          <span style={{ fontWeight: 700, color: "var(--primary)" }}>№{i + 1}</span>
+                          <span style={{ fontSize: 10, color: "var(--fg-3)" }}>{t.source} · {t.id}</span>
+                        </div>
+                        <div style={{ color: "var(--fg-2)", maxHeight: 60, overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {t.condition.length > 240 ? t.condition.slice(0, 240) + "…" : t.condition}
+                        </div>
+                        {t.expected_answer && (
+                          <div style={{ marginTop: 4, fontSize: 11, color: "var(--fg-3)" }}>
+                            Ответ: <strong>{t.expected_answer}</strong>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

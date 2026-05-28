@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { compareAnswer, percentToMark, type AnswerType } from "@/lib/answer-compare";
+import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +23,10 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Не более 60 проверок в минуту с одного IP (для класса 30 учеников × 2 листа).
+  const r = checkRate("check-text", ipFromReq(req), { limit: 60, windowMs: 60_000 });
+  if (!r.ok) return rateLimited(r);
+
   let body: unknown;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });

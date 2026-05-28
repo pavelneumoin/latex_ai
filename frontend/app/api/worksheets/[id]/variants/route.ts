@@ -3,11 +3,23 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import {
+  generateFromBank,
   generateWorksheetContent,
   incrementVariantUsage,
   nextVariantLetter,
   safeParseJson,
 } from "@/lib/worksheets";
+
+type ParentParams = {
+  source?: "llm" | "bank";
+  bank_filter?: {
+    subject?: "math" | "informatics";
+    exam?: "ege" | "ege_base" | "oge";
+    zadanie_n?: number;
+    topic?: string;
+    source?: "kompege" | "fipi" | "sdamgia" | "umschool" | "mathege" | "mathege_base";
+  };
+};
 
 export const runtime = "nodejs";
 
@@ -59,6 +71,11 @@ export async function POST(
     );
   }
 
+  // Определяем — был ли parent сделан из банка; если да, вариант тоже берём из банка
+  // (другая случайная выборка по тем же фильтрам), а не дёргаем LLM.
+  const parentParams = safeParseJson<ParentParams>(parent.paramsJson) ?? {};
+  const isBankParent = parentParams.source === "bank" || parent.promptUsed === "bank_filter";
+
   const letters = (await nextVariantLetter(parent.id)).slice(0, n);
   if (letters.length < n) {
     return NextResponse.json(
@@ -66,6 +83,10 @@ export async function POST(
       { status: 409 }
     );
   }
+
+  // taskCount берём из шаблона parent.
+  const tpl = await prisma.template.findUnique({ where: { id: parent.templateId } });
+  const taskCount = tpl?.taskCount ?? 5;
 
   const created: unknown[] = [];
 
@@ -82,19 +103,31 @@ export async function POST(
         parentId: parent.id,
         variant: letter,
         status: "generating",
-        promptUsed: "generate_more_variants",
+        promptUsed: isBankParent ? "bank_filter" : "generate_more_variants",
+        paramsJson: parent.paramsJson,
       },
     });
 
     try {
-      const gen = await generateWorksheetContent("generate_more_variants", {
-        original,
-        topic: parent.topic ?? undefined,
-        subject: parent.subject ?? undefined,
-        grade: parent.grade ?? undefined,
-        difficulty: parent.difficulty,
-        variant: letter,
-      });
+      const gen = isBankParent
+        ? await generateFromBank(
+            {
+              subject: parentParams.bank_filter?.subject,
+              exam: parentParams.bank_filter?.exam,
+              zadanie_n: parentParams.bank_filter?.zadanie_n,
+              topic: parentParams.bank_filter?.topic ?? parent.topic ?? undefined,
+              source: parentParams.bank_filter?.source,
+            },
+            taskCount
+          )
+        : await generateWorksheetContent("generate_more_variants", {
+            original,
+            topic: parent.topic ?? undefined,
+            subject: parent.subject ?? undefined,
+            grade: parent.grade ?? undefined,
+            difficulty: parent.difficulty,
+            variant: letter,
+          });
       const updated = await prisma.worksheet.update({
         where: { id: ws.id },
         data: {

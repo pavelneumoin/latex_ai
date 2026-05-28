@@ -34,7 +34,8 @@ function asNumberStrict(s: string): number | null {
 
 function asFraction(s: string): { num: number; den: number } | null {
   const t = s.replace(SPACE_RE, "");
-  const m = t.match(/^(-?\d+)\/(\d+)$/);
+  // Allow minus in numerator and/or denominator: 1/2, -1/2, 1/-2, -1/-2
+  const m = t.match(/^(-?\d+)\/(-?\d+)$/);
   if (!m) return null;
   const num = Number(m[1]);
   const den = Number(m[2]);

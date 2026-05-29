@@ -10,6 +10,7 @@ import {
   temperatureForStyle,
   isFormulationStyle,
 } from "./formulation-styles";
+import { extractLooseJson } from "./llm/json-extract";
 
 export interface LimitCheck {
   ok: boolean;
@@ -114,9 +115,9 @@ export async function generateWorksheetContent(
 
   let parsed: unknown = resp.json;
   if (parsed === undefined) {
-    try {
-      parsed = JSON.parse(resp.text);
-    } catch {
+    // Устойчивый разбор: чинит LaTeX-слэши и markdown-обёртки (см. json-extract).
+    parsed = extractLooseJson(resp.text);
+    if (parsed === undefined) {
       parsed = { raw: resp.text, _warning: "non_json_response" };
     }
   }

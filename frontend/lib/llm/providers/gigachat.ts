@@ -11,6 +11,7 @@ import type {
   LLMProvider,
   LLMResponse,
 } from "../types";
+import { extractLooseJson } from "../json-extract";
 
 const DEFAULT_MODEL = process.env.LLM_MODEL || "GigaChat";
 const OAUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
@@ -101,19 +102,10 @@ export class GigaChatProvider implements LLMProvider {
     };
 
     const text = data.choices?.[0]?.message?.content ?? "";
-    let json: unknown;
-    if (opts.jsonSchema) {
-      try {
-        json = JSON.parse(text);
-      } catch {
-        const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (m) {
-          try {
-            json = JSON.parse(m[1]);
-          } catch { /* ignore */ }
-        }
-      }
-    }
+    // GigaChat вставляет LaTeX с одинарным \ прямо в JSON-строки ("$20\%$",
+    // "\frac") — это невалидные escape и ломают JSON.parse. extractLooseJson
+    // чинит слэши и markdown-обёртки.
+    const json: unknown = opts.jsonSchema ? extractLooseJson(text) : undefined;
 
     return {
       text,

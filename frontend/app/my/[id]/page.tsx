@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { Header } from "../../_components/Header";
 import { WorksheetActions } from "./WorksheetActions";
 import { WorksheetPreview } from "./WorksheetPreview";
+import { QualityBadge } from "./QualityBadge";
+import { validateWorksheet } from "@/lib/worksheet-validator";
 
 export const dynamic = "force-dynamic";
 
@@ -279,6 +281,13 @@ export default async function WorksheetDetailPage({ params }: { params: { id: st
                 isPublic={worksheet.isPublic}
               />
             </div>
+
+            {tasks.length > 0 && (
+              <div className="card" style={{ padding: 20, marginBottom: 16 }}>
+                <h3 style={{ marginBottom: 14 }}>Качество</h3>
+                <QualityBadge result={validateWorksheet(content)} />
+              </div>
+            )}
 
             <div className="card" style={{ padding: 20 }}>
               <h3 style={{ marginBottom: 14 }}>Параметры</h3>

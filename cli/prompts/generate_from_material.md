@@ -69,7 +69,8 @@
           "n": {"type": "integer"},
           "condition": {"type": "string"},
           "expected_answer": {"type": "string"},
-          "answer_type": {"type": "string", "enum": ["number", "fraction", "expression", "string"]},
+          "answer_type": {"type": "string", "enum": ["number", "fraction", "expression", "string", "choice", "multiple_choice", "true_false", "fill_blank", "matching", "short_text", "open"]},
+          "options": {"type": "array", "items": {"type": "string"}, "description": "Если в материале была задача с вариантами/на соответствие — сохрани их сюда"},
           "answer_source": {
             "type": "string",
             "enum": ["from_material", "computed"],

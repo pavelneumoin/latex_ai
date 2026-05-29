@@ -93,6 +93,15 @@ export function ipFromReq(req: NextRequest): string {
   return req.headers.get("user-agent") ?? "unknown";
 }
 
+/** Clear all buckets — intended for use in unit tests only. */
+export function clearRateLimitStore(): void {
+  store.clear();
+  if (gcTimer) {
+    clearInterval(gcTimer);
+    gcTimer = null;
+  }
+}
+
 export function rateLimited(r: RateResult): NextResponse {
   return new NextResponse(
     JSON.stringify({ error: "rate_limited", retry_after_seconds: r.retryAfterSec, limit: r.limit }),

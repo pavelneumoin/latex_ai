@@ -23,7 +23,7 @@ export interface BankTask {
   tags: string[];
 }
 
-interface BankIndex {
+export interface BankIndex {
   all: BankTask[];
   bySubject: Map<string, BankTask[]>;
   bySubjectExam: Map<string, BankTask[]>;
@@ -33,11 +33,8 @@ interface BankIndex {
 let cached: BankIndex | null = null;
 let loadPromise: Promise<BankIndex> | null = null;
 
-async function loadIndex(): Promise<BankIndex> {
-  const filePath = path.join(process.cwd(), "data", "bank.json");
-  const raw = await fs.readFile(filePath, "utf-8");
-  const all = JSON.parse(raw) as BankTask[];
-
+/** Build an in-memory index from a flat task array. Exported for tests. */
+export function buildBankIndex(all: BankTask[]): BankIndex {
   const bySubject = new Map<string, BankTask[]>();
   const bySubjectExam = new Map<string, BankTask[]>();
   const byZadanie = new Map<string, BankTask[]>();
@@ -53,6 +50,13 @@ async function loadIndex(): Promise<BankIndex> {
   }
 
   return { all, bySubject, bySubjectExam, byZadanie };
+}
+
+async function loadIndex(): Promise<BankIndex> {
+  const filePath = path.join(process.cwd(), "data", "bank.json");
+  const raw = await fs.readFile(filePath, "utf-8");
+  const all = JSON.parse(raw) as BankTask[];
+  return buildBankIndex(all);
 }
 
 export async function getBank(): Promise<BankIndex> {
@@ -106,8 +110,8 @@ function shuffle<T>(arr: T[], r: () => number): T[] {
   return a;
 }
 
-export async function searchBank(q: BankQuery): Promise<BankTask[]> {
-  const idx = await getBank();
+/** Synchronous search on a pre-built index. Exported for unit tests. */
+export function searchBankFromIndex(idx: BankIndex, q: BankQuery): BankTask[] {
   let pool: BankTask[];
 
   if (q.subject && q.exam && q.zadanie_n != null) {
@@ -127,6 +131,11 @@ export async function searchBank(q: BankQuery): Promise<BankTask[]> {
 
   if (q.limit && q.limit > 0) pool = pool.slice(0, q.limit);
   return pool;
+}
+
+export async function searchBank(q: BankQuery): Promise<BankTask[]> {
+  const idx = await getBank();
+  return searchBankFromIndex(idx, q);
 }
 
 export async function bankStats(): Promise<{ total: number; by_source: Record<string, number>; by_subject_exam: Record<string, number> }> {

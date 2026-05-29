@@ -80,9 +80,10 @@
 - Тема: {{topic}}
 - Количество задач: {{task_count}}        # 1..20
 - Сложность: {{difficulty}}               # easy | medium | hard
+- Стиль формулировок: {{formulation_style}} # mixed | formal | friendly | practical | playful | olympiad (если пусто — mixed)
 - Желаемые типы заданий: {{task_types}}   # csv из number,choice,fill_blank,true_false,matching,... (если пусто — смесь на твоё усмотрение)
 
-{{formulation_directive}}
+{{context_directive}}
 
 ВАЖНО: формулировки внутри листа должны быть РАЗНООБРАЗНЫМИ — не повторяй один глагол и один формат во всех задачах. Чередуй прямой расчёт, выбор варианта, пропуски, верно/неверно, практический контекст.
 

@@ -81,6 +81,29 @@ function escapeButPreserveMath(s: string): string {
     .join("");
 }
 
+const OPTION_LETTERS = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К"];
+
+/**
+ * LaTeX для вариантов ответа (choice / multiple_choice / true_false / matching).
+ * Возвращает "" если вариантов нет. Самодостаточно: ведёт собственный \par и отступ.
+ */
+function renderOptionsTex(t: WorksheetContent["tasks"][number]): string {
+  const opts = Array.isArray(t.options) ? t.options.map((o) => String(o)).filter(Boolean) : [];
+  if (opts.length === 0) return "";
+
+  // matching: строки уже самодостаточны (вида «А) … — 3») — печатаем как есть.
+  if (t.answer_type === "matching") {
+    const lines = opts.map((o) => escapeButPreserveMath(o)).join("\\\\\n");
+    return `\\par\\vspace{1mm}\\begingroup\\setlength{\\parindent}{0pt}\\small\n${lines}\n\\par\\endgroup`;
+  }
+
+  // choice / multiple_choice / true_false: помечаем А) Б) В) …
+  const lines = opts
+    .map((o, i) => `${OPTION_LETTERS[i] ?? String(i + 1)})~${escapeButPreserveMath(o)}`)
+    .join("\\\\\n");
+  return `\\par\\vspace{1mm}\\begingroup\\setlength{\\parindent}{0pt}\\small\n${lines}\n\\par\\endgroup`;
+}
+
 export interface RenderedLatex {
   texSource: string;
   /** Список файлов, которые нужны для компиляции (относительные пути от .tex). */
@@ -102,7 +125,8 @@ export async function renderLatex(
   const tasksTex = content.tasks
     .map((t) => {
       const cond = escapeButPreserveMath(t.condition);
-      return `\\TaskBox{${t.n}}{%\n  ${cond}\\par\n  \\vspace{1.5mm}\\hfill\\textbf{\\color{wcprimary}Ответ:}~\\AnswerField{${t.n}}%\n}`;
+      const optionsTex = renderOptionsTex(t);
+      return `\\TaskBox{${t.n}}{%\n  ${cond}\\par\n  ${optionsTex}\n  \\vspace{1.5mm}\\hfill\\textbf{\\color{wcprimary}Ответ:}~\\AnswerField{${t.n}}%\n}`;
     })
     .join("\n\n");
 
@@ -170,7 +194,8 @@ export async function renderLatexStandalone(
   const tasksTex = content.tasks
     .map((t) => {
       const cond = escapeButPreserveMath(t.condition);
-      return `\\begin{taskbox}{${t.n}}\n${cond}\\par\\vspace{1.5mm}\n\\hfill\\textbf{\\color{wcprimary}Ответ:}~\\AnswerField{${t.n}}\n\\end{taskbox}`;
+      const optionsTex = renderOptionsTex(t);
+      return `\\begin{taskbox}{${t.n}}\n${cond}\\par${optionsTex ? "\n" + optionsTex : ""}\\vspace{1.5mm}\n\\hfill\\textbf{\\color{wcprimary}Ответ:}~\\AnswerField{${t.n}}\n\\end{taskbox}`;
     })
     .join("\n\n");
 

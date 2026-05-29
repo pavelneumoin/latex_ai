@@ -19,6 +19,14 @@ const createSchema = z.object({
   subject: z.enum(["math", "informatics", "mixed"]).optional(),
   grade: z.number().int().min(1).max(11).optional(),
   difficulty: z.enum(["easy", "medium", "hard"]).optional(),
+  // Стиль формулировок (как именно нейросеть формулирует условия).
+  formulation_style: z
+    .enum(["mixed", "formal", "friendly", "practical", "playful", "olympiad"])
+    .optional(),
+  // Тематический антураж для условий (например, «космос», «футбол»).
+  context_theme: z.string().max(120).optional(),
+  // Желаемые типы заданий (number, choice, fill_blank, true_false, matching, ...).
+  task_types: z.array(z.string().max(24)).max(12).optional(),
   source: z.enum(["llm", "bank"]).optional().default("llm"),
   bank_filter: z.object({
     subject: z.enum(["math", "informatics"]).optional(),
@@ -100,7 +108,12 @@ export async function POST(req: NextRequest) {
         ...(data.params ?? {}),
         ...(data.source === "bank"
           ? { source: "bank", bank_filter: data.bank_filter ?? {} }
-          : { source: "llm" }),
+          : {
+              source: "llm",
+              ...(data.formulation_style ? { formulation_style: data.formulation_style } : {}),
+              ...(data.context_theme?.trim() ? { context_theme: data.context_theme.trim() } : {}),
+              ...(data.task_types?.length ? { task_types: data.task_types } : {}),
+            }),
       }),
     },
   });
@@ -126,6 +139,9 @@ export async function POST(req: NextRequest) {
             difficulty: data.difficulty ?? "medium",
             task_count: tpl.taskCount,
             template: tpl.id,
+            formulation_style: data.formulation_style,
+            context_theme: data.context_theme,
+            task_types: data.task_types?.length ? data.task_types.join(", ") : undefined,
             ...(data.params ?? {}),
           });
 

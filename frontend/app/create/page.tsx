@@ -3,6 +3,19 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { listStylesForUi } from "@/lib/formulation-styles";
+
+const STYLE_OPTIONS = listStylesForUi();
+
+const TASK_TYPE_OPTIONS: Array<{ id: string; label: string }> = [
+  { id: "number", label: "Числовой" },
+  { id: "choice", label: "Выбор варианта" },
+  { id: "multiple_choice", label: "Несколько верных" },
+  { id: "true_false", label: "Верно / неверно" },
+  { id: "fill_blank", label: "Вставить пропуск" },
+  { id: "matching", label: "Соответствие" },
+  { id: "short_text", label: "Краткий ответ" },
+];
 
 interface Template {
   id: string;
@@ -46,6 +59,9 @@ export default function CreatePage() {
   const [subject, setSubject] = useState<"math" | "informatics" | "mixed">("math");
   const [grade, setGrade] = useState<number>(11);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const [formulationStyle, setFormulationStyle] = useState<string>("mixed");
+  const [contextTheme, setContextTheme] = useState<string>("");
+  const [taskTypes, setTaskTypes] = useState<string[]>([]);
 
   // Bank filters
   const [bankExam, setBankExam] = useState<"ege" | "ege_base" | "oge">("ege");
@@ -119,6 +135,11 @@ export default function CreatePage() {
         difficulty,
         source,
       };
+      if (source === "llm") {
+        payload.formulation_style = formulationStyle;
+        if (contextTheme.trim()) payload.context_theme = contextTheme.trim();
+        if (taskTypes.length) payload.task_types = taskTypes;
+      }
       if (source === "bank") {
         payload.bank_filter = {
           subject: subject === "mixed" ? undefined : subject,
@@ -231,6 +252,69 @@ export default function CreatePage() {
               </Field>
             )}
           </div>
+
+          {source === "llm" && (
+            <div style={{ marginTop: 16, padding: 14, background: "var(--surface-2)", borderRadius: 10 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>
+                Разнообразие формулировок
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <Field label="Стиль формулировок" hint={STYLE_OPTIONS.find((s) => s.id === formulationStyle)?.short}>
+                  <select className="select" value={formulationStyle} onChange={(e) => setFormulationStyle(e.target.value)}>
+                    {STYLE_OPTIONS.map((s) => (
+                      <option key={s.id} value={s.id}>{s.label}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Антураж (опц.)" hint="Вплести тему в условия: «космос», «футбол», «кулинария»">
+                  <input
+                    className="input"
+                    value={contextTheme}
+                    onChange={(e) => setContextTheme(e.target.value)}
+                    placeholder="например, «спорт»"
+                    maxLength={120}
+                  />
+                </Field>
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, color: "var(--fg-2)" }}>
+                  Типы заданий{" "}
+                  <span style={{ fontWeight: 400, color: "var(--fg-3)" }}>
+                    {taskTypes.length === 0 ? "(пусто → нейросеть подберёт смесь)" : `(${taskTypes.length})`}
+                  </span>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {TASK_TYPE_OPTIONS.map((tt) => {
+                    const on = taskTypes.includes(tt.id);
+                    return (
+                      <button
+                        key={tt.id}
+                        type="button"
+                        onClick={() =>
+                          setTaskTypes((prev) =>
+                            prev.includes(tt.id) ? prev.filter((x) => x !== tt.id) : [...prev, tt.id]
+                          )
+                        }
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: 999,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          border: `1.5px solid ${on ? "var(--primary)" : "var(--border-2)"}`,
+                          background: on ? "var(--primary-soft)" : "var(--bg)",
+                          color: on ? "var(--primary)" : "var(--fg-2)",
+                        }}
+                      >
+                        {on ? "✓ " : ""}{tt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {source === "bank" && (
             <div style={{ marginTop: 16, padding: 14, background: "var(--surface-2)", borderRadius: 10 }}>

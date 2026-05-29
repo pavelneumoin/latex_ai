@@ -5,6 +5,11 @@ import { prisma } from "./db";
 import { getProvider } from "./llm";
 import { loadPrompt, renderTemplate, type PromptId } from "./llm/prompts";
 import { searchBank, bankTaskToWorksheetTask, type BankTask } from "./bank";
+import {
+  buildContextDirective,
+  temperatureForStyle,
+  isFormulationStyle,
+} from "./formulation-styles";
 
 export interface LimitCheck {
   ok: boolean;
@@ -59,6 +64,12 @@ export interface GenerationVars {
   template?: string;
   original?: unknown;
   complexityStep?: number;
+  /** Стиль формулировок: classic | varied | practical | playful */
+  formulation_style?: string;
+  /** Тематический антураж для условий (например, «космос»). */
+  context_theme?: string;
+  /** Явный override температуры (иначе берётся из стиля). */
+  temperature?: number;
   [k: string]: unknown;
 }
 
@@ -75,7 +86,21 @@ export async function generateWorksheetContent(
   model: string;
 }> {
   const prompt = await loadPrompt(promptId);
-  const userText = renderTemplate(prompt.userTemplate, vars);
+
+  // Стиль формулировок задаётся в промпте через {{formulation_style}} (сырой id).
+  // Здесь: температура из стиля (выше → разнообразнее) + директива антуража.
+  const contextDirective = buildContextDirective(vars.context_theme);
+  const temperature =
+    typeof vars.temperature === "number"
+      ? vars.temperature
+      : isFormulationStyle(vars.formulation_style)
+        ? temperatureForStyle(vars.formulation_style)
+        : 0.4;
+
+  const userText = renderTemplate(prompt.userTemplate, {
+    ...vars,
+    context_directive: contextDirective,
+  });
 
   const provider = getProvider();
   const resp = await provider.generate({
@@ -84,7 +109,7 @@ export async function generateWorksheetContent(
       { role: "user", content: userText },
     ],
     jsonSchema: prompt.outputSchema,
-    temperature: 0.4,
+    temperature,
   });
 
   let parsed: unknown = resp.json;
@@ -140,11 +165,25 @@ export function normalizeWorksheetContent(parsed: unknown): unknown {
     const solution = asString(t.solution) ?? asString(t.solutions) ?? asString(t.explanation);
     const hint = asString(t.hint) ?? asString(t.tip);
     const answer_type = asString(t.answer_type) ?? asString(t.type) ?? "string";
+
+    // Варианты ответа: для choice / multiple_choice / true_false / matching.
+    // LLM может отдать как options / choices / variants / answers.
+    const rawOptions =
+      (Array.isArray(t.options) && t.options) ||
+      (Array.isArray(t.choices) && t.choices) ||
+      (Array.isArray(t.variants) && t.variants) ||
+      (Array.isArray(t.answers) && t.answers) ||
+      null;
+    const options = rawOptions
+      ? (rawOptions as unknown[]).map((o) => asString(o) ?? "").filter(Boolean)
+      : undefined;
+
     return {
       n,
       condition,
       ...(expected_answer != null ? { expected_answer } : {}),
       answer_type,
+      ...(options && options.length ? { options } : {}),
       ...(solution ? { solution } : {}),
       ...(hint ? { hint } : {}),
     };

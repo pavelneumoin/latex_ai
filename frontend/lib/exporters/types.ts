@@ -14,7 +14,21 @@ export interface WorksheetContent {
     n: number;
     condition: string;
     expected_answer?: string;
-    answer_type?: "number" | "fraction" | "expression" | "string" | "list";
+    answer_type?:
+      | "number"
+      | "fraction"
+      | "expression"
+      | "string"
+      | "list"
+      | "choice"
+      | "multiple_choice"
+      | "true_false"
+      | "fill_blank"
+      | "matching"
+      | "short_text"
+      | "open";
+    /** Варианты ответа для choice / multiple_choice / true_false / matching. */
+    options?: string[];
     tolerance?: number;
     solution?: string;
     hint?: string;

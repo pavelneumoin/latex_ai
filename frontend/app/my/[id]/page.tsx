@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Header } from "../../_components/Header";
 import { WorksheetActions } from "./WorksheetActions";
+import { WorksheetPreview } from "./WorksheetPreview";
 
 export const dynamic = "force-dynamic";
 
@@ -187,41 +188,36 @@ export default async function WorksheetDetailPage({ params }: { params: { id: st
               )}
             </div>
 
-            <div className="card" style={{ padding: 28 }}>
-              <h2 style={{ marginBottom: 16 }}>Задачи</h2>
-              {tasks.length === 0 ? (
-                <div
-                  style={{
-                    padding: 24,
-                    background: "var(--surface)",
-                    borderRadius: 10,
-                    color: "var(--fg-3)",
-                    fontSize: 14,
-                    textAlign: "center",
-                  }}
-                >
-                  {worksheet.status === "generating"
-                    ? "Задачи генерируются — обновите страницу через минуту."
-                    : "Контент ещё не сгенерирован. Подключим LLM утром."}
-                </div>
-              ) : (
-                <ol style={{ paddingLeft: 22, display: "flex", flexDirection: "column", gap: 14 }}>
-                  {tasks.map((t, i) => (
-                    <li key={i} style={{ lineHeight: 1.55, fontSize: 14 }}>
-                      <div>{t.condition ?? "—"}</div>
-                      {t.expected && (
-                        <div
-                          className="muted"
-                          style={{ fontSize: 12, marginTop: 4 }}
-                        >
-                          Ответ: {t.expected}
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
+            {tasks.length === 0 ? (
+              <div
+                className="card"
+                style={{
+                  padding: 28,
+                  textAlign: "center",
+                  color: "var(--fg-3)",
+                  fontSize: 14,
+                }}
+              >
+                {worksheet.status === "generating"
+                  ? "Задачи генерируются — обновите страницу через минуту."
+                  : "Контент ещё не сгенерирован. Нажмите «Поговорить с нейросетью» или подключите LLM в настройках."}
+              </div>
+            ) : (
+              <WorksheetPreview
+                title={content?.title || worksheet.title}
+                subtitle={content?.subtitle || undefined}
+                templateStyle={worksheet.template?.style ?? null}
+                templateName={worksheet.template?.name ?? null}
+                templateId={worksheet.template?.id ?? worksheet.templateId}
+                tasks={tasks.map((t, i) => ({
+                  n: t.n ?? i + 1,
+                  condition: t.condition ?? "",
+                  expected_answer: t.expected ?? t.answer ?? undefined,
+                  hint: t.hint,
+                }))}
+                showAnswers={true}
+              />
+            )}
 
             {/* Children tree */}
             {worksheet.children.length > 0 && (

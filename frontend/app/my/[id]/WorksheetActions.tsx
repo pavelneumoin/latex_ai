@@ -323,6 +323,23 @@ export function WorksheetActions({ worksheetId, isPublic }: Props) {
           Поделиться
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={async () => {
+              const url = `${window.location.origin}/share/${worksheetId}`;
+              try {
+                await navigator.clipboard.writeText(url);
+                setErr(null);
+                alert(`Ссылка скопирована:\n${url}\n\nЕсли лист не опубликован — увидите только вы.`);
+              } catch {
+                window.prompt("Скопируй ссылку:", url);
+              }
+            }}
+            title="Публичная ссылка на лист (работает, если опубликован)"
+          >
+            🔗 Скопировать ссылку
+          </button>
           {!isPublic && (
             <button type="button" className="btn btn-primary" disabled={Boolean(busy)} onClick={onPublish}>
               {busy === "publish" ? "Публикуем..." : "В маркетплейс"}

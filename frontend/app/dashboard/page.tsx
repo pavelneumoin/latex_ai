@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { bankStats } from "@/lib/bank";
 import { Header } from "../_components/Header";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +56,7 @@ export default async function DashboardPage() {
   }
   const userId = session.user.id;
 
-  const [user, subscription, recent, totalWorksheets] = await Promise.all([
+  const [user, subscription, recent, totalWorksheets, bank] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId } }),
     prisma.subscription.findUnique({
       where: { userId },
@@ -67,6 +68,7 @@ export default async function DashboardPage() {
       take: 5,
     }),
     prisma.worksheet.count({ where: { userId } }),
+    bankStats().catch(() => null),
   ]);
 
   const plan = subscription?.plan;
@@ -90,11 +92,11 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* 3 quick cards */}
+        {/* 4 quick cards */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
             gap: 16,
             marginBottom: 28,
           }}
@@ -102,104 +104,50 @@ export default async function DashboardPage() {
           <Link
             href="/create"
             className="card card-hover"
-            style={{
-              padding: 24,
-              textDecoration: "none",
-              color: "var(--fg)",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
+            style={{ padding: 24, textDecoration: "none", color: "var(--fg)", display: "flex", flexDirection: "column", gap: 8 }}
           >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: "var(--accent-soft)",
-                display: "grid",
-                placeItems: "center",
-                fontSize: 20,
-                marginBottom: 6,
-              }}
-            >
-              +
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "var(--accent-soft)", display: "grid", placeItems: "center", fontSize: 22, marginBottom: 6 }}>
+              ✏️
             </div>
-            <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>
-              Создать лист
+            <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>Создать лист</div>
+            <div className="muted" style={{ fontSize: 13 }}>Опиши тему — получи PDF за минуту</div>
+          </Link>
+
+          <Link
+            href="/upload"
+            className="card card-hover"
+            style={{ padding: 24, textDecoration: "none", color: "var(--fg)", display: "flex", flexDirection: "column", gap: 8 }}
+          >
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#EEF2FF", color: "#4338CA", display: "grid", placeItems: "center", fontSize: 22, marginBottom: 6 }}>
+              ⬆️
             </div>
-            <div className="muted" style={{ fontSize: 13 }}>
-              Опиши тему — получи PDF за минуту
-            </div>
+            <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>Загрузить PDF</div>
+            <div className="muted" style={{ fontSize: 13 }}>Превратить готовый PDF в рабочий лист</div>
           </Link>
 
           <Link
             href="/my"
             className="card card-hover"
-            style={{
-              padding: 24,
-              textDecoration: "none",
-              color: "var(--fg)",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
+            style={{ padding: 24, textDecoration: "none", color: "var(--fg)", display: "flex", flexDirection: "column", gap: 8 }}
           >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: "var(--primary-soft)",
-                color: "var(--primary)",
-                display: "grid",
-                placeItems: "center",
-                fontWeight: 700,
-                marginBottom: 6,
-              }}
-            >
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "var(--primary-soft)", color: "var(--primary)", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 18, marginBottom: 6 }}>
               {totalWorksheets}
             </div>
-            <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>
-              Мои листы
-            </div>
-            <div className="muted" style={{ fontSize: 13 }}>
-              Всего создано: {totalWorksheets}
-            </div>
+            <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>Мои листы</div>
+            <div className="muted" style={{ fontSize: 13 }}>Создано: {totalWorksheets} листов</div>
           </Link>
 
           <Link
-            href="/marketplace"
+            href="/templates"
             className="card card-hover"
-            style={{
-              padding: 24,
-              textDecoration: "none",
-              color: "var(--fg)",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
+            style={{ padding: 24, textDecoration: "none", color: "var(--fg)", display: "flex", flexDirection: "column", gap: 8 }}
           >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: "#D1FAE5",
-                color: "#065F46",
-                display: "grid",
-                placeItems: "center",
-                fontWeight: 700,
-                marginBottom: 6,
-              }}
-            >
-              ⌘
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#D1FAE5", color: "#065F46", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 16, marginBottom: 6 }}>
+              {bank ? bank.total.toLocaleString("ru") : "8k+"}
             </div>
-            <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>
-              Маркетплейс
-            </div>
+            <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>Банк задач</div>
             <div className="muted" style={{ fontSize: 13 }}>
-              Готовые листы от других учителей
+              {bank ? `${bank.total.toLocaleString("ru")} задач ЕГЭ/ОГЭ` : "Задачи из ФИПИ"}
             </div>
           </Link>
         </div>

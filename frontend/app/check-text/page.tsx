@@ -4,11 +4,14 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+const LETTERS = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К"];
+
 interface Task {
   n: number;
   condition: string;
   expected_answer?: string;
   answer_type?: string;
+  options?: string[];
   solution?: string;
 }
 
@@ -25,13 +28,14 @@ interface CheckResult {
     expected: string;
     got: string;
     correct: boolean;
+    manual?: boolean;
     normalized_expected?: string;
     normalized_got?: string;
     reason?: string;
   }>;
   percent: number;
   mark: number;
-  score: { correct: number; total: number };
+  score: { correct: number; total: number; manual?: number };
 }
 
 function CheckTextInner() {
@@ -169,32 +173,42 @@ function CheckTextInner() {
             <ol style={{ paddingLeft: 22, display: "grid", gap: 14 }}>
               {tasks.map((t) => {
                 const r = result?.results.find((x) => x.n === t.n);
+                const key = String(t.n);
                 return (
                   <li key={t.n}>
                     <div style={{ fontSize: 14, lineHeight: 1.5 }}>{t.condition}</div>
-                    <div style={{ marginTop: 6, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                      <input
-                        className="input"
-                        style={{ width: 200 }}
-                        value={answers[String(t.n)] ?? ""}
-                        onChange={(e) => setAnswers((a) => ({ ...a, [String(t.n)]: e.target.value }))}
-                        placeholder="ответ ученика"
+                    <div style={{ marginTop: 8 }}>
+                      <AnswerField
+                        task={t}
+                        value={answers[key] ?? ""}
                         disabled={!!result}
+                        onChange={(v) => setAnswers((a) => ({ ...a, [key]: v }))}
                       />
-                      {r && (
-                        <span style={{
-                          padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700,
-                          background: r.correct ? "#10B981" : "#EF4444", color: "#fff",
-                        }}>
-                          {r.correct ? "✓ верно" : "✗ ошибка"}
-                        </span>
-                      )}
-                      {r && !r.correct && (
-                        <span style={{ fontSize: 12, color: "var(--fg-3)" }}>
-                          правильно: <strong>{r.expected}</strong>
-                        </span>
-                      )}
                     </div>
+                    {r && (
+                      <div style={{ marginTop: 6, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                        {r.manual ? (
+                          <span style={{
+                            padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700,
+                            background: "var(--surface-2)", color: "var(--fg-2)",
+                          }}>
+                            ✎ на проверке учителя
+                          </span>
+                        ) : (
+                          <span style={{
+                            padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700,
+                            background: r.correct ? "#10B981" : "#EF4444", color: "#fff",
+                          }}>
+                            {r.correct ? "✓ верно" : "✗ ошибка"}
+                          </span>
+                        )}
+                        {!r.manual && !r.correct && (
+                          <span style={{ fontSize: 12, color: "var(--fg-3)" }}>
+                            правильно: <strong>{r.expected}</strong>
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </li>
                 );
               })}
@@ -237,6 +251,118 @@ function CheckTextInner() {
         )}
       </div>
     </main>
+  );
+}
+
+function AnswerField({
+  task,
+  value,
+  disabled,
+  onChange,
+}: {
+  task: Task;
+  value: string;
+  disabled: boolean;
+  onChange: (v: string) => void;
+}) {
+  const type = task.answer_type;
+  const opts = Array.isArray(task.options) ? task.options.filter(Boolean) : [];
+
+  const optionRow: React.CSSProperties = {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 8,
+    fontSize: 14,
+    cursor: disabled ? "default" : "pointer",
+    padding: "4px 0",
+  };
+
+  // Один верный — радиокнопки.
+  if ((type === "choice" || type === "true_false") && opts.length > 0) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {opts.map((opt, i) => (
+          <label key={i} style={optionRow}>
+            <input
+              type="radio"
+              name={`q${task.n}`}
+              checked={value === opt}
+              disabled={disabled}
+              onChange={() => onChange(opt)}
+              style={{ marginTop: 3 }}
+            />
+            <span><strong>{LETTERS[i] ?? i + 1})</strong> {opt}</span>
+          </label>
+        ))}
+      </div>
+    );
+  }
+
+  // Несколько верных — чекбоксы. Значение храним как "опт1; опт2".
+  if (type === "multiple_choice" && opts.length > 0) {
+    const selected = new Set(value.split(/;\s*/).map((s) => s.trim()).filter(Boolean));
+    const toggle = (opt: string) => {
+      const s = new Set(selected);
+      if (s.has(opt)) s.delete(opt);
+      else s.add(opt);
+      onChange([...s].join("; "));
+    };
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {opts.map((opt, i) => (
+          <label key={i} style={optionRow}>
+            <input
+              type="checkbox"
+              checked={selected.has(opt)}
+              disabled={disabled}
+              onChange={() => toggle(opt)}
+              style={{ marginTop: 3 }}
+            />
+            <span><strong>{LETTERS[i] ?? i + 1})</strong> {opt}</span>
+          </label>
+        ))}
+      </div>
+    );
+  }
+
+  // Соответствие — текст в формате «А-3; Б-1».
+  if (type === "matching") {
+    return (
+      <input
+        className="input"
+        style={{ width: "100%", maxWidth: 360 }}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="например: А-3; Б-1; В-2"
+      />
+    );
+  }
+
+  // Развёрнутый ответ — textarea (проверяет учитель).
+  if (type === "open") {
+    return (
+      <textarea
+        className="input"
+        style={{ width: "100%", minHeight: 64, resize: "vertical" }}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="развёрнутый ответ (оценивает учитель)"
+      />
+    );
+  }
+
+  // По умолчанию — короткое текстовое поле.
+  return (
+    <input
+      className="input"
+      style={{ width: 220 }}
+      value={value}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="ответ ученика"
+    />
   );
 }
 

@@ -262,9 +262,12 @@ export default function Landing() {
 
       {/* Footer */}
       <footer style={{ borderTop: "1px solid var(--border)", padding: "32px 48px", color: "var(--fg-3)", fontSize: 13 }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
           <span>© РабочийЛист.ai · 2026</span>
-          <span>
+          <span style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
+            <a href="/offer" style={{ color: "var(--fg-3)" }}>Оферта</a>
+            <a href="/privacy" style={{ color: "var(--fg-3)" }}>Конфиденциальность</a>
+            <a href="/terms" style={{ color: "var(--fg-3)" }}>Соглашение</a>
             <a href="https://github.com/pavelneumoin/latex_ai" style={{ color: "var(--fg-3)" }}>
               GitHub
             </a>

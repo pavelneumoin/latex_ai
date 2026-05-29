@@ -40,6 +40,8 @@
 ИСХОДНЫЙ ЛИСТ:
 {{original}}
 
+Стиль формулировок исходного листа: {{formulation_style}} — сохраняй его. {{context_directive}}
+
 Верни JSON по схеме OUTPUT_SCHEMA. Без преамбулы.
 ```
 

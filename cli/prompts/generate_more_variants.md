@@ -33,6 +33,8 @@
 ИСХОДНЫЙ ЛИСТ:
 {{original}}
 
+Стиль формулировок исходного листа: {{formulation_style}} — сохраняй его в вариантах. {{context_directive}}
+
 Верни JSON-массив из {{n_more_variants}} вариантов по схеме OUTPUT_SCHEMA. Без преамбулы.
 ```
 

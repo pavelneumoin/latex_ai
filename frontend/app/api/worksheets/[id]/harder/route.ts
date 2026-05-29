@@ -67,6 +67,11 @@ export async function POST(
     );
   }
 
+  // Стиль формулировок и антураж родителя — чтобы усложнённый лист остался
+  // в том же стиле.
+  const parentParams =
+    safeParseJson<{ formulation_style?: string; context_theme?: string }>(parent.paramsJson) ?? {};
+
   const newDiff = bumpDifficulty(parent.difficulty, complexityStep);
 
   const ws = await prisma.worksheet.create({
@@ -94,6 +99,8 @@ export async function POST(
       from_difficulty: parent.difficulty,
       to_difficulty: newDiff,
       complexityStep,
+      formulation_style: parentParams.formulation_style,
+      context_theme: parentParams.context_theme,
     });
 
     const updated = await prisma.worksheet.update({

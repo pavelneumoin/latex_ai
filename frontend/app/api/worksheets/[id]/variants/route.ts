@@ -12,6 +12,8 @@ import {
 
 type ParentParams = {
   source?: "llm" | "bank";
+  formulation_style?: string;
+  context_theme?: string;
   bank_filter?: {
     subject?: "math" | "informatics";
     exam?: "ege" | "ege_base" | "oge";
@@ -127,6 +129,10 @@ export async function POST(
             grade: parent.grade ?? undefined,
             difficulty: parent.difficulty,
             variant: letter,
+            // Наследуем стиль формулировок и антураж от родителя — вариант
+            // остаётся в том же стиле и получает повышенную температуру (разнообразие).
+            formulation_style: parentParams.formulation_style,
+            context_theme: parentParams.context_theme,
           });
       const updated = await prisma.worksheet.update({
         where: { id: ws.id },

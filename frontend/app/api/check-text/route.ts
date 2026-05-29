@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   const ws = await prisma.worksheet.findUnique({ where: { id: parsed.data.worksheetId } });
   if (!ws) return NextResponse.json({ error: "worksheet_not_found" }, { status: 404 });
 
-  let content: { tasks?: Array<{ n: number; expected_answer?: string; answer_type?: string; tolerance?: number }> } | null = null;
+  let content: { tasks?: Array<{ n: number; expected_answer?: string; answer_type?: string; tolerance?: number; options?: string[] }> } | null = null;
   try { content = ws.contentJson ? JSON.parse(ws.contentJson) : null; } catch {}
   const tasks = content?.tasks ?? [];
   if (!tasks.length) {
@@ -56,20 +56,25 @@ export async function POST(req: NextRequest) {
       got,
       type: t.answer_type as AnswerType | undefined,
       tolerance: t.tolerance,
+      options: Array.isArray(t.options) ? t.options : undefined,
     });
     return {
       n: t.n,
       expected: exp,
       got,
       correct: cmp.correct,
+      manual: cmp.manual ?? false,
       reason: cmp.reason,
       normalized_expected: cmp.normalized_expected,
       normalized_got: cmp.normalized_got,
     };
   });
 
-  const total = results.length;
-  const correctCount = results.filter((r) => r.correct).length;
+  // Задания open (manual) исключаем из автоматической оценки — их проверяет учитель.
+  const autoResults = results.filter((r) => !r.manual);
+  const manualCount = results.length - autoResults.length;
+  const total = autoResults.length;
+  const correctCount = autoResults.filter((r) => r.correct).length;
   const percent = total > 0 ? Math.round((correctCount / total) * 100) : 0;
   const mark = percentToMark(percent);
 
@@ -77,7 +82,7 @@ export async function POST(req: NextRequest) {
     worksheetId: ws.id,
     studentName: parsed.data.studentName ?? null,
     results,
-    score: { correct: correctCount, total },
+    score: { correct: correctCount, total, manual: manualCount },
     percent,
     mark,
   });

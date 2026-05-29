@@ -2,13 +2,28 @@
 // Используется в текстовом чекере (POST /api/check-text).
 // Не зависит от LLM — детерминированно.
 
-export type AnswerType = "number" | "fraction" | "expression" | "string" | "list";
+export type AnswerType =
+  | "number"
+  | "fraction"
+  | "expression"
+  | "string"
+  | "list"
+  | "choice"
+  | "multiple_choice"
+  | "true_false"
+  | "fill_blank"
+  | "matching"
+  | "short_text"
+  | "open";
 
 export interface CompareInput {
   expected: string;
   got: string;
   type?: AnswerType;
   tolerance?: number; // для number, относительная (0.01 → 1%)
+  /** Варианты ответа — нужны для choice / multiple_choice / true_false / matching,
+   *  чтобы засчитывать как текст варианта, так и его букву (А/Б/В) или номер. */
+  options?: string[];
 }
 
 export interface CompareResult {
@@ -16,6 +31,8 @@ export interface CompareResult {
   reason?: string;
   normalized_expected?: string;
   normalized_got?: string;
+  /** true → задание нельзя проверить автоматически (open) — нужна ручная оценка. */
+  manual?: boolean;
 }
 
 const SPACE_RE = /\s+/g;
@@ -106,9 +123,95 @@ function compareList(expected: string, got: string): CompareResult {
   return { correct: true, normalized_expected: e.join(","), normalized_got: g.join(",") };
 }
 
+function norm(s: string): string {
+  return trimSpaces(s).toLowerCase().replace(/ё/g, "е");
+}
+
+// Буква варианта → индекс (0-based). Поддержка кириллицы А-З и латиницы A-H.
+const CYR_LETTERS = "абвгдежз";
+const LAT_LETTERS = "abcdefgh";
+function letterToIndex(s: string): number | null {
+  const t = norm(s).replace(/[).:]+$/, "");
+  if (t.length !== 1) return null;
+  const c = CYR_LETTERS.indexOf(t);
+  if (c >= 0) return c;
+  const l = LAT_LETTERS.indexOf(t);
+  return l >= 0 ? l : null;
+}
+
+// Привести ученический токен к «личности» варианта: совпадение по тексту,
+// по букве (А/Б/В) или по номеру (1-based). Возвращает нормализованный текст
+// варианта либо null, если не распознан.
+function resolveOption(token: string, options: string[]): string | null {
+  const t = norm(token);
+  const byText = options.find((o) => norm(o) === t);
+  if (byText) return norm(byText);
+  const li = letterToIndex(token);
+  if (li != null && li < options.length) return norm(options[li]);
+  const ni = asNumberStrict(token);
+  if (ni != null && Number.isInteger(ni) && ni >= 1 && ni <= options.length) {
+    return norm(options[ni - 1]);
+  }
+  return null;
+}
+
+function splitTokens(s: string): string[] {
+  return s.split(/[;,]+/).map((x) => x.trim()).filter(Boolean);
+}
+
+function compareChoice(expected: string, got: string, options?: string[]): CompareResult {
+  const opts = (options ?? []).map(String).filter(Boolean);
+  if (opts.length === 0) return compareString(expected, got);
+  const expId = resolveOption(expected, opts) ?? norm(expected);
+  const gotId = resolveOption(got, opts) ?? norm(got);
+  return { correct: expId === gotId, normalized_expected: expId, normalized_got: gotId };
+}
+
+function compareMultiple(expected: string, got: string, options?: string[]): CompareResult {
+  const opts = (options ?? []).map(String).filter(Boolean);
+  const toSet = (s: string) =>
+    new Set(splitTokens(s).map((tok) => (opts.length ? resolveOption(tok, opts) ?? norm(tok) : norm(tok))));
+  const e = toSet(expected);
+  const g = toSet(got);
+  const ok = e.size > 0 && e.size === g.size && [...e].every((x) => g.has(x));
+  return {
+    correct: ok,
+    normalized_expected: [...e].sort().join("; "),
+    normalized_got: [...g].sort().join("; "),
+  };
+}
+
+function compareMatching(expected: string, got: string): CompareResult {
+  const normPair = (p: string) => norm(p).replace(/\s*[-—:→=]\s*/g, "-").replace(/\s+/g, "");
+  const toSet = (s: string) => new Set(splitTokens(s).map(normPair).filter(Boolean));
+  const e = toSet(expected);
+  const g = toSet(got);
+  const ok = e.size > 0 && e.size === g.size && [...e].every((x) => g.has(x));
+  return {
+    correct: ok,
+    normalized_expected: [...e].sort().join("; "),
+    normalized_got: [...g].sort().join("; "),
+  };
+}
+
+function compareShort(expected: string, got: string, tol = 0): CompareResult {
+  // Число — если эталон числовой; иначе строковое сравнение.
+  if (asNumberStrict(expected) != null) {
+    const r = compareNumber(expected, got, tol);
+    if (r.correct) return r;
+  }
+  return compareString(expected, got);
+}
+
 export function compareAnswer(input: CompareInput): CompareResult {
   const exp = trimSpaces(input.expected ?? "");
   const got = trimSpaces(input.got ?? "");
+
+  // open — развёрнутый ответ, автопроверке не подлежит (нужна ручная оценка).
+  if (input.type === "open") {
+    return { correct: false, manual: true, reason: "manual_review", normalized_expected: norm(exp) };
+  }
+
   if (!got) return { correct: false, reason: "empty" };
   if (!exp) return { correct: false, reason: "no_expected" };
 
@@ -125,15 +228,25 @@ export function compareAnswer(input: CompareInput): CompareResult {
     case "number": return compareNumber(exp, got, input.tolerance);
     case "fraction": return compareFraction(exp, got);
     case "list": return compareList(exp, got);
+    case "choice":
+    case "true_false":
+      return compareChoice(exp, got, input.options);
+    case "multiple_choice":
+      return compareMultiple(exp, got, input.options);
+    case "matching":
+      return compareMatching(exp, got);
+    case "fill_blank":
+    case "short_text":
+      return compareShort(exp, got, input.tolerance);
     case "expression":
-    case "string":
-    default:
-      // Для expression — попробуем сравнить как строки после удаления пробелов.
-      if (type === "expression") {
+      // Для expression — сравним как строки после удаления пробелов.
+      {
         const e = exp.replace(SPACE_RE, "");
         const g = got.replace(SPACE_RE, "");
         return { correct: e === g, normalized_expected: e, normalized_got: g };
       }
+    case "string":
+    default:
       return compareString(exp, got);
   }
 }

@@ -11,6 +11,8 @@ type Task = {
   expected_answer?: string;
   expected?: string;
   answer?: string;
+  answer_type?: string;
+  options?: string[];
   hint?: string;
 };
 
@@ -146,6 +148,8 @@ export function WorksheetPreview({
               n={n}
               condition={condition}
               answer={String(answer)}
+              answerType={t.answer_type}
+              options={t.options}
               showAnswer={showAnswers}
               palette={palette}
             />
@@ -170,6 +174,7 @@ export function WorksheetPreview({
       </div>
 
       <style>{`
+        .ws-preview-mark { display:none; }
         .ws-task-body .math {
           font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
           background: rgba(0,0,0,0.04);
@@ -187,12 +192,16 @@ function TaskBlock({
   n,
   condition,
   answer,
+  answerType,
+  options,
   showAnswer,
   palette,
 }: {
   n: number | string;
   condition: string;
   answer: string;
+  answerType?: string;
+  options?: string[];
   showAnswer: boolean;
   palette: ReturnType<typeof getStylePalette>;
 }) {
@@ -245,8 +254,61 @@ function TaskBlock({
       <div
         className="ws-task-body"
         dangerouslySetInnerHTML={{ __html: renderTaskCondition(condition) }}
-        style={{ fontSize: 14, marginBottom: showAnswer ? 8 : 0 }}
+        style={{ fontSize: 14, marginBottom: options?.length || showAnswer ? 8 : 0 }}
       />
+
+      {/* Варианты ответа для choice / true_false / multiple_choice */}
+      {options && options.length > 0 && answerType !== "matching" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, margin: "6px 0 4px" }}>
+          {options.map((opt, idx) => {
+            const isCorrect = showAnswer && normalizeAns(opt) === normalizeAns(answer);
+            return (
+              <div
+                key={idx}
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: 8,
+                  fontSize: 13,
+                  padding: "3px 8px",
+                  borderRadius: 6,
+                  background: isCorrect
+                    ? (isDark ? "rgba(16,185,129,0.16)" : "rgba(16,185,129,0.10)")
+                    : "transparent",
+                }}
+              >
+                <span
+                  style={{
+                    width: 18,
+                    height: 18,
+                    flexShrink: 0,
+                    borderRadius: answerType === "multiple_choice" ? 4 : "50%",
+                    border: `1.5px solid ${isCorrect ? "#10B981" : palette.primary + "70"}`,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    color: "#10B981",
+                  }}
+                >
+                  {isCorrect ? "✓" : String.fromCharCode(1040 + idx) /* А, Б, В... */}
+                </span>
+                <span dangerouslySetInnerHTML={{ __html: renderTaskCondition(opt) }} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Соответствие */}
+      {options && options.length > 0 && answerType === "matching" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, margin: "6px 0 4px", fontSize: 13 }}>
+          {options.map((opt, idx) => (
+            <div key={idx} dangerouslySetInnerHTML={{ __html: renderTaskCondition(opt) }} />
+          ))}
+        </div>
+      )}
+
       {showAnswer && answer && (
         <div
           style={{
@@ -266,4 +328,14 @@ function TaskBlock({
       )}
     </div>
   );
+}
+
+// Нормализация для сравнения выбранного варианта с эталоном.
+function normalizeAns(s: string): string {
+  return (s ?? "")
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/[.,;]+$/, "")
+    .trim();
 }

@@ -25,6 +25,7 @@ export function Header() {
     { href: "/create", label: "Создать" },
     { href: "/upload", label: "Загрузить" },
     { href: "/templates", label: "Шаблоны" },
+    { href: "/demo", label: "Пример" },
     { href: "/my", label: "Мои листы" },
     { href: "/check", label: "Проверка" },
     { href: "/marketplace", label: "Маркетплейс" },

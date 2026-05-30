@@ -73,6 +73,7 @@ export interface BankQuery {
   source?: BankTask["source"];
   limit?: number;            // максимум выборки
   seed?: number;             // детерминированный shuffle
+  dedup?: boolean;           // убрать дубли по условию (по умолчанию true)
 }
 
 function lowerNormalize(s: string): string {
@@ -110,6 +111,29 @@ function shuffle<T>(arr: T[], r: () => number): T[] {
   return a;
 }
 
+// Ключ для дедупликации: условие без регистра, ё→е, без пробелов и пунктуации.
+// Один и тот же вопрос из разных источников (fipi/kompege/sdamgia) даёт один ключ.
+export function dedupKey(condition: string): string {
+  return lowerNormalize(condition)
+    .replace(/\s+/g, "")
+    .replace(/[^a-zа-я0-9]/gi, "")
+    .slice(0, 160);
+}
+
+/** Убрать задачи с одинаковым условием, сохранив порядок (первое вхождение). */
+export function dedupByCondition(tasks: BankTask[]): BankTask[] {
+  const seen = new Set<string>();
+  const out: BankTask[] = [];
+  for (const t of tasks) {
+    const key = dedupKey(t.condition ?? "");
+    if (!key) { out.push(t); continue; } // пустое условие не схлопываем
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(t);
+  }
+  return out;
+}
+
 /** Synchronous search on a pre-built index. Exported for unit tests. */
 export function searchBankFromIndex(idx: BankIndex, q: BankQuery): BankTask[] {
   let pool: BankTask[];
@@ -126,6 +150,10 @@ export function searchBankFromIndex(idx: BankIndex, q: BankQuery): BankTask[] {
 
   if (q.source) pool = pool.filter((t) => t.source === q.source);
   if (q.topic) pool = pool.filter((t) => matchesTopic(t, q.topic!));
+
+  // Дедуп по условию (по умолчанию включён): один и тот же вопрос из разных
+  // источников не попадёт в выборку дважды. Делаем до shuffle/limit.
+  if (q.dedup !== false) pool = dedupByCondition(pool);
 
   if (q.seed !== undefined) pool = shuffle(pool, rng(q.seed));
 

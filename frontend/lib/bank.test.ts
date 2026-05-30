@@ -3,6 +3,8 @@ import {
   buildBankIndex,
   searchBankFromIndex,
   bankTaskToWorksheetTask,
+  dedupByCondition,
+  dedupKey,
   type BankTask,
 } from "./bank";
 
@@ -216,5 +218,63 @@ describe("bankTaskToWorksheetTask", () => {
     const t = makeTask({ solution: null });
     const ws = bankTaskToWorksheetTask(t, 1);
     expect("solution" in ws).toBe(false);
+  });
+});
+
+// ─── dedup ────────────────────────────────────────────────────────────────────
+
+describe("dedupKey", () => {
+  it("collapses case, ё/е, spaces and punctuation to one key", () => {
+    expect(dedupKey("Найдите 15% от 240.")).toBe(dedupKey("найдите  15 % от 240"));
+  });
+  it("ё and е produce the same key", () => {
+    expect(dedupKey("Найдём ответ")).toBe(dedupKey("Найдем ответ"));
+  });
+  it("different conditions → different keys", () => {
+    expect(dedupKey("Найдите 15% от 240")).not.toBe(dedupKey("Найдите 20% от 300"));
+  });
+});
+
+describe("dedupByCondition", () => {
+  it("removes same-condition tasks from different sources, keeps first", () => {
+    const dups: BankTask[] = [
+      makeTask({ id: "K1", source: "kompege", condition: "Найдите 15% от 240." }),
+      makeTask({ id: "F1", source: "fipi", condition: "найдите 15 % от 240" }), // same after norm
+      makeTask({ id: "S1", source: "sdamgia", condition: "Совсем другая задача" }),
+    ];
+    const out = dedupByCondition(dups);
+    expect(out).toHaveLength(2);
+    expect(out[0].id).toBe("K1"); // first occurrence kept
+    expect(out.map((t) => t.id)).not.toContain("F1");
+  });
+  it("keeps tasks with empty conditions (does not collapse them)", () => {
+    const out = dedupByCondition([
+      makeTask({ id: "E1", condition: "" }),
+      makeTask({ id: "E2", condition: "" }),
+    ]);
+    expect(out).toHaveLength(2);
+  });
+});
+
+describe("searchBankFromIndex · dedup", () => {
+  const withDups: BankTask[] = [
+    makeTask({ id: "A", subject: "math", exam: "ege", zadanie_n: 7, condition: "Решите уравнение x+1=2" }),
+    makeTask({ id: "B", subject: "math", exam: "ege", zadanie_n: 7, condition: "решите уравнение x + 1 = 2" }), // dup of A
+    makeTask({ id: "C", subject: "math", exam: "ege", zadanie_n: 7, condition: "Решите уравнение x+1=5" }),
+  ];
+  const idx = buildBankIndex(withDups);
+
+  it("dedups by default", () => {
+    const res = searchBankFromIndex(idx, { subject: "math", exam: "ege", zadanie_n: 7 });
+    expect(res).toHaveLength(2);
+  });
+  it("dedup:false keeps duplicates", () => {
+    const res = searchBankFromIndex(idx, { subject: "math", exam: "ege", zadanie_n: 7, dedup: false });
+    expect(res).toHaveLength(3);
+  });
+  it("dedup applies before limit", () => {
+    const res = searchBankFromIndex(idx, { subject: "math", exam: "ege", zadanie_n: 7, limit: 3 });
+    // only 2 unique exist, so limit 3 still yields 2
+    expect(res).toHaveLength(2);
   });
 });

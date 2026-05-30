@@ -110,10 +110,42 @@ export interface RenderedLatex {
   auxFiles: { sourcePath: string; targetRelPath: string }[];
 }
 
+export interface RenderOpts {
+  /** Добавить страницу «Ключ ответов» с решениями (для учителя). */
+  includeAnswers?: boolean;
+}
+
+// Страница «Ключ ответов»: номер задачи → ответ → решение.
+// Цвет-независима (работает и в кастомных skeleton-шаблонах).
+function buildAnswerKeyTex(content: WorksheetContent): string {
+  const lines = content.tasks
+    .map((t) => {
+      const ans = t.expected_answer ? escapeButPreserveMath(String(t.expected_answer)) : "—";
+      const sol = t.solution ? ` {\\itshape ${escapeButPreserveMath(String(t.solution))}}` : "";
+      return `\\noindent\\textbf{№${t.n}.}~\\textbf{Ответ:} ${ans}.${sol}\\par\\vspace{1.4mm}`;
+    })
+    .join("\n");
+  return `\\clearpage
+\\noindent{\\large\\bfseries Ключ ответов}\\par\\vspace{3mm}
+${lines}`;
+}
+
+// Вставить ключ ответов перед \end{document}. Универсально для inline и
+// кастомных шаблонов.
+function injectAnswerKey(tex: string, content: WorksheetContent, opts?: RenderOpts): string {
+  if (!opts?.includeAnswers) return tex;
+  const key = buildAnswerKeyTex(content);
+  if (tex.includes("\\end{document}")) {
+    return tex.replace("\\end{document}", `${key}\n\n\\end{document}`);
+  }
+  return `${tex}\n${key}\n`;
+}
+
 export async function renderLatex(
   content: WorksheetContent,
   styleSlug: string,
-  brand?: { teacherName?: string; school?: string }
+  brand?: { teacherName?: string; school?: string },
+  opts?: RenderOpts
 ): Promise<RenderedLatex> {
   const style = STYLE_MAP[styleSlug] ?? STYLE_MAP.classic_wildcat_purple;
 
@@ -160,7 +192,7 @@ ${tasksTex}
 `;
 
   return {
-    texSource,
+    texSource: injectAnswerKey(texSource, content, opts),
     auxFiles: [],
   };
 }
@@ -179,7 +211,8 @@ export async function renderLatexStandalone(
     accentColor?: string;
     watermark?: string;
     logoPath?: string;
-  }
+  },
+  opts?: RenderOpts
 ): Promise<RenderedLatex> {
   const style = STYLE_MAP[styleSlug] ?? STYLE_MAP.classic_wildcat_purple;
   // Брендинг переопределяет цвет шаблона, если указан (HEX «#RRGGBB» → без #).
@@ -228,7 +261,7 @@ export async function renderLatexStandalone(
       .replace(/\{\{watermark_preamble\}\}/g, watermarkPreamble)
       .replace(/\{\{font_cmd\}\}/g, style.fontCmd)
       .replace(/\{\{extra_preamble\}\}/g, style.extraPreamble ?? "");
-    return { texSource: filled, auxFiles: [] };
+    return { texSource: injectAnswerKey(filled, content, opts), auxFiles: [] };
   }
 
   // Самодостаточный standalone: всё из CTAN, никаких ссылок на Lessons/_templates.
@@ -290,7 +323,7 @@ ${tasksTex}
 \\end{document}
 `;
 
-  return { texSource, auxFiles: [] };
+  return { texSource: injectAnswerKey(texSource, content, opts), auxFiles: [] };
 }
 
 export async function loadCustomTemplate(templateId: string): Promise<string | null> {

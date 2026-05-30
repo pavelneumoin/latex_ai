@@ -62,7 +62,7 @@ export class DocxExporter implements Exporter {
 
 async function exportViaPandoc(input: ExportInput): Promise<Buffer> {
   const styleSlug = await pickStyle(input.templateId);
-  const rendered = await renderLatexStandalone(input.content, styleSlug, input.brand);
+  const rendered = await renderLatexStandalone(input.content, styleSlug, input.brand, { includeAnswers: input.includeAnswers });
 
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "rl-docx-"));
   const texPath = path.join(tmpDir, "ws.tex");

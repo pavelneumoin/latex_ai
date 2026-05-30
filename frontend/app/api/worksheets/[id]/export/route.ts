@@ -22,6 +22,7 @@ export async function GET(
 ) {
   const url = new URL(req.url);
   const format = (url.searchParams.get("format") || "pdf").toLowerCase() as ExportFormat;
+  const includeAnswers = ["1", "true", "yes"].includes((url.searchParams.get("answers") || "").toLowerCase());
 
   if (!VALID.includes(format)) {
     return NextResponse.json(
@@ -91,6 +92,7 @@ export async function GET(
       worksheetId: ws.id,
       content,
       templateId: ws.templateId,
+      includeAnswers,
       brand: ws.user
         ? {
             teacherName: ws.user.name ?? undefined,
@@ -106,11 +108,15 @@ export async function GET(
       return NextResponse.json({ error: "empty_export" }, { status: 500 });
     }
 
+    const filename = includeAnswers
+      ? result.filename.replace(/(\.[^.]+)$/, "_ключ$1")
+      : result.filename;
+
     return new NextResponse(new Uint8Array(result.data), {
       status: 200,
       headers: {
         "Content-Type": result.mimeType,
-        "Content-Disposition": `attachment; filename="${encodeURIComponent(result.filename)}"`,
+        "Content-Disposition": `attachment; filename="${encodeURIComponent(filename)}"`,
         "Cache-Control": "private, no-store",
       },
     });

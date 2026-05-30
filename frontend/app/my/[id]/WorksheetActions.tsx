@@ -115,14 +115,15 @@ export function WorksheetActions({ worksheetId, isPublic }: Props) {
     }
   }
 
-  async function onExport(format: "pdf" | "docx" | "latex" | "zip"): Promise<void> {
-    setBusy(`exp-${format}`);
+  async function onExport(format: "pdf" | "docx" | "latex" | "zip", withAnswers = false): Promise<void> {
+    setBusy(`exp-${format}${withAnswers ? "-ans" : ""}`);
     setErr(null);
     try {
+      const qAns = withAnswers ? "&answers=1" : "";
       const path =
         format === "zip"
           ? `/api/worksheets/${worksheetId}/latex-zip`
-          : `/api/worksheets/${worksheetId}/export?format=${format}`;
+          : `/api/worksheets/${worksheetId}/export?format=${format}${qAns}`;
       const r = await fetch(path);
       if (!r.ok) {
         const data = await r.json().catch(() => ({}));
@@ -302,8 +303,11 @@ export function WorksheetActions({ worksheetId, isPublic }: Props) {
           Скачать
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button type="button" className="btn btn-blue" disabled={Boolean(busy)} onClick={() => onExport("pdf")} title="PDF для печати">
+          <button type="button" className="btn btn-blue" disabled={Boolean(busy)} onClick={() => onExport("pdf")} title="PDF для печати (без ответов)">
             {busy === "exp-pdf" ? "..." : "PDF"}
+          </button>
+          <button type="button" className="btn btn-outline" disabled={Boolean(busy)} onClick={() => onExport("pdf", true)} title="PDF + страница «Ключ ответов» с решениями для учителя">
+            {busy === "exp-pdf-ans" ? "..." : "PDF + ключ"}
           </button>
           <button type="button" className="btn btn-outline" disabled={Boolean(busy)} onClick={() => onExport("docx")} title="Word (.docx)">
             {busy === "exp-docx" ? "..." : "DOCX"}

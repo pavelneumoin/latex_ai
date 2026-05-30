@@ -24,8 +24,8 @@ export class LatexExporter implements Exporter {
     const styleSlug = await pickStyle(input.templateId);
     const rendered =
       this.mode === "standalone"
-        ? await renderLatexStandalone(input.content, styleSlug, input.brand)
-        : await renderLatex(input.content, styleSlug, input.brand);
+        ? await renderLatexStandalone(input.content, styleSlug, input.brand, { includeAnswers: input.includeAnswers })
+        : await renderLatex(input.content, styleSlug, input.brand, { includeAnswers: input.includeAnswers });
 
     const data = Buffer.from(rendered.texSource, "utf-8");
     const safeTitle = slugifyAscii(input.content.title);

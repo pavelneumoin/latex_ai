@@ -47,6 +47,8 @@ export interface ExportInput {
     watermark?: string;
     accentColor?: string;
   };
+  /** Добавить страницу «Ключ ответов» с решениями (версия для учителя). */
+  includeAnswers?: boolean;
 }
 
 export interface ExportResult {

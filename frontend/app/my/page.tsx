@@ -35,22 +35,15 @@ export default async function MyPage() {
   return (
     <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
       <Header />
-      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "32px 28px 64px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
-          }}
-        >
+      <main className="rl-container" style={{ maxWidth: 1180, paddingTop: 32, paddingBottom: 64 }}>
+        <div className="rl-row-between" style={{ marginBottom: 24 }}>
           <div>
             <h1 style={{ marginBottom: 4 }}>Мои рабочие листы</h1>
             <p className="muted" style={{ fontSize: 14 }}>
               Всего: {worksheets.length}
             </p>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
+          <div className="rl-row">
             <Link href="/upload" className="btn btn-outline">
               ⬆️ Из PDF
             </Link>

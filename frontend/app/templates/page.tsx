@@ -26,7 +26,7 @@ export default async function TemplatesPage() {
   return (
     <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
       <Header />
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 28px 64px" }}>
+      <main className="rl-container" style={{ maxWidth: 1280, paddingTop: 32, paddingBottom: 64 }}>
         <Link
           href="/dashboard"
           style={{ color: "var(--fg-3)", fontSize: 13, textDecoration: "none" }}

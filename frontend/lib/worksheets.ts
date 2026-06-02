@@ -136,6 +136,78 @@ export async function generateWorksheetContent(
   };
 }
 
+/** Провайдеры, которые умеют принимать изображения (vision). */
+const VISION_PROVIDERS = new Set(["claude", "openai", "openrouter"]);
+
+/**
+ * Поддерживает ли текущий (или заданный) провайдер распознавание фото.
+ * Используется в /api/worksheets/from-image, чтобы честно сказать «фото пока недоступно».
+ */
+export function providerSupportsVision(key?: string): boolean {
+  const k = (key || process.env.LLM_PROVIDER || "mock").toLowerCase();
+  return VISION_PROVIDERS.has(k);
+}
+
+export interface InputImage {
+  /** base64 без префикса data: */
+  data: string;
+  mimeType: string;
+}
+
+/**
+ * Распознать задачи с одной или нескольких фотографий через vision-LLM.
+ * Прокидывает изображения как attachments в провайдер (Claude/OpenAI).
+ */
+export async function generateWorksheetFromImages(
+  images: InputImage[],
+  vars: { topic?: string; subject?: string; grade?: number }
+): Promise<{
+  contentJson: string;
+  parsed: unknown;
+  provider: string;
+  model: string;
+}> {
+  const prompt = await loadPrompt("parse_image_to_tasks");
+  const topicHint = vars.topic?.trim() ? ` по теме «${vars.topic.trim()}»` : "";
+  const userText = renderTemplate(prompt.userTemplate, {
+    topic_hint: topicHint,
+    subject: vars.subject === "informatics" ? "информатика" : "математика",
+    grade: vars.grade ?? "",
+  });
+
+  const provider = getProvider();
+  const resp = await provider.generate({
+    messages: [
+      { role: "system", content: prompt.system },
+      { role: "user", content: userText },
+    ],
+    attachments: images.map((img) => ({
+      kind: "image" as const,
+      data: img.data,
+      mimeType: img.mimeType,
+    })),
+    jsonSchema: prompt.outputSchema,
+    temperature: 0.2, // распознавание — низкая температура, ближе к исходнику
+    maxTokens: 4096,
+  });
+
+  let parsed: unknown = resp.json;
+  if (parsed === undefined) {
+    parsed = extractLooseJson(resp.text);
+    if (parsed === undefined) {
+      parsed = { raw: resp.text, _warning: "non_json_response" };
+    }
+  }
+  parsed = normalizeWorksheetContent(parsed);
+
+  return {
+    contentJson: JSON.stringify(parsed),
+    parsed,
+    provider: resp.provider,
+    model: resp.model,
+  };
+}
+
 type AnyRec = Record<string, unknown>;
 
 function asString(v: unknown): string | undefined {

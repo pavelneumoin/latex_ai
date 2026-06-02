@@ -97,7 +97,7 @@ export function SettingsForm({ initial }: Props) {
       {/* Personal */}
       <div className="card" style={{ padding: 24 }}>
         <h3 style={{ marginBottom: 16 }}>Профиль</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="rl-grid rl-grid-2">
           <div>
             <label className="label" htmlFor="name">Имя</label>
             <input
@@ -333,7 +333,7 @@ export function SettingsForm({ initial }: Props) {
       )}
 
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button type="submit" className="btn btn-blue btn-lg" disabled={saving}>
+        <button type="submit" className="btn btn-blue btn-lg rl-btn-block-mobile" disabled={saving}>
           {saving ? "Сохраняем..." : "Сохранить изменения"}
         </button>
       </div>

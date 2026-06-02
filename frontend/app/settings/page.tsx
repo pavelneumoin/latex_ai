@@ -31,7 +31,7 @@ export default async function SettingsPage() {
   return (
     <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
       <Header />
-      <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 28px 64px" }}>
+      <main className="rl-container" style={{ maxWidth: 820, paddingTop: 32, paddingBottom: 64 }}>
         <div style={{ marginBottom: 24 }}>
           <h1 style={{ marginBottom: 4 }}>Настройки</h1>
           <p className="muted" style={{ fontSize: 14 }}>

@@ -82,7 +82,7 @@ export default async function DashboardPage() {
   return (
     <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
       <Header />
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 64px" }}>
+      <main className="rl-container" style={{ maxWidth: 1100, paddingTop: 32, paddingBottom: 64 }}>
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ marginBottom: 4 }}>
             Привет{user?.name ? `, ${user.name}` : ""}!
@@ -238,42 +238,59 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="card" style={{ overflow: "hidden" }}>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Название</th>
-                    <th>Тема</th>
-                    <th>Статус</th>
-                    <th>Дата</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map((w) => {
-                    const b = statusBadge(w.status);
-                    return (
-                      <tr key={w.id}>
-                        <td style={{ fontWeight: 500 }}>{w.title}</td>
-                        <td className="muted">{w.topic ?? "—"}</td>
-                        <td>
-                          <span style={badgeStyle(b.color)}>{b.text}</span>
-                        </td>
-                        <td className="muted" style={{ fontSize: 13 }}>
-                          {formatDate(w.createdAt)}
-                        </td>
-                        <td style={{ textAlign: "right" }}>
-                          <Link
-                            href={`/my/${w.id}`}
-                            className="btn btn-outline btn-sm"
-                          >
-                            Открыть
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              {recent.map((w, i) => {
+                const b = statusBadge(w.status);
+                return (
+                  <Link
+                    key={w.id}
+                    href={`/my/${w.id}`}
+                    className="card-hover"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      flexWrap: "wrap",
+                      padding: "14px 18px",
+                      textDecoration: "none",
+                      color: "var(--fg)",
+                      borderTop: i === 0 ? "none" : "1px solid var(--border)",
+                    }}
+                  >
+                    <div style={{ flex: "1 1 200px", minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontWeight: 500,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {w.title}
+                      </div>
+                      {w.topic && (
+                        <div
+                          className="muted"
+                          style={{
+                            fontSize: 13,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {w.topic}
+                        </div>
+                      )}
+                    </div>
+                    <span style={badgeStyle(b.color)}>{b.text}</span>
+                    <span className="muted" style={{ fontSize: 13, whiteSpace: "nowrap" }}>
+                      {formatDate(w.createdAt)}
+                    </span>
+                    <span style={{ color: "var(--primary)", fontSize: 13, fontWeight: 600 }}>
+                      Открыть →
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>

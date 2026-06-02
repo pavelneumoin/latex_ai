@@ -14,7 +14,8 @@ export type PromptId =
   | "generate_harder"
   | "check_worksheet"
   | "refine_worksheet"
-  | "parse_pdf_to_tasks";
+  | "parse_pdf_to_tasks"
+  | "parse_image_to_tasks";
 
 interface ParsedPrompt {
   system: string;

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { listStylesForUi } from "@/lib/formulation-styles";
+import { Header } from "../_components/Header";
+import { GenerationLoader } from "../_components/GenerationLoader";
 
 const STYLE_OPTIONS = listStylesForUi();
 
@@ -173,31 +175,49 @@ export default function CreatePage() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", background: "var(--surface)", color: "var(--fg)" }}>
-      <header
-        style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "16px 32px", borderBottom: "1px solid var(--border)", background: "var(--bg)",
-        }}
-      >
-        <Link href="/" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 30, height: 30, borderRadius: 8, background: "var(--primary)", color: "var(--primary-fg)", display: "grid", placeItems: "center", fontFamily: "var(--display)", fontWeight: 800, fontSize: 14 }}>РЛ</div>
-          <span style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 16 }}>РабочийЛист·ai</span>
-        </Link>
-        <span style={{ fontSize: 13, color: "var(--fg-3)" }}>Создание листа</span>
-      </header>
+    <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)", color: "var(--fg)" }}>
+      <Header />
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: 24 }}>
-        <h1 style={{ fontFamily: "var(--display)", fontSize: 28, fontWeight: 700, margin: "8px 0 6px" }}>
+      {loading && <GenerationLoader variant={source === "bank" ? "bank" : "create"} />}
+
+      <div className="rl-container" style={{ maxWidth: 1100, padding: "24px 16px 64px" }}>
+        <h1 className="rl-h2" style={{ margin: "8px 0 6px" }}>
           Новый рабочий лист
         </h1>
-        <p style={{ color: "var(--fg-3)", marginTop: 0, marginBottom: 24 }}>
+        <p style={{ color: "var(--fg-3)", marginTop: 0, marginBottom: 18 }}>
           Выбери источник задач и параметры. PDF, DOCX, .tex и автопроверку получишь сразу после генерации.
         </p>
 
+        {/* Фото-фишка прямо в интерфейсе создания */}
+        <Link
+          href="/upload"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "12px 16px",
+            marginBottom: 22,
+            borderRadius: 14,
+            textDecoration: "none",
+            background: "linear-gradient(100deg, var(--primary-soft), var(--accent-soft))",
+            border: "1px solid var(--border)",
+          }}
+        >
+          <span style={{ fontSize: 24, flex: "0 0 auto" }}>📸</span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", fontWeight: 700, fontSize: 14, color: "var(--fg)" }}>
+              Уже есть задачи на бумаге? Сфотографируй
+            </span>
+            <span style={{ display: "block", fontSize: 12.5, color: "var(--fg-2)" }}>
+              Сними страницу учебника — нейросеть сама соберёт лист
+            </span>
+          </span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--primary)", flex: "0 0 auto" }}>Открыть →</span>
+        </Link>
+
         {/* Источник */}
         <Section title="1. Источник задач">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="rl-grid rl-grid-2">
             <SourceCard
               checked={source === "llm"}
               onClick={() => setSource("llm")}
@@ -221,7 +241,7 @@ export default function CreatePage() {
 
         {/* Тема + параметры */}
         <Section title="2. Параметры">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div className="rl-grid rl-grid-2">
             <Field label="Тема (опционально для банка)" hint="Например, «Линейные уравнения» или «Стереометрия»">
               <input
                 className="input"
@@ -258,7 +278,7 @@ export default function CreatePage() {
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>
                 Разнообразие формулировок
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div className="rl-grid rl-grid-2">
                 <Field label="Стиль формулировок" hint={STYLE_OPTIONS.find((s) => s.id === formulationStyle)?.short}>
                   <select className="select" value={formulationStyle} onChange={(e) => setFormulationStyle(e.target.value)}>
                     {STYLE_OPTIONS.map((s) => (
@@ -319,7 +339,7 @@ export default function CreatePage() {
           {source === "bank" && (
             <div style={{ marginTop: 16, padding: 14, background: "var(--surface-2)", borderRadius: 10 }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>Фильтр банка</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+              <div className="rl-grid rl-grid-3">
                 <Field label="Экзамен">
                   <select className="select" value={bankExam} onChange={(e) => setBankExam(e.target.value as never)}>
                     {Object.entries(EXAM_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -474,7 +494,7 @@ export default function CreatePage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
 

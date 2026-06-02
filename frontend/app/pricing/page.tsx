@@ -33,7 +33,7 @@ export default async function PricingPage() {
   return (
     <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
       <Header />
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 64px" }}>
+      <main className="rl-container" style={{ maxWidth: 1100, paddingTop: 32, paddingBottom: 64 }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <h1 style={{ marginBottom: 8 }}>Тарифы</h1>
           <p className="muted-2" style={{ fontSize: 16, maxWidth: 620, margin: "0 auto" }}>
@@ -47,11 +47,8 @@ export default async function PricingPage() {
           </div>
         ) : (
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${Math.min(plans.length, 3)}, 1fr)`,
-              gap: 20,
-            }}
+            className={`rl-grid ${plans.length >= 3 ? "rl-grid-3" : plans.length === 2 ? "rl-grid-2" : ""}`.trim()}
+            style={{ gap: 20 }}
           >
             {plans.map((p, idx) => {
               const isCurrent = subscription?.planId === p.id;

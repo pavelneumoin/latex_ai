@@ -33,6 +33,8 @@ export interface CompareResult {
   normalized_got?: string;
   /** true → задание нельзя проверить автоматически (open) — нужна ручная оценка. */
   manual?: boolean;
+  /** Доля верного (0..1) для multiple_choice / matching. Для остальных = correct?1:0. */
+  partial?: number;
 }
 
 const SPACE_RE = /\s+/g;

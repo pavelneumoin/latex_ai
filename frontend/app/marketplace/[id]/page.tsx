@@ -58,14 +58,14 @@ export default async function PublicationDetailPage({ params }: { params: { id: 
   return (
     <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
       <Header />
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 64px" }}>
+      <main className="rl-container" style={{ maxWidth: 1100, paddingTop: 32, paddingBottom: 64 }}>
         <div style={{ marginBottom: 16 }}>
           <Link href="/marketplace" style={{ color: "var(--fg-3)", fontSize: 13, textDecoration: "none" }}>
             ← К маркетплейсу
           </Link>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 24 }}>
+        <div className="rl-split">
           <div>
             <div className="card" style={{ padding: 28, marginBottom: 20 }}>
               <h1 style={{ marginBottom: 8 }}>{publication.title}</h1>

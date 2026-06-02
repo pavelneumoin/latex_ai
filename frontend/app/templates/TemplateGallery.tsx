@@ -90,7 +90,7 @@ export function TemplateGallery({ templates }: { templates: Template[] }) {
           padding: 16,
           marginBottom: 20,
           display: "grid",
-          gridTemplateColumns: "1fr 160px 120px 200px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
           gap: 10,
           alignItems: "end",
         }}

@@ -40,10 +40,14 @@ model User {
   worksheets    Worksheet[]
   uploads       Upload[]
   publications  Publication[]
-  subscription  Subscription?
+  subscriptions Subscription[]
   payments      Payment[]
   credits       Credit[]
   favorites     Favorite[]
+  purchases     Purchase[]
+  classes       Class[]
+  checkJobs     CheckJob[]
+  reports       Report[]
 
   @@index([email])
 }
@@ -152,6 +156,7 @@ model Upload {
   id          String   @id @default(cuid())
   userId      String?
   worksheetId String?
+  checkJobId  String?
   filename    String
   mimeType    String
   size        Int
@@ -163,8 +168,10 @@ model Upload {
 
   user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   worksheet Worksheet? @relation(fields: [worksheetId], references: [id], onDelete: SetNull)
+  checkJob  CheckJob?  @relation(fields: [checkJobId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
+  @@index([checkJobId])
 }
 
 // ─────────────────────────────── МАРКЕТПЛЕЙС ───────────────────────────────
@@ -212,10 +219,13 @@ model Favorite {
 // ─────────────────────────────── БИЛЛИНГ ───────────────────────────────
 
 model Plan {
-  id              String   @id                     // "free" | "pro" | "school"
+  id              String   @id                     // "free" | "math" | "informatics" | "all"
   name            String
   description     String?
+  subject         String   @default("all")         // math | informatics | all
+  tier            String   @default("basic")       // basic (PDF) | source (PDF + исходники)
   priceMonthly    Int                              // копейки
+  priceYearly     Int      @default(0)             // копейки; 0 = годового нет
   worksheetsLimit Int                              // -1 = безлимит
   variantsLimit   Int                              // -1 = безлимит
   checksLimit     Int                              // -1 = безлимит
@@ -230,8 +240,9 @@ model Plan {
 
 model Subscription {
   id           String   @id @default(cuid())
-  userId       String   @unique
+  userId       String
   planId       String
+  subject      String   @default("all")           // math | informatics | all — дублирует plan.subject для уникальности
   status       String   @default("active")        // active | past_due | cancelled
   currentPeriodStart DateTime @default(now())
   currentPeriodEnd   DateTime
@@ -247,6 +258,8 @@ model Subscription {
 
   user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan         Plan @relation(fields: [planId], references: [id])
+
+  @@unique([userId, subject])
 }
 
 model Payment {
@@ -279,6 +292,179 @@ model Credit {
   createdAt DateTime @default(now())
 
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+// ─────────────────────────────── КАТАЛОГ ГОТОВЫХ МАТЕРИАЛОВ (v2) ───────────────────────────────
+// Материалы фабрики (Marp-презентации, LaTeX-листы): продаются поштучно и открываются подпиской.
+
+model Product {
+  id          String  @id @default(cuid())
+  slug        String  @unique                      // "prob45-l1-classic"
+  title       String
+  description String?
+  subject     String                               // math | informatics
+  course      String?                              // «Вероятность. Задания 4–5»
+  courseSlug  String?                              // prob45 | kurs7 | kurs2 | kurs16 ...
+  lessonNo    Int?
+  audience    String?                              // «10–11 класс · ЕГЭ»
+  kind        String  @default("lesson_kit")       // lesson_kit | presentation | worksheet | test | course_bundle
+  priceBasic  Int     @default(4900)               // копейки, уровень PDF
+  priceSource Int?                                 // копейки, уровень PDF+исходники; null = не продаётся
+  isFree      Boolean @default(false)
+  isPublished Boolean @default(true)
+  previewPath String?                              // PNG первой страницы (относительно storage)
+  pages       Int?
+  checkable   Boolean @default(false)              // есть ключ — можно автопроверять
+  answerKeyJson String?                            // мастер-ключ: [{n, answer, points}]
+  checkInstructions String?                        // инструкция для LLM-проверки этого листа
+  downloads   Int     @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assets      ProductAsset[]
+  purchases   Purchase[]
+  checkJobs   CheckJob[]
+
+  @@index([subject, isPublished])
+  @@index([courseSlug, lessonNo])
+}
+
+model ProductAsset {
+  id        String  @id @default(cuid())
+  productId String
+  kind      String                                 // presentation_pdf | worksheet_pdf | cheatsheet_pdf | homework_pdf | test_pdf | answers_pdf | marp_src | tex_src | zip
+  tier      String  @default("basic")              // basic | source
+  label     String                                 // «Презентация (54 слайда)»
+  path      String                                 // относительно storage root
+  size      Int?
+  pages     Int?
+  sortKey   Int     @default(0)
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, tier])
+}
+
+model Purchase {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  tier      String   @default("basic")             // basic | source (source включает basic)
+  pricePaid Int      @default(0)                   // копейки
+  paymentId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId, createdAt])
+}
+
+// ─────────────────────────────── КЛАССЫ И ПРОВЕРКА (v2) ───────────────────────────────
+
+model Class {
+  id         String  @id @default(cuid())
+  userId     String
+  name       String                                // «7А»
+  subject    String  @default("math")              // math | informatics
+  gradeLevel Int?                                  // 5..11
+  archived   Boolean @default(false)
+  // Пороги отметок в процентах (настраиваются на класс)
+  scale5     Int     @default(85)
+  scale4     Int     @default(65)
+  scale3     Int     @default(40)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  students   Student[]
+  checkJobs  CheckJob[]
+
+  @@index([userId, archived])
+}
+
+model Student {
+  id        String  @id @default(cuid())
+  classId   String
+  name      String
+  sortKey   Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  class     Class         @relation(fields: [classId], references: [id], onDelete: Cascade)
+  results   CheckResult[]
+
+  @@index([classId, sortKey])
+}
+
+model CheckJob {
+  id         String  @id @default(cuid())
+  userId     String
+  classId    String?
+  productId  String?                               // проверяемый лист из каталога
+  title      String
+  status     String  @default("draft")             // draft | uploaded | processing | review | done | failed
+  totalTasks Int?                                  // число заданий в листе
+  maxScore   Int?                                  // максимум баллов
+  notes      String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class      Class?   @relation(fields: [classId], references: [id], onDelete: SetNull)
+  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  uploads    Upload[]
+  results    CheckResult[]
+  reports    Report[]
+
+  @@index([userId, createdAt])
+}
+
+model CheckResult {
+  id          String  @id @default(cuid())
+  jobId       String
+  studentId   String?
+  studentName String                               // имя на момент проверки (или ручной ввод без класса)
+  answersJson String  @default("[]")               // [{n, given, expected, ok, points, maxPoints}]
+  score       Int     @default(0)
+  maxScore    Int     @default(0)
+  pct         Float   @default(0)
+  mark        Int?                                 // 5 | 4 | 3 | 2
+  needsReview Boolean @default(true)               // требует ручной проверки (пока нет LLM)
+  absent      Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  job         CheckJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  student     Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([jobId])
+}
+
+// ─────────────────────────────── ОТЧЁТЫ (LaTeX → PDF) ───────────────────────────────
+
+model Report {
+  id        String  @id @default(cuid())
+  userId    String
+  kind      String                                 // check | class_period | student
+  jobId     String?
+  title     String
+  status    String  @default("ready")              // generating | ready | failed
+  texPath   String?                                // .tex в storage
+  pdfPath   String?                                // скомпилированный PDF (если xelatex доступен)
+
+  createdAt DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       CheckJob? @relation(fields: [jobId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
 }

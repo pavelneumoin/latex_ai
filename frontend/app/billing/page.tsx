@@ -43,9 +43,10 @@ export default async function BillingPage() {
   const userId = session.user.id;
 
   const [subscription, payments] = await Promise.all([
-    prisma.subscription.findUnique({
-      where: { userId },
+    prisma.subscription.findFirst({
+      where: { userId, status: "active" },
       include: { plan: true },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.payment.findMany({
       where: { userId },

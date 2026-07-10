@@ -58,9 +58,10 @@ export default async function DashboardPage() {
 
   const [user, subscription, recent, totalWorksheets, bank] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId } }),
-    prisma.subscription.findUnique({
-      where: { userId },
+    prisma.subscription.findFirst({
+      where: { userId, status: "active" },
       include: { plan: true },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.worksheet.findMany({
       where: { userId },

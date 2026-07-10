@@ -1,0 +1,44 @@
+<!-- @dsCard group="Маркетплейс" -->
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Карточка материала</title>
+<style>
+:root{--bg:#FDFCFA;--surface:#F7F5F0;--surface-2:#EFECE4;--border:#E7E3D9;--border-2:#D5CFC1;--fg:#1C1917;--fg-2:#57534E;--fg-3:#837E76;--primary:#4F46E5;--primary-soft:#E7E5FB;--math:#4F46E5;--math-soft:#E7E5FB;--inf:#0D9488;--inf-soft:#CCF0EB;--success:#10B981;--grid:rgba(79,70,229,.085)}
+body{font-family:Inter,system-ui,sans-serif;background:var(--surface);margin:0;padding:28px;display:flex;gap:18px;flex-wrap:wrap}
+.card{width:280px;background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;border-top:3px solid var(--math);transition:transform .16s,box-shadow .16s}
+.card:hover{transform:translateY(-3px);box-shadow:0 4px 14px rgba(28,25,23,.07)}
+.card.inf{border-top-color:var(--inf)}
+.prev{aspect-ratio:16/10;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.paper{width:56%;aspect-ratio:210/148;background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 10px 24px rgba(28,25,23,.12);padding:9% 8%;display:flex;flex-direction:column;gap:7%}
+.paper i{height:7%;min-height:3px;border-radius:2px;background:var(--surface-2)}
+.paper i:first-child{width:62%;background:var(--primary-soft)}
+.free{position:absolute;top:10px;left:10px;background:#D1FAE5;color:#065F46;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:7px}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px}
+.meta{font-size:12.5px;color:var(--fg-3)}
+.subj{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--math-soft);color:var(--math);margin-right:6px}
+.inf .subj{background:var(--inf-soft);color:var(--inf)}
+.subj i{width:7px;height:7px;border-radius:99px;background:currentColor}
+.title{font-family:Manrope,Inter,sans-serif;font-weight:700;font-size:15.5px;line-height:1.28;color:var(--fg)}
+.kit{display:flex;flex-wrap:wrap;gap:4px}
+.kit span{font-size:11px;font-weight:500;color:var(--fg-2);background:var(--surface);border:1px solid var(--border);padding:2px 7px;border-radius:6px}
+.foot{display:flex;justify-content:space-between;align-items:center;padding-top:10px}
+.price{font-family:Manrope,Inter,sans-serif;font-weight:800;font-size:17px;color:var(--fg)}
+.price.free-p{color:var(--success)}
+</style></head><body>
+<div class="card">
+  <div class="prev"><div class="paper"><i></i><i></i><i></i><i></i><i style="width:40%"></i></div><span class="free">Бесплатно</span></div>
+  <div class="body">
+    <div class="meta"><span class="subj"><i></i>Математика</span>Вероятность · урок 1</div>
+    <div class="title">Классическое определение вероятности</div>
+    <div class="kit"><span>Презентация</span><span>Лист</span><span>Шпаргалка</span><span>ДЗ</span><span>2 зачёта</span><span>исходники</span></div>
+    <div class="foot"><span class="price free-p">0 ₽</span></div>
+  </div>
+</div>
+<div class="card inf">
+  <div class="prev"><div class="paper"><i></i><i></i><i></i><i></i><i style="width:40%"></i></div></div>
+  <div class="body">
+    <div class="meta"><span class="subj"><i></i>Информатика</span>Задание 9 · урок 2</div>
+    <div class="title">Электронные таблицы: сортировка и фильтры</div>
+    <div class="kit"><span>Презентация</span><span>Лист</span><span>ДЗ</span></div>
+    <div class="foot"><span class="price">49 ₽ <span style="font-size:11.5px;color:var(--fg-3);font-weight:500">· исходники 129 ₽</span></span></div>
+  </div>
+</div>
+</body></html>

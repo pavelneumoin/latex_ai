@@ -33,10 +33,16 @@ export async function GET() {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const sub = await prisma.subscription.findUnique({
-    where: { userId: user.id },
+  const subs = await prisma.subscription.findMany({
+    where: { userId: user.id, status: "active" },
     include: { plan: true },
+    orderBy: { createdAt: "asc" },
   });
+  // Обратная совместимость: «основная» подписка = самая дорогая активная.
+  const sub =
+    subs.length > 0
+      ? subs.reduce((b, s) => (s.plan.priceMonthly > b.plan.priceMonthly ? s : b))
+      : null;
 
   return NextResponse.json({
     user: {
@@ -62,6 +68,13 @@ export async function GET() {
       accentColor: user.accentColor,
       createdAt: user.createdAt,
     },
+    subscriptions: subs.map((s) => ({
+      planId: s.planId,
+      subject: s.subject,
+      status: s.status,
+      currentPeriodEnd: s.currentPeriodEnd,
+      cancelAtPeriodEnd: s.cancelAtPeriodEnd,
+    })),
     subscription: sub
       ? {
           planId: sub.planId,

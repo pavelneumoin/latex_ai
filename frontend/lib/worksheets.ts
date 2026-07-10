@@ -11,6 +11,7 @@ import {
   isFormulationStyle,
 } from "./formulation-styles";
 import { extractLooseJson } from "./llm/json-extract";
+import { getPrimarySubscription } from "./entitlements";
 
 export interface LimitCheck {
   ok: boolean;
@@ -21,13 +22,11 @@ export interface LimitCheck {
 
 /**
  * Проверить лимит листов по подписке пользователя.
+ * Подписок может быть несколько (по предметам) — берём самую широкую.
  * Если подписки нет — считаем как free.
  */
 export async function checkWorksheetLimit(userId: string): Promise<LimitCheck> {
-  const sub = await prisma.subscription.findUnique({
-    where: { userId },
-    include: { plan: true },
-  });
+  const sub = await getPrimarySubscription(userId);
 
   if (!sub) {
     return { ok: false, planId: "free", used: 0, limit: 0 };

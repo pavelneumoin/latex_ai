@@ -34,6 +34,9 @@ frontend/storage/uploads/*
 frontend/storage/worksheets/*
 frontend/storage/logos/*
 frontend/storage/_temp_uploads/*
+# Storage v2 — продаваемые материалы и отчёты НЕ выгружаются в git
+frontend/storage/products/
+frontend/storage/reports/
 !frontend/storage/uploads/.gitkeep
 !frontend/storage/worksheets/.gitkeep
 !frontend/storage/logos/.gitkeep

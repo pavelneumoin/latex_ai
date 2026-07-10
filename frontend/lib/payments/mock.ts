@@ -32,9 +32,12 @@ export class MockPayments implements PaymentsProvider {
       },
     });
 
-    // В mock-режиме сразу формируем confirmation URL на нашу же sandbox-страницу,
-    // которая дёрнет успешный webhook.
-    const confirmationUrl = `${input.returnUrl.split("?")[0]}?mock=1&pid=${providerPaymentId}`;
+    // В mock-режиме отправляем на нашу «тестовую кассу» /billing/checkout/[id]:
+    // страница выглядит как платёжная форма и по кнопке «Оплатить» дёргает webhook.
+    const base = process.env.NEXTAUTH_URL || "http://localhost:3010";
+    const confirmationUrl = `${base}/billing/checkout/${payment.id}?return=${encodeURIComponent(
+      input.returnUrl
+    )}`;
 
     return {
       paymentId: payment.id,

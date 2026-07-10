@@ -19,13 +19,10 @@ function initialsOf(name?: string | null, email?: string | null): string {
 }
 
 const NAV_ITEMS: { href: string; label: string }[] = [
-  { href: "/create", label: "Создать" },
-  { href: "/upload", label: "Загрузить" },
-  { href: "/templates", label: "Шаблоны" },
-  { href: "/demo", label: "Пример" },
-  { href: "/my", label: "Мои листы" },
-  { href: "/check", label: "Проверка" },
-  { href: "/marketplace", label: "Маркетплейс" },
+  { href: "/catalog", label: "Каталог" },
+  { href: "/cabinet/checks", label: "Проверка работ" },
+  { href: "/create", label: "Конструктор" },
+  { href: "/marketplace", label: "Листы учителей" },
   { href: "/pricing", label: "Тарифы" },
 ];
 
@@ -149,7 +146,7 @@ export function Header() {
         ) : session?.user ? (
           <>
             <Link
-              href="/dashboard"
+              href="/cabinet"
               style={{
                 padding: "8px 14px",
                 borderRadius: 10,
@@ -396,7 +393,7 @@ export function Header() {
         {/* Nav links */}
         <nav style={{ display: "flex", flexDirection: "column", padding: "10px 12px", gap: 2 }}>
           {session?.user && (
-            <Link href="/dashboard" style={mobileLinkStyle(isActive("/dashboard"))}>
+            <Link href="/cabinet" style={mobileLinkStyle(isActive("/cabinet"))}>
               🏠 Кабинет
             </Link>
           )}

@@ -20,32 +20,56 @@ interface RegistryTemplate {
 }
 
 async function seedPlans() {
+  // v2: подписки по предметам. Мягкая ценовая политика на старте.
   const plans = [
     {
       id: "free",
-      name: "Free",
-      description: "Бесплатно. 5 листов и 5 проверок в месяц.",
+      name: "Бесплатный",
+      description: "Бесплатные материалы, кабинет, классы и 10 автопроверок в месяц.",
+      subject: "all",
+      tier: "basic",
       priceMonthly: 0,
+      priceYearly: 0,
       worksheetsLimit: 5,
       variantsLimit: 2,
-      checksLimit: 5,
+      checksLimit: 10,
       marketplaceCommissionPct: 30,
     },
     {
-      id: "pro",
-      name: "Учитель PRO",
-      description: "Безлимит на листы, варианты и проверки. Приоритетная поддержка.",
-      priceMonthly: 49000, // ₽490
-      worksheetsLimit: -1,
-      variantsLimit: -1,
-      checksLimit: -1,
+      id: "math",
+      name: "Математика",
+      description: "Все PDF-материалы по математике, 300 автопроверок в месяц, отчёты.",
+      subject: "math",
+      tier: "basic",
+      priceMonthly: 29000, // ₽290
+      priceYearly: 261000, // ₽2 610 (−25 %)
+      worksheetsLimit: 30,
+      variantsLimit: 30,
+      checksLimit: 300,
       marketplaceCommissionPct: 20,
     },
     {
-      id: "school",
-      name: "Школа",
-      description: "До 30 учителей в одной школе, общая база материалов, отчётность.",
-      priceMonthly: 990000, // ₽9 900
+      id: "informatics",
+      name: "Информатика",
+      description: "Все PDF-материалы по информатике, 300 автопроверок в месяц, отчёты.",
+      subject: "informatics",
+      tier: "basic",
+      priceMonthly: 29000, // ₽290
+      priceYearly: 261000,
+      worksheetsLimit: 30,
+      variantsLimit: 30,
+      checksLimit: 300,
+      marketplaceCommissionPct: 20,
+    },
+    {
+      id: "all",
+      name: "Всё включено",
+      description:
+        "Оба предмета + исходники Marp/LaTeX всех материалов + безлимит проверок.",
+      subject: "all",
+      tier: "source",
+      priceMonthly: 49000, // ₽490
+      priceYearly: 441000, // ₽4 410 (−25 %)
       worksheetsLimit: -1,
       variantsLimit: -1,
       checksLimit: -1,
@@ -60,7 +84,12 @@ async function seedPlans() {
       create: p,
     });
   }
-  console.log(`✓ seeded ${plans.length} plans`);
+  // Старые планы прячем, если остались в dev-базе.
+  await prisma.plan.updateMany({
+    where: { id: { in: ["pro", "school"] } },
+    data: { isActive: false },
+  });
+  console.log(`✓ seeded ${plans.length} plans (v2, по предметам)`);
 }
 
 async function seedTemplates() {

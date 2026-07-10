@@ -8,12 +8,16 @@ export const runtime = "nodejs";
 
 const schema = z
   .object({
-    planId: z.enum(["pro", "school"]).optional(),
+    planId: z.string().min(1).max(40).optional(),
+    period: z.enum(["month", "year"]).optional(), // для подписки; default month
+    productId: z.string().min(1).max(60).optional(),
+    tier: z.enum(["basic", "source"]).optional(), // для покупки; default basic
     credits: z.number().int().min(1).max(10000).optional(),
   })
-  .refine((d) => !!d.planId !== !!d.credits, {
-    message: "expected exactly one of planId or credits",
-  });
+  .refine(
+    (d) => [d.planId, d.productId, d.credits].filter(Boolean).length === 1,
+    { message: "expected exactly one of planId, productId or credits" }
+  );
 
 const CREDIT_PRICE_KOPEEK = 1000; // ₽10 за 1 «генерацию» — пересмотрим утром.
 
@@ -41,20 +45,54 @@ export async function POST(req: NextRequest) {
 
   let amount = 0;
   let description = "";
-  let purpose: "subscription" | "credits" = "subscription";
+  let purpose: "subscription" | "credits" | "one_time" = "subscription";
   const metadata: Record<string, string | number> = {};
 
   if (parsed.data.planId) {
     const plan = await prisma.plan.findUnique({
       where: { id: parsed.data.planId },
     });
-    if (!plan) {
+    if (!plan || !plan.isActive || plan.priceMonthly <= 0) {
       return NextResponse.json({ error: "plan_not_found" }, { status: 404 });
     }
-    amount = plan.priceMonthly;
-    description = `Подписка ${plan.name} (РабочийЛист.ai)`;
+    const period = parsed.data.period === "year" && plan.priceYearly > 0 ? "year" : "month";
+    amount = period === "year" ? plan.priceYearly : plan.priceMonthly;
+    description = `Подписка «${plan.name}» на ${period === "year" ? "год" : "месяц"} (РабочийЛист.ai)`;
     purpose = "subscription";
     metadata.planId = plan.id;
+    metadata.period = period;
+  } else if (parsed.data.productId) {
+    const product = await prisma.product.findUnique({
+      where: { id: parsed.data.productId },
+    });
+    if (!product || !product.isPublished) {
+      return NextResponse.json({ error: "product_not_found" }, { status: 404 });
+    }
+    const tier = parsed.data.tier === "source" ? "source" : "basic";
+    if (tier === "source" && product.priceSource == null) {
+      return NextResponse.json({ error: "tier_unavailable" }, { status: 400 });
+    }
+    if (product.isFree) {
+      return NextResponse.json({ error: "product_is_free" }, { status: 400 });
+    }
+    // Апгрейд basic → source: доплата разницы
+    const existing = await prisma.purchase.findUnique({
+      where: { userId_productId: { userId: user.id, productId: product.id } },
+    });
+    if (existing && existing.tier === "source") {
+      return NextResponse.json({ error: "already_purchased" }, { status: 400 });
+    }
+    if (existing && tier === "basic") {
+      return NextResponse.json({ error: "already_purchased" }, { status: 400 });
+    }
+    const basePrice = tier === "source" ? product.priceSource! : product.priceBasic;
+    amount = existing && tier === "source"
+      ? Math.max(basePrice - existing.pricePaid, 100) // доплата, минимум 1 ₽
+      : basePrice;
+    description = `«${product.title}» — уровень ${tier === "source" ? "PDF + исходники" : "PDF"} (РабочийЛист.ai)`;
+    purpose = "one_time";
+    metadata.productId = product.id;
+    metadata.tier = tier;
   } else if (parsed.data.credits) {
     amount = parsed.data.credits * CREDIT_PRICE_KOPEEK;
     description = `Пакет ${parsed.data.credits} генераций (РабочийЛист.ai)`;

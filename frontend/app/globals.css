@@ -1,31 +1,55 @@
-/* WorksheetAI hi-fi — shadcn-style tokens */
+/* РабочийЛист.ai — дизайн-система v2 «Тетрадь в клетку»
+   Тёплая бумажная палитра + предметные цвета (математика — индиго, информатика — бирюза). */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #FFFFFF;
-  --surface: #F8FAFC;
-  --surface-2: #F1F5F9;
-  --border: #E2E8F0;
-  --border-2: #CBD5E1;
-  --fg: #0F172A;
-  --fg-2: #475569;
-  --fg-3: #64748B;
-  --primary: #1E40AF;
-  --primary-soft: #DBE3F5;
+  /* Бумага и чернила */
+  --bg: #FDFCFA;
+  --surface: #F7F5F0;
+  --surface-2: #EFECE4;
+  --border: #E7E3D9;
+  --border-2: #D5CFC1;
+  --fg: #1C1917;
+  --fg-2: #57534E;
+  --fg-3: #837E76;
+
+  /* Основной (индиго — чернила ручки) */
+  --primary: #4F46E5;
+  --primary-strong: #4338CA;
+  --primary-soft: #E7E5FB;
   --primary-fg: #FFFFFF;
+
+  /* Акцент (CTA, цены) */
   --accent: #F59E0B;
+  --accent-strong: #DE8F05;
   --accent-soft: #FEF3C7;
-  --accent-fg: #0F172A;
+  --accent-fg: #1C1917;
+
+  /* Предметные цвета */
+  --math: #4F46E5;
+  --math-soft: #E7E5FB;
+  --inf: #0D9488;
+  --inf-soft: #CCF0EB;
+
   --success: #10B981;
+  --success-soft: #D1FAE5;
   --error: #EF4444;
-  --radius-card: 16px;
-  --radius-btn: 10px;
-  --radius-input: 10px;
-  --shadow-sm: 0 1px 2px rgba(15,23,42,0.04), 0 1px 1px rgba(15,23,42,0.03);
-  --shadow-md: 0 4px 12px rgba(15,23,42,0.06), 0 2px 4px rgba(15,23,42,0.04);
-  --shadow-lg: 0 16px 40px rgba(15,23,42,0.10), 0 4px 12px rgba(15,23,42,0.06);
+  --error-soft: #FEE2E2;
+  --warn: #D97706;
+  --warn-soft: #FEF3C7;
+
+  --radius-card: 18px;
+  --radius-btn: 12px;
+  --radius-input: 12px;
+  --shadow-sm: 0 1px 2px rgba(28,25,23,0.05), 0 1px 1px rgba(28,25,23,0.03);
+  --shadow-md: 0 4px 14px rgba(28,25,23,0.07), 0 2px 4px rgba(28,25,23,0.04);
+  --shadow-lg: 0 18px 44px rgba(28,25,23,0.11), 0 4px 12px rgba(28,25,23,0.06);
   --display: 'Manrope', system-ui, -apple-system, sans-serif;
   --body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Клетка тетради */
+  --grid-line: rgba(79, 70, 229, 0.085);
+  --grid-size: 24px;
 }
 
 .hi { font-family: var(--body); color: var(--fg); background: var(--bg); }
@@ -241,7 +265,8 @@ a { color: inherit; }
   .rl-grid-3, .rl-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 520px) {
-  .rl-grid-2, .rl-grid-3, .rl-grid-4 { grid-template-columns: 1fr; }
+  /* minmax(0,1fr) — иначе nowrap-контент растягивает колонку шире вьюпорта */
+  .rl-grid-2, .rl-grid-3, .rl-grid-4 { grid-template-columns: minmax(0, 1fr); }
   .rl-grid-auto-sm { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -360,3 +385,228 @@ select.rl-input {
     scroll-behavior: auto !important;
   }
 }
+
+/* =====================================================================
+   V2 «ТЕТРАДЬ В КЛЕТКУ» — маркетплейс материалов + кабинет учителя
+   Добавлено 2026-07-10. Классы с префиксом rl2-.
+   ===================================================================== */
+
+/* --- Клетка тетради (фирменный паттерн) --- */
+.rl2-gridpaper {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+}
+.rl2-gridpaper-fade {
+  position: relative;
+}
+.rl2-gridpaper-fade::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 0%, black 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 0%, black 30%, transparent 78%);
+  pointer-events: none;
+}
+
+/* --- Предметные бейджи и акценты --- */
+.rl2-subject { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.rl2-subject[data-subject="math"] { background: var(--math-soft); color: var(--math); }
+.rl2-subject[data-subject="informatics"] { background: var(--inf-soft); color: var(--inf); }
+.rl2-subject-dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; flex: 0 0 auto; }
+
+/* Полоса предмета на карточке */
+.rl2-card-subject { border-top: 3px solid var(--border-2); }
+.rl2-card-subject[data-subject="math"] { border-top-color: var(--math); }
+.rl2-card-subject[data-subject="informatics"] { border-top-color: var(--inf); }
+
+/* --- Карточка материала («лист А4») --- */
+.rl2-product {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+  text-decoration: none;
+  color: var(--fg);
+  position: relative;
+}
+.rl2-product:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--border-2); }
+.rl2-product-preview {
+  aspect-ratio: 16 / 10;
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+}
+.rl2-product-preview img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+/* Заглушка превью: мини-«лист» на клетке */
+.rl2-product-paper {
+  width: 56%;
+  aspect-ratio: 210 / 148;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow-md);
+  padding: 9% 8%;
+  display: flex; flex-direction: column; gap: 7%;
+}
+.rl2-product-paper i { display: block; height: 7%; min-height: 3px; border-radius: 2px; background: var(--surface-2); }
+.rl2-product-paper i:first-child { width: 62%; background: var(--primary-soft); }
+.rl2-product-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.rl2-product-title { font-family: var(--display); font-weight: 700; font-size: 15.5px; line-height: 1.28; }
+.rl2-product-meta { font-size: 12.5px; color: var(--fg-3); }
+.rl2-product-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 10px; }
+
+/* Состав комплекта — иконки-чипы */
+.rl2-kit { display: flex; flex-wrap: wrap; gap: 4px; }
+.rl2-kit-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 500; color: var(--fg-2);
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 2px 7px; border-radius: 6px; white-space: nowrap;
+}
+
+/* Цена */
+.rl2-price { font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.rl2-price-free { color: var(--success); }
+.rl2-price-old { font-size: 13px; font-weight: 600; color: var(--fg-3); text-decoration: line-through; margin-right: 6px; }
+.rl2-price-note { font-size: 11.5px; color: var(--fg-3); font-weight: 500; }
+
+/* --- Бейдж уровня (PDF / исходники) --- */
+.rl2-tier { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 7px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.01em; }
+.rl2-tier[data-tier="basic"] { background: var(--surface-2); color: var(--fg-2); }
+.rl2-tier[data-tier="source"] { background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E; }
+.rl2-tier[data-tier="free"] { background: var(--success-soft); color: #065F46; }
+
+/* --- Сегментный переключатель (месяц/год, предмет) --- */
+.rl2-seg { display: inline-flex; padding: 4px; background: var(--surface-2); border-radius: 12px; gap: 2px; }
+.rl2-seg button, .rl2-seg a {
+  padding: 8px 16px; font-size: 13.5px; font-weight: 600; border-radius: 9px;
+  border: none; background: transparent; color: var(--fg-2); cursor: pointer;
+  text-decoration: none; font-family: var(--body); min-height: 36px;
+  display: inline-flex; align-items: center; gap: 6px; transition: all 0.14s;
+}
+.rl2-seg .on { background: white; color: var(--fg); box-shadow: var(--shadow-sm); }
+
+/* --- Кабинет: раскладка --- */
+.rl2-cab { display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 0; min-height: calc(100vh - var(--rl-header-h)); }
+.rl2-cab-side {
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  padding: 18px 12px;
+  display: flex; flex-direction: column; gap: 2px;
+  position: sticky; top: var(--rl-header-h);
+  height: calc(100vh - var(--rl-header-h));
+  overflow-y: auto;
+}
+.rl2-cab-main { padding: 24px clamp(16px, 3vw, 32px) 96px; background: var(--surface); min-width: 0; }
+.rl2-cab-nav {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  font-size: 14px; font-weight: 600; color: var(--fg-2);
+  text-decoration: none; transition: background 0.12s;
+}
+.rl2-cab-nav:hover { background: var(--surface); }
+.rl2-cab-nav.on { background: var(--primary-soft); color: var(--primary); }
+.rl2-cab-nav .ic { width: 20px; height: 20px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; }
+@media (max-width: 860px) {
+  .rl2-cab { grid-template-columns: 1fr; }
+  .rl2-cab-side { display: none; }
+  .rl2-cab-main { padding-bottom: 110px; }
+}
+
+/* --- Нижняя таб-навигация (мобильный кабинет) --- */
+.rl2-bottomnav {
+  display: none;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  background: rgba(253, 252, 250, 0.92);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+  padding: 6px max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-bottom));
+}
+.rl2-bottomnav-inner { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; max-width: 560px; margin: 0 auto; }
+.rl2-bottomnav a {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 7px 2px 5px; border-radius: 12px;
+  font-size: 10.5px; font-weight: 600; color: var(--fg-3);
+  text-decoration: none; min-height: 52px; justify-content: center;
+}
+.rl2-bottomnav a.on { color: var(--primary); background: var(--primary-soft); }
+.rl2-bottomnav .ic { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; }
+@media (max-width: 860px) { .rl2-bottomnav { display: block; } }
+
+/* --- Карточки-сводки статистики --- */
+.rl2-stat { background: white; border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+.rl2-stat-label { font-size: 12px; font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.05em; }
+.rl2-stat-value { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.02em; }
+.rl2-stat-sub { font-size: 12.5px; color: var(--fg-3); }
+
+/* --- Распределение отметок (мини-бар) --- */
+.rl2-marks { display: flex; gap: 4px; align-items: flex-end; height: 46px; }
+.rl2-marks > div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; color: var(--fg-3); font-weight: 600; }
+.rl2-marks i { display: block; width: 100%; border-radius: 4px 4px 2px 2px; background: var(--primary-soft); min-height: 3px; }
+.rl2-marks .m5 i { background: var(--success); }
+.rl2-marks .m4 i { background: #86EFAC; }
+.rl2-marks .m3 i { background: var(--accent); }
+.rl2-marks .m2 i { background: var(--error); }
+
+/* --- Шторка снизу (мобильные фильтры) --- */
+.rl2-sheet-backdrop { position: fixed; inset: 0; background: rgba(28,25,23,0.45); z-index: 70; animation: rl-fade-in 0.2s ease both; }
+.rl2-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 71;
+  background: var(--bg); border-radius: 20px 20px 0 0;
+  max-height: 82vh; overflow-y: auto;
+  padding: 10px 18px calc(20px + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-lg);
+  animation: rl2-sheet-up 0.26s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.rl2-sheet-grip { width: 40px; height: 4px; border-radius: 999px; background: var(--border-2); margin: 6px auto 14px; }
+@keyframes rl2-sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+
+/* --- Таблица результатов проверки --- */
+.rl2-check-table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: white; }
+.rl2-check-table th { position: sticky; top: 0; background: var(--surface); font-size: 11.5px; font-weight: 700; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.04em; padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: left; z-index: 1; }
+.rl2-check-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.rl2-check-table tr:hover td { background: var(--surface); }
+.rl2-mark { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; font-family: var(--display); font-weight: 800; font-size: 15px; }
+.rl2-mark[data-mark="5"] { background: var(--success-soft); color: #065F46; }
+.rl2-mark[data-mark="4"] { background: #ECFDF5; color: #047857; }
+.rl2-mark[data-mark="3"] { background: var(--warn-soft); color: #92400E; }
+.rl2-mark[data-mark="2"] { background: var(--error-soft); color: #991B1B; }
+.rl2-mark[data-mark="-"] { background: var(--surface-2); color: var(--fg-3); }
+
+/* --- Шаги мастера --- */
+.rl2-steps { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.rl2-step { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--fg-3); }
+.rl2-step b { width: 24px; height: 24px; border-radius: 999px; background: var(--surface-2); color: var(--fg-3); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+.rl2-step.on { color: var(--fg); }
+.rl2-step.on b { background: var(--primary); color: white; }
+.rl2-step.done b { background: var(--success); color: white; }
+.rl2-step-sep { width: 22px; height: 1px; background: var(--border-2); }
+
+/* --- Dropzone --- */
+.rl2-drop {
+  border: 2px dashed var(--border-2); border-radius: var(--radius-card);
+  background: var(--surface); padding: 32px 20px; text-align: center;
+  transition: border-color 0.15s, background 0.15s; cursor: pointer;
+}
+.rl2-drop:hover, .rl2-drop.over { border-color: var(--primary); background: var(--primary-soft); }
+
+/* --- Пустые состояния на клетке --- */
+.rl2-empty { text-align: center; padding: 44px 20px; border-radius: var(--radius-card); border: 1px dashed var(--border-2); color: var(--fg-3); }
+.rl2-empty .big { font-size: 34px; margin-bottom: 8px; }
+
+/* --- Кнопки на всю ширину в мобильном --- */
+@media (max-width: 640px) {
+  .rl2-actions { display: flex; flex-direction: column; gap: 8px; }
+  .rl2-actions .btn { width: 100%; }
+}
+

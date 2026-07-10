@@ -51,49 +51,115 @@ export async function POST(req: NextRequest) {
     data: { status: event.status },
   });
 
-  // Если оплата прошла и это подписка — продлеваем
+  // Если оплата прошла — активируем то, за что платили
   if (event.status === "succeeded") {
     if (payment.purpose === "subscription") {
       const metaRaw = payment.metadata
         ? (() => {
             try {
-              return JSON.parse(payment.metadata) as { planId?: string };
+              return JSON.parse(payment.metadata) as {
+                planId?: string;
+                period?: string; // month | year
+              };
             } catch {
               return null;
             }
           })()
         : null;
       const planId = metaRaw?.planId || "pro";
+      const plan = await prisma.plan.findUnique({ where: { id: planId } });
+      const subject = plan?.subject ?? "all";
 
       const periodEnd = new Date();
-      periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-      const existing = await prisma.subscription.findUnique({
-        where: { userId: payment.userId },
-      });
-      if (existing) {
-        await prisma.subscription.update({
-          where: { userId: payment.userId },
-          data: {
-            planId,
-            status: "active",
-            currentPeriodStart: new Date(),
-            currentPeriodEnd: periodEnd,
-            // Сброс счётчиков нового периода
-            usedWorksheets: 0,
-            usedVariants: 0,
-            usedChecks: 0,
-          },
-        });
+      if (metaRaw?.period === "year") {
+        periodEnd.setFullYear(periodEnd.getFullYear() + 1);
       } else {
-        await prisma.subscription.create({
-          data: {
-            userId: payment.userId,
-            planId,
-            status: "active",
-            currentPeriodEnd: periodEnd,
-          },
-        });
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
+      }
+
+      // Подписки раздельные по предметам: upsert по (userId, subject)
+      await prisma.subscription.upsert({
+        where: {
+          userId_subject: { userId: payment.userId, subject },
+        },
+        update: {
+          planId,
+          status: "active",
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: periodEnd,
+          cancelAtPeriodEnd: false,
+          // Сброс счётчиков нового периода
+          usedWorksheets: 0,
+          usedVariants: 0,
+          usedChecks: 0,
+        },
+        create: {
+          userId: payment.userId,
+          planId,
+          subject,
+          status: "active",
+          currentPeriodEnd: periodEnd,
+        },
+      });
+    } else if (payment.purpose === "one_time") {
+      // Покупка материала из каталога: metadata { productId, tier }
+      const metaRaw = payment.metadata
+        ? (() => {
+            try {
+              return JSON.parse(payment.metadata) as {
+                productId?: string;
+                tier?: string;
+              };
+            } catch {
+              return null;
+            }
+          })()
+        : null;
+      const productId = metaRaw?.productId;
+      const tier = metaRaw?.tier === "source" ? "source" : "basic";
+      if (productId) {
+        const grant = async (pid: string, paid: number) => {
+          const existing = await prisma.purchase.findUnique({
+            where: { userId_productId: { userId: payment.userId, productId: pid } },
+          });
+          if (existing) {
+            // Апгрейд уровня (basic → source); даунгрейда не бывает.
+            if (existing.tier !== "source" && tier === "source") {
+              await prisma.purchase.update({
+                where: { id: existing.id },
+                data: { tier, paymentId: payment.id, pricePaid: paid },
+              });
+            }
+          } else {
+            await prisma.purchase.create({
+              data: {
+                userId: payment.userId,
+                productId: pid,
+                tier,
+                pricePaid: paid,
+                paymentId: payment.id,
+              },
+            });
+          }
+        };
+
+        await grant(productId, payment.amount);
+
+        // Бандл курса открывает все его уроки.
+        const product = await prisma.product.findUnique({ where: { id: productId } });
+        if (product?.kind === "course_bundle" && product.courseSlug) {
+          const lessons = await prisma.product.findMany({
+            where: {
+              courseSlug: product.courseSlug,
+              kind: { not: "course_bundle" },
+              isPublished: true,
+            },
+            select: { id: true },
+          });
+          for (const l of lessons) {
+            await grant(l.id, 0);
+          }
+        }
       }
     } else if (payment.purpose === "credits") {
       // Кредиты — записываем как entry в Credit

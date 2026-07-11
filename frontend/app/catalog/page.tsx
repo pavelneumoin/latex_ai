@@ -2,9 +2,13 @@
 // Фильтры — в URL (subject / kind / course), карточки — «листы на клетке».
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { prisma } from "@/lib/db";
 import { Header } from "../_components/Header";
 import { formatKopecks, kitSummary, subjectName, PRODUCT_KIND_LABEL } from "@/lib/products";
+import { IconFolder } from "../_components/Icons";
+import { Stars } from "../_components/Stars";
+import { CatalogSearch } from "./CatalogSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +16,7 @@ interface Search {
   subject?: string;
   kind?: string;
   course?: string;
+  q?: string;
 }
 
 function filterHref(cur: Search, patch: Partial<Search>): string {
@@ -20,8 +25,13 @@ function filterHref(cur: Search, patch: Partial<Search>): string {
   if (merged.subject) params.set("subject", merged.subject);
   if (merged.kind) params.set("kind", merged.kind);
   if (merged.course) params.set("course", merged.course);
+  if (merged.q) params.set("q", merged.q);
   const qs = params.toString();
   return qs ? `/catalog?${qs}` : "/catalog";
+}
+
+function normText(s: string): string {
+  return s.toLowerCase().replace(/ё/g, "е");
 }
 
 export default async function CatalogPage({
@@ -32,8 +42,9 @@ export default async function CatalogPage({
   const subject = searchParams.subject === "informatics" || searchParams.subject === "math" ? searchParams.subject : undefined;
   const kind = searchParams.kind;
   const course = searchParams.course;
+  const q = (searchParams.q ?? "").trim().slice(0, 120);
 
-  const [products, courses] = await Promise.all([
+  const [allProducts, courses] = await Promise.all([
     prisma.product.findMany({
       where: {
         isPublished: true,
@@ -52,7 +63,17 @@ export default async function CatalogPage({
     }),
   ]);
 
-  const cur: Search = { subject, kind, course };
+  // Полнотекстовый фильтр ?q= (та же логика, что /api/products/search)
+  const words = q ? normText(q).split(/\s+/).filter((w) => w.length >= 2) : [];
+  const products =
+    words.length === 0
+      ? allProducts
+      : allProducts.filter((p) => {
+          const hay = `${normText(p.title)} ${normText(p.course ?? "")} ${normText(p.description ?? "")}`;
+          return words.every((w) => hay.includes(w));
+        });
+
+  const cur: Search = { subject, kind, course, q: q || undefined };
 
   const kinds = [
     ["lesson_kit", "Комплекты уроков"],
@@ -71,10 +92,13 @@ export default async function CatalogPage({
           <h1 className="rl-h2" style={{ marginBottom: 6 }}>
             Каталог материалов
           </h1>
-          <p className="rl-lead" style={{ maxWidth: 640 }}>
+          <p className="rl-lead" style={{ maxWidth: 640, marginBottom: 16 }}>
             Готовые комплекты уроков: презентация, рабочий лист, шпаргалка, домашняя
             работа и зачёты. Печатайте и ведите урок — а проверку мы возьмём на себя.
           </p>
+          <Suspense fallback={<div className="rl-skeleton" style={{ height: 48, maxWidth: 560 }} />}>
+            <CatalogSearch />
+          </Suspense>
         </div>
       </div>
 
@@ -125,10 +149,29 @@ export default async function CatalogPage({
           )}
         </div>
 
+        {/* Результаты поиска / счётчик */}
+        {q && (
+          <div className="rl-row" style={{ marginBottom: 14, gap: 10 }}>
+            <span style={{ fontSize: 14.5, fontWeight: 600 }}>
+              По запросу «{q}»: {products.length}{" "}
+              {products.length % 10 === 1 && products.length % 100 !== 11
+                ? "материал"
+                : [2, 3, 4].includes(products.length % 10) && ![12, 13, 14].includes(products.length % 100)
+                  ? "материала"
+                  : "материалов"}
+            </span>
+            <Link href={filterHref(cur, { q: undefined })} className="btn btn-sm btn-ghost">
+              Сбросить поиск ✕
+            </Link>
+          </div>
+        )}
+
         {/* Сетка товаров */}
         {products.length === 0 ? (
           <div className="rl2-empty rl2-gridpaper" style={{ padding: 70 }}>
-            <div className="big">🗂</div>
+            <div style={{ color: "var(--fg-3)", marginBottom: 10 }}>
+              <IconFolder size={34} />
+            </div>
             <div style={{ fontSize: 16, fontWeight: 600, color: "var(--fg-2)" }}>
               По этим фильтрам пока пусто
             </div>
@@ -174,6 +217,9 @@ export default async function CatalogPage({
                       {p.course ? `${p.course}${p.lessonNo ? ` · урок ${p.lessonNo}` : ""}` : PRODUCT_KIND_LABEL[p.kind] ?? ""}
                     </div>
                     <div className="rl2-product-title">{p.title}</div>
+                    {p.ratingCount > 0 && (
+                      <Stars rating={p.rating} count={p.ratingCount} size={13} />
+                    )}
                     {kit.length > 0 && (
                       <div className="rl2-kit">
                         {kit.map((k) => (

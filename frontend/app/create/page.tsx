@@ -4,8 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { listStylesForUi } from "@/lib/formulation-styles";
+import { renderTaskCondition } from "@/lib/format-task";
 import { Header } from "../_components/Header";
 import { GenerationLoader } from "../_components/GenerationLoader";
+import { IconCamera } from "../_components/Icons";
 
 const STYLE_OPTIONS = listStylesForUi();
 
@@ -203,7 +205,9 @@ export default function CreatePage() {
             border: "1px solid var(--border)",
           }}
         >
-          <span style={{ fontSize: 24, flex: "0 0 auto" }}>📸</span>
+          <span style={{ flex: "0 0 auto", color: "var(--primary)", display: "inline-flex" }}>
+            <IconCamera size={26} />
+          </span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: "block", fontWeight: 700, fontSize: 14, color: "var(--fg)" }}>
               Уже есть задачи на бумаге? Сфотографируй
@@ -403,9 +407,14 @@ export default function CreatePage() {
                           <span style={{ fontWeight: 700, color: "var(--primary)" }}>№{i + 1}</span>
                           <span style={{ fontSize: 10, color: "var(--fg-3)" }}>{t.source} · {t.id}</span>
                         </div>
-                        <div style={{ color: "var(--fg-2)", maxHeight: 60, overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {t.condition.length > 240 ? t.condition.slice(0, 240) + "…" : t.condition}
-                        </div>
+                        <div
+                          style={{ color: "var(--fg-2)", maxHeight: 60, overflow: "hidden", textOverflow: "ellipsis" }}
+                          dangerouslySetInnerHTML={{
+                            __html: renderTaskCondition(
+                              t.condition.length > 240 ? t.condition.slice(0, 240) + "…" : t.condition
+                            ),
+                          }}
+                        />
                         {t.expected_answer && (
                           <div style={{ marginTop: 4, fontSize: 11, color: "var(--fg-3)" }}>
                             Ответ: <strong>{t.expected_answer}</strong>
@@ -420,41 +429,77 @@ export default function CreatePage() {
           )}
         </Section>
 
-        {/* Шаблон */}
-        <Section
-          title={`3. Шаблон оформления${tpl ? ` (выбран: ${tpl.id} · ${tpl.taskCount} задач)` : ""}`}
-        >
-          {!templates && <div style={{ color: "var(--fg-3)" }}>Загрузка шаблонов…</div>}
+        {/* Оформление: 9 выверенных стилей вместо каталога из 45 однотипных */}
+        <Section title="3. Оформление">
+          {!templates && <div style={{ color: "var(--fg-3)" }}>Загрузка стилей…</div>}
           {templates && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
-              {templates.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setTemplateId(t.id)}
-                  style={{
-                    border: `2px solid ${templateId === t.id ? "var(--primary)" : "var(--border)"}`,
-                    background: templateId === t.id ? "var(--primary-soft)" : "var(--bg)",
-                    borderRadius: 10,
-                    padding: 8,
-                    cursor: "pointer",
-                    textAlign: "left",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`/templates/${t.id}.png`}
-                    alt={t.id}
-                    loading="lazy"
-                    style={{ width: "100%", aspectRatio: "210/297", objectFit: "cover", borderRadius: 6, background: "#f5f5f7" }}
-                  />
-                  <div style={{ marginTop: 6, fontSize: 12, fontWeight: 600 }}>
-                    {t.id} · {t.taskCount} задач
-                  </div>
-                  <div style={{ fontSize: 11, color: "var(--fg-3)", lineHeight: 1.25, marginTop: 2 }}>
-                    {t.name}
-                  </div>
-                </button>
-              ))}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 12 }}>
+              {templates.map((t) => {
+                const on = templateId === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setTemplateId(t.id)}
+                    style={{
+                      border: on ? "2px solid var(--primary)" : "1px solid var(--border)",
+                      background: "var(--bg)",
+                      borderRadius: 14,
+                      padding: on ? 9 : 10, // компенсация толщины рамки — сетка не прыгает
+                      cursor: "pointer",
+                      textAlign: "left",
+                      boxShadow: on ? "var(--shadow-md)" : "none",
+                      transition: "box-shadow .12s, border-color .12s",
+                    }}
+                    aria-pressed={on}
+                  >
+                    <div style={{ position: "relative" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/templates/${t.id}.png`}
+                        alt=""
+                        loading="lazy"
+                        style={{
+                          width: "100%",
+                          aspectRatio: "210/260",
+                          objectFit: "cover",
+                          objectPosition: "top",
+                          borderRadius: 8,
+                          background: "var(--surface)",
+                          border: "1px solid var(--border)",
+                        }}
+                      />
+                      {on && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                            width: 24,
+                            height: 24,
+                            borderRadius: 999,
+                            background: "var(--primary)",
+                            color: "white",
+                            display: "grid",
+                            placeItems: "center",
+                            fontSize: 13,
+                            fontWeight: 800,
+                          }}
+                        >
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ marginTop: 8, fontSize: 13.5, fontWeight: 700, fontFamily: "var(--display)", color: "var(--fg)" }}>
+                      {t.name}
+                    </div>
+                    {t.description && (
+                      <div style={{ fontSize: 11.5, color: "var(--fg-3)", lineHeight: 1.35, marginTop: 3 }}>
+                        {t.description}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </Section>

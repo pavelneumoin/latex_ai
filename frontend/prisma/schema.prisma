@@ -48,6 +48,8 @@ model User {
   classes       Class[]
   checkJobs     CheckJob[]
   reports       Report[]
+  productLikes  ProductLike[]
+  reviews       Review[]
 
   @@index([email])
 }
@@ -206,14 +208,17 @@ model Favorite {
   userId        String
   worksheetId   String?
   publicationId String?
+  productId     String?                       // v3: закладка на материал каталога
   createdAt     DateTime @default(now())
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   worksheet   Worksheet?   @relation(fields: [worksheetId], references: [id], onDelete: Cascade)
   publication Publication? @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  product     Product?     @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([userId, worksheetId])
   @@unique([userId, publicationId])
+  @@unique([userId, productId])
 }
 
 // ─────────────────────────────── БИЛЛИНГ ───────────────────────────────
@@ -321,15 +326,58 @@ model Product {
   checkInstructions String?                        // инструкция для LLM-проверки этого листа
   downloads   Int     @default(0)
 
+  // Социальное (v3): денормализованные счётчики
+  likes       Int     @default(0)
+  rating      Float   @default(0)
+  ratingCount Int     @default(0)
+  // Галерея предпросмотра: JSON-массив путей к PNG страниц (storage-relative)
+  previewPagesJson String?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   assets      ProductAsset[]
   purchases   Purchase[]
   checkJobs   CheckJob[]
+  productLikes ProductLike[]
+  reviews     Review[]
+  favorites   Favorite[]
 
   @@index([subject, isPublished])
   @@index([courseSlug, lessonNo])
+}
+
+// Лайк — публичный счётчик симпатий, не требует покупки.
+model ProductLike {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId])
+}
+
+// Отзыв с оценкой 1–5; verified = автор покупал материал (или имел подписку).
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int
+  text      String?
+  verified  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId, createdAt])
 }
 
 model ProductAsset {

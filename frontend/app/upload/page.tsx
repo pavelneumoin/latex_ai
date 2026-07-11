@@ -165,7 +165,7 @@ export default function UploadPage() {
               marginBottom: 12,
             }}
           >
-            ⚡ Главная фишка
+            Главная фишка
           </div>
           <h1 className="rl-h2" style={{ marginBottom: 8 }}>
             Сфотографируй задание — получи рабочий лист
@@ -187,8 +187,8 @@ export default function UploadPage() {
             marginBottom: 18,
           }}
         >
-          <ModeTab active={mode === "photo"} onClick={() => setMode("photo")} icon="📸" label="Фото" hint="айфон/андроид" />
-          <ModeTab active={mode === "pdf"} onClick={() => setMode("pdf")} icon="📄" label="PDF" hint="с текстом" />
+          <ModeTab active={mode === "photo"} onClick={() => setMode("photo")} icon="" label="Фото" hint="айфон/андроид" />
+          <ModeTab active={mode === "pdf"} onClick={() => setMode("pdf")} icon="" label="PDF" hint="с текстом" />
         </div>
 
         {/* Зона загрузки */}
@@ -298,14 +298,14 @@ export default function UploadPage() {
             transition: "all 0.15s",
           }}
         >
-          {mode === "photo" ? "📸 Распознать и собрать лист →" : "📄 Превратить PDF в лист →"}
+          {mode === "photo" ? "Распознать и собрать лист →" : "Превратить PDF в лист →"}
         </button>
 
         {/* Как это работает */}
         <div className="rl-grid rl-grid-3" style={{ marginTop: 28 }}>
-          <HowStep n={1} icon="📱" title="Снимок или файл" text="Сфоткай страницу или перетащи готовый PDF/картинку" />
-          <HowStep n={2} icon="🤖" title="Распознаём" text="Нейросеть вытащит условия задач и почистит их" />
-          <HowStep n={3} icon="📄" title="Готовый лист" text="PDF к печати: поля для ответов, шапка, автопроверка" />
+          <HowStep n={1} icon="1" title="Снимок или файл" text="Сфоткай страницу или перетащи готовый PDF/картинку" />
+          <HowStep n={2} icon="2" title="Распознаём" text="Нейросеть вытащит условия задач и почистит их" />
+          <HowStep n={3} icon="" title="Готовый лист" text="PDF к печати: поля для ответов, шапка, автопроверка" />
         </div>
 
         <p style={{ marginTop: 22, fontSize: 13, color: "var(--fg-3)", lineHeight: 1.55, textAlign: "center" }}>
@@ -457,7 +457,7 @@ function PhotoZone({
             cursor: "pointer",
           }}
         >
-          📸 Сделать снимок
+          Сделать снимок
         </button>
         <button
           type="button"
@@ -475,7 +475,7 @@ function PhotoZone({
             cursor: "pointer",
           }}
         >
-          🖼️ {images.length ? "Добавить ещё" : "Выбрать из галереи"}
+          {images.length ? "Добавить ещё" : "Выбрать из галереи"}
         </button>
       </div>
 
@@ -503,7 +503,7 @@ function PdfZone({ pdf, onPick }: { pdf: File | null; onPick: (f: File | null) =
       <input type="file" accept="application/pdf" onChange={(e) => onPick(e.target.files?.[0] ?? null)} style={{ display: "none" }} />
       {pdf ? (
         <>
-          <div style={{ fontSize: 30 }}>📄</div>
+          <div style={{ fontSize: 30 }}></div>
           <div style={{ fontWeight: 700, fontSize: 15 }}>{pdf.name}</div>
           <div style={{ fontSize: 12, color: "var(--fg-3)" }}>{(pdf.size / 1024).toFixed(0)} КБ · нажми, чтобы заменить</div>
         </>

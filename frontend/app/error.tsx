@@ -27,7 +27,7 @@ export default function Error({
       }}
     >
       <div style={{ textAlign: "center", maxWidth: 460 }}>
-        <div style={{ fontSize: 56, marginBottom: 8 }}>⚠️</div>
+        <div style={{ fontSize: 56, marginBottom: 8 }}>!</div>
         <h1 style={{ marginBottom: 10 }}>Что-то пошло не так</h1>
         <p className="muted-2" style={{ fontSize: 15, marginBottom: 8 }}>
           Произошла ошибка при загрузке страницы. Мы уже записали её — попробуйте ещё раз.

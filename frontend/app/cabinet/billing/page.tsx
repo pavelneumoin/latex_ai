@@ -55,7 +55,6 @@ export default async function CabinetBillingPage() {
         </div>
         {paidSubs.length === 0 ? (
           <div className="rl2-empty rl2-gridpaper">
-            <div className="big">🔓</div>
             Активных подписок нет. Бесплатный доступ: открытые материалы и 10 проверок в месяц.
             <div style={{ marginTop: 12 }}>
               <Link href="/pricing" className="btn btn-primary">

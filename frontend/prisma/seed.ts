@@ -92,39 +92,84 @@ async function seedPlans() {
   console.log(`✓ seeded ${plans.length} plans (v2, по предметам)`);
 }
 
+// Курация v3: вместо 45 однотипных шаблонов-«тем» — 9 понятных СТИЛЕЙ вёрстки.
+// Остальные скрыты (isActive=false), данные не удаляются.
+const CURATED_TEMPLATES: Record<string, { name: string; description: string }> = {
+  T1: {
+    name: "Классический лист",
+    description: "Одна колонка, фиолетовый акцент, поля для ответов. Универсальный выбор.",
+  },
+  T10: {
+    name: "Контрольная — 2 варианта",
+    description: "Автоматическая разбивка на варианты I и II, строгий графит.",
+  },
+  T37: {
+    name: "Тетрадь в клетку",
+    description: "Клетчатая подложка как в тетради, место для решения под каждой задачей.",
+  },
+  T36: {
+    name: "Бланк экзамена",
+    description: "Строгий бланк в духе ЕГЭ/ОГЭ: рамки, поля для кода и ответов.",
+  },
+  T21: {
+    name: "Самостоятельная на 15 минут",
+    description: "Компактный лист на пол-урока, два варианта на одной странице.",
+  },
+  T14: {
+    name: "ОГЭ, ч/б печать",
+    description: "Экономичный чёрно-белый формат для школьного принтера.",
+  },
+  T39: {
+    name: "Карточки для разрезания",
+    description: "Сетка карточек 2×4 — раздаточный материал и работа в парах.",
+  },
+  T16: {
+    name: "Минимализм",
+    description: "Много воздуха, тонкая типографика — для эстетов.",
+  },
+  T23: {
+    name: "Программирование",
+    description: "Моноширинный код-стиль для информатики: Python, алгоритмы, СС.",
+  },
+};
+
 async function seedTemplates() {
   const registryPath = path.join(process.cwd(), "..", "cli", "templates", "registry.json");
   const raw = await fs.readFile(registryPath, "utf-8");
   const reg = JSON.parse(raw) as { templates: RegistryTemplate[] };
 
   for (const t of reg.templates) {
+    const curated = CURATED_TEMPLATES[t.id];
     await prisma.template.upsert({
       where: { id: t.id },
       update: {
-        name: t.name,
-        description: t.description ?? null,
-        subject: t.subject,
+        name: curated?.name ?? t.name,
+        description: curated?.description ?? t.description ?? null,
+        subject: curated ? "mixed" : t.subject,
         grade: t.grade ?? null,
         layout: t.layout,
         style: t.style,
         taskCount: t.task_count,
         tags: t.tags.join(","),
-        isActive: true,
+        isActive: !!curated,
       },
       create: {
         id: t.id,
-        name: t.name,
-        description: t.description ?? null,
-        subject: t.subject,
+        name: curated?.name ?? t.name,
+        description: curated?.description ?? t.description ?? null,
+        subject: curated ? "mixed" : t.subject,
         grade: t.grade ?? null,
         layout: t.layout,
         style: t.style,
         taskCount: t.task_count,
         tags: t.tags.join(","),
+        isActive: !!curated,
       },
     });
   }
-  console.log(`✓ seeded ${reg.templates.length} templates`);
+  console.log(
+    `✓ seeded ${reg.templates.length} templates (активных: ${Object.keys(CURATED_TEMPLATES).length} кураторских)`
+  );
 }
 
 async function main() {

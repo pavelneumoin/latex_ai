@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { IconTrash, IconPlus } from "@/app/_components/Icons";
+import { IconTrash, IconPlus, IconUsers } from "@/app/_components/Icons";
 
 interface Cls {
   id: string;
@@ -143,7 +143,9 @@ export function ClassDetailClient({
           <h3 style={{ marginBottom: 12 }}>Ученики</h3>
           {students.length === 0 ? (
             <div className="rl2-empty rl2-gridpaper" style={{ marginBottom: 12 }}>
-              <div className="big">🧑‍🎓</div>
+              <div style={{ color: "var(--fg-3)", marginBottom: 8 }}>
+                <IconUsers size={30} />
+              </div>
               Вставьте список из журнала ниже.
             </div>
           ) : (

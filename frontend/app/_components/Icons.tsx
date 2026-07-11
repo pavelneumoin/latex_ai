@@ -175,3 +175,136 @@ export const IconLock = (p: P) => (
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </Base>
 );
+
+export const IconPresentation = (p: P) => (
+  <Base {...p}>
+    <path d="M2 3h20" />
+    <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />
+    <path d="m7 21 5-5 5 5" />
+  </Base>
+);
+
+export const IconPencil = (p: P) => (
+  <Base {...p}>
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    <path d="m15 5 4 4" />
+  </Base>
+);
+
+export const IconLayers = (p: P) => (
+  <Base {...p}>
+    <path d="m12 2 8.5 4.5L12 11 3.5 6.5 12 2z" />
+    <path d="m3.5 12 8.5 4.5 8.5-4.5" />
+    <path d="m3.5 17 8.5 4.5 8.5-4.5" />
+  </Base>
+);
+
+export const IconKey = (p: P) => (
+  <Base {...p}>
+    <circle cx="7.5" cy="15.5" r="4.5" />
+    <path d="m10.7 12.3 8.8-8.8" />
+    <path d="m15 5 3 3" />
+    <path d="m18 8 2-2" />
+  </Base>
+);
+
+export const IconCode = (p: P) => (
+  <Base {...p}>
+    <path d="m16 18 6-6-6-6" />
+    <path d="m8 6-6 6 6 6" />
+  </Base>
+);
+
+export const IconArchive = (p: P) => (
+  <Base {...p}>
+    <rect x="2" y="3" width="20" height="5" rx="1" />
+    <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+    <path d="M10 12h4" />
+  </Base>
+);
+
+export const IconStar = (p: P & { filled?: boolean }) => {
+  const { filled, ...rest } = p;
+  return (
+    <Base {...rest} fill={filled ? "currentColor" : "none"}>
+      <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </Base>
+  );
+};
+
+export const IconHeart = (p: P & { filled?: boolean }) => {
+  const { filled, ...rest } = p;
+  return (
+    <Base {...rest} fill={filled ? "currentColor" : "none"}>
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </Base>
+  );
+};
+
+export const IconBookmark = (p: P & { filled?: boolean }) => {
+  const { filled, ...rest } = p;
+  return (
+    <Base {...rest} fill={filled ? "currentColor" : "none"}>
+      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+    </Base>
+  );
+};
+
+export const IconEye = (p: P) => (
+  <Base {...p}>
+    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+    <circle cx="12" cy="12" r="3" />
+  </Base>
+);
+
+export const IconPrinter = (p: P) => (
+  <Base {...p}>
+    <path d="M6 9V3h12v6" />
+    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+    <rect x="6" y="14" width="12" height="8" rx="1" />
+  </Base>
+);
+
+export const IconCamera = (p: P) => (
+  <Base {...p}>
+    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+    <circle cx="12" cy="13" r="3" />
+  </Base>
+);
+
+export const IconFolder = (p: P) => (
+  <Base {...p}>
+    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+  </Base>
+);
+
+export const IconZap = (p: P) => (
+  <Base {...p}>
+    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+  </Base>
+);
+
+/** Иконка вида ассета/материала (замена эмодзи — сайт не должен выглядеть «нейронковым»). */
+export function AssetIcon({ kind, size = 15 }: { kind: string; size?: number }) {
+  switch (kind) {
+    case "presentation_pdf":
+      return <IconPresentation size={size} />;
+    case "worksheet_pdf":
+      return <IconPencil size={size} />;
+    case "cheatsheet_pdf":
+      return <IconLayers size={size} />;
+    case "homework_pdf":
+      return <IconHome size={size} />;
+    case "test_pdf":
+      return <IconCheckSquare size={size} />;
+    case "answers_pdf":
+      return <IconKey size={size} />;
+    case "marp_src":
+    case "tex_src":
+      return <IconCode size={size} />;
+    case "zip":
+      return <IconArchive size={size} />;
+    default:
+      return <IconFile size={size} />;
+  }
+}

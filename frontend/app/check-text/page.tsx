@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { renderTaskCondition } from "@/lib/format-task";
 
 const LETTERS = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К"];
 
@@ -176,7 +177,10 @@ function CheckTextInner() {
                 const key = String(t.n);
                 return (
                   <li key={t.n}>
-                    <div style={{ fontSize: 14, lineHeight: 1.5 }}>{t.condition}</div>
+                    <div
+                      style={{ fontSize: 14, lineHeight: 1.5 }}
+                      dangerouslySetInnerHTML={{ __html: renderTaskCondition(t.condition) }}
+                    />
                     <div style={{ marginTop: 8 }}>
                       <AnswerField
                         task={t}

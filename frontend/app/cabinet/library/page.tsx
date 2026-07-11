@@ -5,7 +5,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getActiveSubscriptions, subsCover, tierRank } from "@/lib/entitlements";
-import { ASSET_KIND_LABEL, ASSET_KIND_EMOJI, subjectName } from "@/lib/products";
+import { ASSET_KIND_LABEL, subjectName } from "@/lib/products";
+import { AssetIcon, IconLibrary } from "@/app/_components/Icons";
 
 export const dynamic = "force-dynamic";
 
@@ -13,13 +14,22 @@ export default async function LibraryPage() {
   const session = await getServerSession(authOptions);
   const userId = session!.user!.id;
 
-  const [purchases, subs] = await Promise.all([
+  const [purchases, subs, bookmarks] = await Promise.all([
     prisma.purchase.findMany({
       where: { userId },
       include: { product: { include: { assets: { orderBy: { sortKey: "asc" } } } } },
       orderBy: { createdAt: "desc" },
     }),
     getActiveSubscriptions(userId),
+    prisma.favorite.findMany({
+      where: { userId, productId: { not: null } },
+      include: {
+        product: {
+          select: { id: true, slug: true, title: true, subject: true, course: true, lessonNo: true, isFree: true, priceBasic: true, isPublished: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   // Материалы, доступные по подписке (не купленные отдельно)
@@ -87,7 +97,7 @@ export default async function LibraryPage() {
     },
   ];
 
-  const empty = sections.every((s) => s.items.length === 0);
+  const empty = sections.every((s) => s.items.length === 0) && bookmarks.length === 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 1060 }}>
@@ -100,7 +110,9 @@ export default async function LibraryPage() {
 
       {empty && (
         <div className="rl2-empty rl2-gridpaper" style={{ padding: 60 }}>
-          <div className="big">📚</div>
+          <div style={{ color: "var(--fg-3)", marginBottom: 10 }}>
+            <IconLibrary size={34} />
+          </div>
           <div style={{ fontSize: 16, fontWeight: 600, color: "var(--fg-2)" }}>
             Пока пусто
           </div>
@@ -113,6 +125,48 @@ export default async function LibraryPage() {
             </Link>
           </div>
         </div>
+      )}
+
+      {/* Закладки — сохранённое «посмотреть позже», покупка не нужна */}
+      {bookmarks.length > 0 && (
+        <section>
+          <div className="rl-row" style={{ gap: 10, marginBottom: 12 }}>
+            <h2 style={{ fontSize: 19 }}>Закладки</h2>
+            <span className="muted" style={{ fontSize: 12.5 }}>
+              Сохранено на потом
+            </span>
+          </div>
+          <div className="rl-grid rl-grid-2">
+            {bookmarks
+              .filter((b) => b.product?.isPublished)
+              .map((b) => (
+                <Link
+                  key={b.id}
+                  href={`/catalog/${b.product!.slug}`}
+                  className="card card-hover rl2-card-subject"
+                  data-subject={b.product!.subject}
+                  style={{ padding: 14, textDecoration: "none", display: "flex", justifyContent: "space-between", gap: 10 }}
+                >
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: "block", fontWeight: 700, fontFamily: "var(--display)", fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {b.product!.title}
+                    </span>
+                    <span className="muted" style={{ fontSize: 12 }}>
+                      {b.product!.course ?? subjectName(b.product!.subject)}
+                      {b.product!.lessonNo ? ` · урок ${b.product!.lessonNo}` : ""}
+                    </span>
+                  </span>
+                  <span className="rl2-price" style={{ fontSize: 15, whiteSpace: "nowrap" }}>
+                    {b.product!.isFree ? (
+                      <span className="rl2-price-free">0 ₽</span>
+                    ) : (
+                      `${Math.round(b.product!.priceBasic / 100)} ₽`
+                    )}
+                  </span>
+                </Link>
+              ))}
+          </div>
+        </section>
       )}
 
       {sections.map(
@@ -158,7 +212,7 @@ export default async function LibraryPage() {
                             className="btn btn-sm btn-outline"
                             style={{ gap: 6 }}
                           >
-                            <span aria-hidden>{ASSET_KIND_EMOJI[a.kind] ?? "📄"}</span>
+                            <AssetIcon kind={a.kind} size={14} />
                             {a.label || ASSET_KIND_LABEL[a.kind] || a.kind}
                           </a>
                         ))}

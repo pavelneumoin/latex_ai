@@ -12,18 +12,6 @@ export const ASSET_KIND_LABEL: Record<string, string> = {
   zip: "Архив комплекта",
 };
 
-export const ASSET_KIND_EMOJI: Record<string, string> = {
-  presentation_pdf: "📽",
-  worksheet_pdf: "📝",
-  cheatsheet_pdf: "🗂",
-  homework_pdf: "🏠",
-  test_pdf: "✅",
-  answers_pdf: "🔑",
-  marp_src: "⚙️",
-  tex_src: "⚙️",
-  zip: "📦",
-};
-
 export const PRODUCT_KIND_LABEL: Record<string, string> = {
   lesson_kit: "Комплект урока",
   presentation: "Презентация",

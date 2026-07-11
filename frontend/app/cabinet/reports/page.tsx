@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { IconChart } from "@/app/_components/Icons";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,9 @@ export default async function ReportsPage() {
 
       {reports.length === 0 ? (
         <div className="rl2-empty rl2-gridpaper" style={{ padding: 60 }}>
-          <div className="big">📊</div>
+          <div style={{ color: "var(--fg-3)", marginBottom: 10 }}>
+            <IconChart size={34} />
+          </div>
           <div style={{ fontSize: 16, fontWeight: 600, color: "var(--fg-2)" }}>
             Отчётов пока нет
           </div>

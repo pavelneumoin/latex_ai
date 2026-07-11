@@ -4,8 +4,8 @@ import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getActiveSubscriptions, subjectLabel, tierLabel } from "@/lib/entitlements";
-import { formatKopecks } from "@/lib/products";
+import { getActiveSubscriptions, tierLabel } from "@/lib/entitlements";
+import { IconLibrary, IconCheckSquare } from "@/app/_components/Icons";
 
 export const dynamic = "force-dynamic";
 
@@ -128,7 +128,9 @@ export default async function CabinetOverview() {
           </div>
           {purchases.length === 0 ? (
             <div className="rl2-empty rl2-gridpaper">
-              <div className="big">📚</div>
+              <div style={{ color: "var(--fg-3)", marginBottom: 8 }}>
+                <IconLibrary size={30} />
+              </div>
               Купленные материалы появятся здесь.
               <div style={{ marginTop: 10 }}>
                 <Link href="/catalog" className="btn btn-sm btn-outline">
@@ -175,7 +177,9 @@ export default async function CabinetOverview() {
           </div>
           {checks.length === 0 ? (
             <div className="rl2-empty rl2-gridpaper">
-              <div className="big">✅</div>
+              <div style={{ color: "var(--fg-3)", marginBottom: 8 }}>
+                <IconCheckSquare size={30} />
+              </div>
               Загрузите работы учеников — система посчитает баллы и отметки.
               <div style={{ marginTop: 10 }}>
                 <Link href="/cabinet/checks/new" className="btn btn-sm btn-primary">

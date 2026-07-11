@@ -7,15 +7,25 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Header } from "../../_components/Header";
 import { getProductAccess, tierRank } from "@/lib/entitlements";
-import {
-  ASSET_KIND_EMOJI,
-  ASSET_KIND_LABEL,
-  formatKopecks,
-  subjectName,
-} from "@/lib/products";
+import { ASSET_KIND_LABEL, formatKopecks, subjectName } from "@/lib/products";
+import { AssetIcon, IconLock } from "@/app/_components/Icons";
+import { Stars } from "@/app/_components/Stars";
 import { BuyButton } from "./BuyButton";
+import { ProductSocial } from "./ProductSocial";
+import { ReviewsSection } from "./ReviewsSection";
+import { PreviewGallery } from "./PreviewGallery";
 
 export const dynamic = "force-dynamic";
+
+function galleryLabels(paths: string[]): string[] {
+  return paths.map((p) => {
+    const f = p.split("/").pop() ?? "";
+    if (f.startsWith("gal-p")) return "Презентация";
+    if (f.startsWith("gal-w")) return "Рабочий лист";
+    if (f.startsWith("gal-c")) return "Шпаргалка";
+    return "Страница";
+  });
+}
 
 export default async function ProductPage({
   params,
@@ -31,13 +41,32 @@ export default async function ProductPage({
   });
   if (!product || !product.isPublished) notFound();
 
-  const access = await getProductAccess(userId, product);
+  const [access, myLike, myBookmark] = await Promise.all([
+    getProductAccess(userId, product),
+    userId
+      ? prisma.productLike.findUnique({
+          where: { userId_productId: { userId, productId: product.id } },
+        })
+      : null,
+    userId
+      ? prisma.favorite.findFirst({ where: { userId, productId: product.id } })
+      : null,
+  ]);
 
   const basicAssets = product.assets.filter((a) => a.tier === "basic");
   const sourceAssets = product.assets.filter((a) => a.tier === "source");
 
   const canBasic = access.maxTier != null;
   const canSource = access.maxTier === "source";
+
+  let galleryPages: string[] = [];
+  try {
+    if (product.previewPagesJson) {
+      galleryPages = JSON.parse(product.previewPagesJson) as string[];
+    }
+  } catch {
+    galleryPages = [];
+  }
 
   const related = product.courseSlug
     ? await prisma.product.findMany({
@@ -83,42 +112,63 @@ export default async function ProductPage({
             <h1 className="rl-h2" style={{ marginBottom: 10 }}>
               {product.title}
             </h1>
+
+            <div className="rl-row" style={{ gap: 14, marginBottom: 14 }}>
+              <Stars rating={product.rating} count={product.ratingCount} size={16} />
+              <ProductSocial
+                productId={product.id}
+                initialLiked={!!myLike}
+                initialLikes={product.likes}
+                initialBookmarked={!!myBookmark}
+                loggedIn={!!userId}
+              />
+            </div>
+
             {product.description && (
               <p className="rl-lead" style={{ marginBottom: 20 }}>
                 {product.description}
               </p>
             )}
 
-            {/* Превью */}
-            <div
-              className="rl2-gridpaper"
-              style={{
-                borderRadius: 16,
-                border: "1px solid var(--border)",
-                background: "var(--bg)",
-                padding: 24,
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: 24,
-              }}
-            >
-              {product.previewPath ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={`/api/preview/${product.id}`}
-                  alt={`Превью: ${product.title}`}
-                  style={{ maxWidth: "100%", borderRadius: 8, boxShadow: "var(--shadow-lg)" }}
-                />
-              ) : (
-                <div className="rl2-product-paper" style={{ width: "46%" }} aria-hidden>
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <i style={{ width: "40%" }} />
-                </div>
-              )}
-            </div>
+            {/* Предпросмотр: галерея страниц или обложка */}
+            {galleryPages.length > 0 ? (
+              <PreviewGallery
+                productId={product.id}
+                pageCount={galleryPages.length}
+                title={product.title}
+                labels={galleryLabels(galleryPages)}
+              />
+            ) : (
+              <div
+                className="rl2-gridpaper"
+                style={{
+                  borderRadius: 16,
+                  border: "1px solid var(--border)",
+                  background: "var(--bg)",
+                  padding: 24,
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: 24,
+                }}
+              >
+                {product.previewPath ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`/api/preview/${product.id}`}
+                    alt={`Превью: ${product.title}`}
+                    style={{ maxWidth: "100%", borderRadius: 8, boxShadow: "var(--shadow-lg)" }}
+                  />
+                ) : (
+                  <div className="rl2-product-paper" style={{ width: "46%" }} aria-hidden>
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                    <i style={{ width: "40%" }} />
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Состав комплекта */}
             <h3 style={{ marginBottom: 10 }}>Состав комплекта</h3>
@@ -141,7 +191,9 @@ export default async function ProductPage({
                     }}
                   >
                     <span style={{ display: "inline-flex", gap: 8, alignItems: "center", minWidth: 0 }}>
-                      <span aria-hidden>{ASSET_KIND_EMOJI[a.kind] ?? "📄"}</span>
+                      <span aria-hidden style={{ color: "var(--fg-3)", display: "inline-flex" }}>
+                        <AssetIcon kind={a.kind} size={16} />
+                      </span>
                       <span style={{ fontWeight: 600 }}>{a.label || ASSET_KIND_LABEL[a.kind]}</span>
                       {a.pages ? (
                         <span className="muted" style={{ fontSize: 12 }}>
@@ -159,8 +211,9 @@ export default async function ProductPage({
                         Скачать
                       </a>
                     ) : (
-                      <span className="muted" style={{ fontSize: 12.5 }}>
-                        🔒 {a.tier === "source" ? "уровень «исходники»" : "после покупки"}
+                      <span className="muted" style={{ fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        <IconLock size={12} />
+                        {a.tier === "source" ? "уровень «исходники»" : "после покупки"}
                       </span>
                     )}
                   </div>
@@ -177,6 +230,13 @@ export default async function ProductPage({
                 Меняйте числа, фамилии, порядок задач — комплект становится вашим.
               </div>
             )}
+
+            {/* Отзывы */}
+            <ReviewsSection
+              productId={product.id}
+              loggedIn={!!userId}
+              canReview={access.maxTier != null}
+            />
 
             {/* Уроки курса */}
             {related.length > 0 && (
@@ -200,11 +260,7 @@ export default async function ProductPage({
                       }}
                     >
                       <span style={{ fontWeight: 600 }}>
-                        {r.kind === "course_bundle"
-                          ? "📦 "
-                          : r.lessonNo
-                            ? `Урок ${r.lessonNo}. `
-                            : ""}
+                        {r.kind === "course_bundle" ? "" : r.lessonNo ? `Урок ${r.lessonNo}. ` : ""}
                         {r.title}
                       </span>
                       <span className="rl2-price" style={{ fontSize: 14 }}>
@@ -306,7 +362,7 @@ export default async function ProductPage({
                     className="card-flat rl2-gridpaper"
                     style={{ padding: 12, marginTop: 16, fontSize: 12.5, color: "var(--fg-2)" }}
                   >
-                    💡 По подписке «{subjectName(product.subject)}» этот и все материалы
+                    По подписке «{subjectName(product.subject)}» этот и все материалы
                     предмета — уже включены.{" "}
                     <Link href="/pricing" style={{ color: "var(--primary)" }}>
                       От 290 ₽/мес →
@@ -317,7 +373,7 @@ export default async function ProductPage({
 
               {product.checkable && (
                 <div style={{ marginTop: 14, fontSize: 12.5, color: "var(--fg-2)" }}>
-                  ✅ К комплекту приложен ключ — работы учеников проверяются в{" "}
+                  К комплекту приложен ключ — работы учеников проверяются в{" "}
                   <Link href="/cabinet/checks" style={{ color: "var(--primary)" }}>
                     кабинете
                   </Link>{" "}

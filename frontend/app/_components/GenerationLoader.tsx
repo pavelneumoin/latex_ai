@@ -13,39 +13,39 @@ const PRESETS: Record<Variant, { title: string; steps: LoaderStep[] }> = {
   photo: {
     title: "Распознаём фото",
     steps: [
-      { icon: "📸", label: "Читаем снимок" },
-      { icon: "🔍", label: "Находим условия задач" },
-      { icon: "✍️", label: "Переписываем в чистый вид" },
-      { icon: "🧮", label: "Считаем ответы" },
-      { icon: "📄", label: "Собираем рабочий лист" },
+      { icon: "•", label: "Читаем снимок" },
+      { icon: "•", label: "Находим условия задач" },
+      { icon: "•", label: "Переписываем в чистый вид" },
+      { icon: "•", label: "Считаем ответы" },
+      { icon: "•", label: "Собираем рабочий лист" },
     ],
   },
   create: {
     title: "Собираем рабочий лист",
     steps: [
-      { icon: "🧠", label: "Подбираем задачи по теме" },
-      { icon: "✍️", label: "Формулируем условия" },
-      { icon: "🧮", label: "Считаем ответы" },
-      { icon: "🎨", label: "Применяем оформление" },
-      { icon: "📄", label: "Готовим PDF к печати" },
+      { icon: "•", label: "Подбираем задачи по теме" },
+      { icon: "•", label: "Формулируем условия" },
+      { icon: "•", label: "Считаем ответы" },
+      { icon: "•", label: "Применяем оформление" },
+      { icon: "•", label: "Готовим PDF к печати" },
     ],
   },
   bank: {
     title: "Берём задачи из банка ФИПИ",
     steps: [
-      { icon: "🏦", label: "Ищем по фильтру" },
-      { icon: "🎯", label: "Отбираем лучшие задачи" },
-      { icon: "🎨", label: "Применяем оформление" },
-      { icon: "📄", label: "Готовим рабочий лист" },
+      { icon: "•", label: "Ищем по фильтру" },
+      { icon: "•", label: "Отбираем лучшие задачи" },
+      { icon: "•", label: "Применяем оформление" },
+      { icon: "•", label: "Готовим рабочий лист" },
     ],
   },
   check: {
     title: "Проверяем работу",
     steps: [
-      { icon: "📸", label: "Читаем ответы ученика" },
+      { icon: "•", label: "Читаем ответы ученика" },
       { icon: "✓", label: "Сверяем с эталоном" },
-      { icon: "🧮", label: "Считаем баллы" },
-      { icon: "🏅", label: "Выставляем оценку" },
+      { icon: "•", label: "Считаем баллы" },
+      { icon: "•", label: "Выставляем оценку" },
     ],
   },
 };
@@ -326,7 +326,7 @@ function LoaderScene({ variant }: { variant: Variant }) {
           animation: "rl-pop 0.5s ease 0.2s both",
         }}
       >
-        {variant === "photo" ? "📸" : variant === "bank" ? "🏦" : variant === "check" ? "✓" : "✨"}
+        {variant === "photo" ? "•" : variant === "bank" ? "•" : variant === "check" ? "✓" : "✨"}
       </span>
 
       <style>{`

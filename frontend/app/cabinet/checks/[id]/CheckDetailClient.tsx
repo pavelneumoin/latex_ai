@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
-import { IconUpload, IconDoc } from "@/app/_components/Icons";
+import { IconUpload, IconDoc, IconZap } from "@/app/_components/Icons";
 
 interface JobInfo {
   id: string;
@@ -300,7 +300,8 @@ export function CheckDetailClient({
         {uploads.length > 0 && (
           <div style={{ marginTop: 12 }}>
             <button type="button" className="btn btn-blue" disabled={busy === "run"} onClick={runAuto}>
-              {busy === "run" ? "Проверяем…" : "⚡ Автопроверка"}
+              <IconZap size={15} />
+              {busy === "run" ? "Проверяем…" : "Автопроверка"}
             </button>
             <span className="muted" style={{ fontSize: 12.5, marginLeft: 10 }}>
               {job.productCheckable
@@ -439,7 +440,8 @@ export function CheckDetailClient({
           {busy === "done" ? "…" : "Завершить проверку"}
         </button>
         <button type="button" className="btn btn-primary" disabled={!!busy || stats.checked === 0} onClick={makeReport}>
-          {busy === "report" ? "Собираем отчёт…" : "📄 Отчёт (PDF)"}
+          <IconDoc size={15} />
+          {busy === "report" ? "Собираем отчёт…" : "Отчёт (PDF)"}
         </button>
       </div>
 

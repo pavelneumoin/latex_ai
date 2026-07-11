@@ -394,7 +394,7 @@ export function Header() {
         <nav style={{ display: "flex", flexDirection: "column", padding: "10px 12px", gap: 2 }}>
           {session?.user && (
             <Link href="/cabinet" style={mobileLinkStyle(isActive("/cabinet"))}>
-              🏠 Кабинет
+              Кабинет
             </Link>
           )}
           {NAV_ITEMS.map((item) => (

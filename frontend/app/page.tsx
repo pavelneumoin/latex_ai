@@ -4,6 +4,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Header } from "./_components/Header";
 import { formatKopecks, kitSummary, subjectName } from "@/lib/products";
+import { IconFolder, IconPrinter, IconCamera, IconChart } from "./_components/Icons";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,7 @@ export default async function Landing() {
               marginBottom: 20,
             }}
           >
-            ⚡ Мягкие цены старта: уроки от 0 ₽, подписка от 290 ₽
+            Мягкие цены старта: уроки от 0 ₽, подписка от 290 ₽
           </span>
           <h1 className="rl-h1" style={{ marginBottom: 18, maxWidth: 860, marginLeft: "auto", marginRight: "auto" }}>
             Готовые уроки математики и информатики —{" "}
@@ -152,31 +153,31 @@ export default async function Landing() {
           {[
             {
               n: "1",
-              icon: "🗂",
+              icon: <IconFolder size={24} />,
               title: "Выберите комплект",
               text: "Презентация, лист, ДЗ и зачёты — единый стиль, выверенные задачи с ключами.",
             },
             {
               n: "2",
-              icon: "🖨",
+              icon: <IconPrinter size={24} />,
               title: "Напечатайте и проведите",
               text: "PDF готов к печати. В подписке «Всё включено» — исходники, правьте под класс.",
             },
             {
               n: "3",
-              icon: "📸",
+              icon: <IconCamera size={24} />,
               title: "Загрузите работы",
               text: "Фото или PDF пачкой в кабинет. Баллы, проценты и отметки по вашей шкале — автоматически.",
             },
             {
               n: "4",
-              icon: "📊",
+              icon: <IconChart size={24} />,
               title: "Получите отчёт",
               text: "Красивый PDF со статистикой класса: распределение отметок, западающие задания.",
             },
           ].map((s) => (
             <div key={s.n} className="card" style={{ padding: 20 }}>
-              <div style={{ fontSize: 26, marginBottom: 10 }}>{s.icon}</div>
+              <div style={{ color: "var(--primary)", marginBottom: 12 }}>{s.icon}</div>
               <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 16, marginBottom: 6 }}>
                 <span style={{ color: "var(--primary)", marginRight: 6 }}>{s.n}.</span>
                 {s.title}

@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { bankStats } from "@/lib/bank";
 import { Header } from "../_components/Header";
+import { IconPencil, IconUpload } from "../_components/Icons";
 
 export const dynamic = "force-dynamic";
 
@@ -107,8 +108,8 @@ export default async function DashboardPage() {
             className="card card-hover"
             style={{ padding: 24, textDecoration: "none", color: "var(--fg)", display: "flex", flexDirection: "column", gap: 8 }}
           >
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "var(--accent-soft)", display: "grid", placeItems: "center", fontSize: 22, marginBottom: 6 }}>
-              ✏️
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "var(--accent-soft)", color: "#92400E", display: "grid", placeItems: "center", marginBottom: 6 }}>
+              <IconPencil size={20} />
             </div>
             <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>Создать лист</div>
             <div className="muted" style={{ fontSize: 13 }}>Опиши тему — получи PDF за минуту</div>
@@ -119,8 +120,8 @@ export default async function DashboardPage() {
             className="card card-hover"
             style={{ padding: 24, textDecoration: "none", color: "var(--fg)", display: "flex", flexDirection: "column", gap: 8 }}
           >
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#EEF2FF", color: "#4338CA", display: "grid", placeItems: "center", fontSize: 22, marginBottom: 6 }}>
-              ⬆️
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#EEF2FF", color: "#4338CA", display: "grid", placeItems: "center", marginBottom: 6 }}>
+              <IconUpload size={20} />
             </div>
             <div style={{ fontFamily: "var(--display)", fontWeight: 600, fontSize: 17 }}>Загрузить PDF</div>
             <div className="muted" style={{ fontSize: 13 }}>Превратить готовый PDF в рабочий лист</div>

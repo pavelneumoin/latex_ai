@@ -45,7 +45,7 @@ export default async function MyPage() {
           </div>
           <div className="rl-row">
             <Link href="/upload" className="btn btn-outline">
-              ⬆️ Из PDF
+              Из PDF
             </Link>
             <Link href="/create" className="btn btn-primary btn-lg">
               + Создать новый

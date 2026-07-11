@@ -265,11 +265,11 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
           </button>
         </form>
 
-        {/* ⭐ Лучшее */}
+        {/* Лучшее */}
         {noFilters && featuredRaw.length > 0 && (
           <section style={{ marginBottom: 32 }}>
             <div className="rl-row-between" style={{ marginBottom: 12 }}>
-              <h2 style={{ fontSize: 22 }}>⭐ Лучшее</h2>
+              <h2 style={{ fontSize: 22 }}>Лучшее</h2>
               <span className="muted" style={{ fontSize: 13 }}>Отобрано редакцией</span>
             </div>
             <div style={GRID_AUTO}>
@@ -324,7 +324,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
             className="card"
             style={{ padding: 64, textAlign: "center", color: "var(--fg-3)", fontSize: 15 }}
           >
-            <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.5 }}>🔍</div>
+            
             <p style={{ marginBottom: 4, color: "var(--fg-2)" }}>По вашему запросу ничего не найдено</p>
             <p style={{ fontSize: 13 }}>
               <Link href="/marketplace" style={{ color: "var(--primary)" }}>Сбросить фильтры</Link>

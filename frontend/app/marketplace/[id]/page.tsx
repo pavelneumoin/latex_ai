@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Header } from "../../_components/Header";
 import { PublicationActions } from "./PublicationActions";
+import { renderTaskCondition } from "@/lib/format-task";
 
 export const dynamic = "force-dynamic";
 
@@ -117,9 +118,11 @@ export default async function PublicationDetailPage({ params }: { params: { id: 
               ) : (
                 <ol style={{ paddingLeft: 22, display: "flex", flexDirection: "column", gap: 12 }}>
                   {tasks.slice(0, 5).map((t, i) => (
-                    <li key={i} style={{ fontSize: 14, lineHeight: 1.55 }}>
-                      {t.condition ?? "—"}
-                    </li>
+                    <li
+                      key={i}
+                      style={{ fontSize: 14, lineHeight: 1.55 }}
+                      dangerouslySetInnerHTML={{ __html: renderTaskCondition(t.condition ?? "—") }}
+                    />
                   ))}
                   {tasks.length > 5 && (
                     <li

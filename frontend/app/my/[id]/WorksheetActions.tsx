@@ -177,7 +177,7 @@ export function WorksheetActions({ worksheetId, isPublic }: Props) {
             style={{ width: "100%", background: "var(--primary)", color: "var(--primary-fg)" }}
             onClick={() => setRefineOpen(true)}
           >
-            💬 Попросить правку («сделай №3 проще», «убери дроби»…)
+            Попросить правку («сделай №3 проще», «убери дроби»…)
           </button>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -252,7 +252,7 @@ export function WorksheetActions({ worksheetId, isPublic }: Props) {
             onClick={onVariant}
             title="Тот же шаблон, та же тема — другие задачи"
           >
-            {busy === "variant" ? "Создаём…" : "🔄 Создать аналогичный"}
+            {busy === "variant" ? "Создаём…" : "Создать аналогичный"}
           </button>
           <button
             type="button"
@@ -261,7 +261,7 @@ export function WorksheetActions({ worksheetId, isPublic }: Props) {
             onClick={onHarder}
             title="Та же тема, но задачи сложнее"
           >
-            {busy === "harder" ? "Усложняем…" : "⬆️ Аналогичный усложнённый"}
+            {busy === "harder" ? "Усложняем…" : "Аналогичный усложнённый"}
           </button>
         </div>
       </div>
@@ -342,7 +342,7 @@ export function WorksheetActions({ worksheetId, isPublic }: Props) {
             }}
             title="Публичная ссылка на лист (работает, если опубликован)"
           >
-            🔗 Скопировать ссылку
+            Скопировать ссылку
           </button>
           {!isPublic && (
             <button type="button" className="btn btn-primary" disabled={Boolean(busy)} onClick={onPublish}>

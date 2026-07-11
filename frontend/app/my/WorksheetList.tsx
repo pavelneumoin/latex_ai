@@ -109,7 +109,7 @@ export function WorksheetList({ initialWorksheets }: { initialWorksheets: Worksh
       >
         <input
           className="input"
-          placeholder="🔍 Поиск по названию или теме…"
+          placeholder="Поиск по названию или теме…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ flex: "1 1 220px", minWidth: 180 }}
@@ -160,7 +160,7 @@ export function WorksheetList({ initialWorksheets }: { initialWorksheets: Worksh
           className="card"
           style={{ padding: 64, textAlign: "center", color: "var(--fg-3)", fontSize: 15 }}
         >
-          <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.5 }}>📄</div>
+          
           <p style={{ marginBottom: 6, color: "var(--fg-2)" }}>У вас пока нет рабочих листов</p>
           <p style={{ marginBottom: 20, fontSize: 14 }}>Создайте свой первый лист за минуту.</p>
           <Link href="/create" className="btn btn-primary">Создать первый лист</Link>

@@ -25,7 +25,7 @@ async function seedPlans() {
     {
       id: "free",
       name: "Бесплатный",
-      description: "Бесплатные материалы, кабинет, классы и 10 автопроверок в месяц.",
+      description: "Все PDF бесплатно, кабинет, классы и 10 автопроверок в месяц.",
       subject: "all",
       tier: "basic",
       priceMonthly: 0,
@@ -38,9 +38,9 @@ async function seedPlans() {
     {
       id: "math",
       name: "Математика",
-      description: "Все PDF-материалы по математике, 300 автопроверок в месяц, отчёты.",
+      description: "Редактируемые Marp/LaTeX-исходники по математике, 300 автопроверок в месяц, отчёты.",
       subject: "math",
-      tier: "basic",
+      tier: "source",
       priceMonthly: 29000, // ₽290
       priceYearly: 261000, // ₽2 610 (−25 %)
       worksheetsLimit: 30,
@@ -51,9 +51,9 @@ async function seedPlans() {
     {
       id: "informatics",
       name: "Информатика",
-      description: "Все PDF-материалы по информатике, 300 автопроверок в месяц, отчёты.",
+      description: "Редактируемые Marp/LaTeX-исходники по информатике, 300 автопроверок в месяц, отчёты.",
       subject: "informatics",
-      tier: "basic",
+      tier: "source",
       priceMonthly: 29000, // ₽290
       priceYearly: 261000,
       worksheetsLimit: 30,

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser, getSessionUser } from "@/lib/session";
 import { getProductAccess } from "@/lib/entitlements";
+import { checkRate, rateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -16,7 +17,9 @@ async function recalcRating(productId: string) {
     _avg: { rating: true },
     _count: true,
   });
-  await prisma.product.update({
+  // updateMany: не бросает P2025, если продукта с таким id нет
+  // (DELETE отзыва по несуществующему товару не должен падать 500).
+  await prisma.product.updateMany({
     where: { id: productId },
     data: {
       rating: Math.round((agg._avg.rating ?? 0) * 10) / 10,
@@ -64,6 +67,10 @@ export async function POST(
   } catch {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+
+  // Anti-abuse: не более 5 отзывов в минуту на пользователя.
+  const r = checkRate("reviews-post", user.id, { limit: 5, windowMs: 60_000 });
+  if (!r.ok) return rateLimited(r);
 
   const product = await prisma.product.findUnique({
     where: { id: params.id },

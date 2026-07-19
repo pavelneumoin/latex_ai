@@ -64,51 +64,65 @@ export interface ProductAccess {
   purchaseTier: Tier | null;
 }
 
+/** Ранг с учётом «нет доступа» = 0 (tierRank трактует null как basic=1). */
+function accessRank(t: Tier | null): number {
+  return t == null ? 0 : tierRank(t);
+}
+
 /**
  * Доступ пользователя к продукту.
- * userId = null → только бесплатные материалы (basic-уровень без регистрации не скачиваем,
- * просим войти — но право показываем).
+ *
+ * Фаза 1 (сейчас): все PDF (basic) открыты бесплатно у товаров с isFree=true;
+ * исходники Marp/LaTeX (source) — только по подписке предмета или «Всё включено»
+ * (или разовой покупке, если её когда-нибудь снова включат). Чтобы позже перевести
+ * ВСЁ на подписку, достаточно снять isFree с товаров (см. ALL_FREE в
+ * prisma/seed-library.ts) — тогда и basic-уровень потребует подписку.
+ *
+ * userId = null → доступен только бесплатный basic-уровень (скачивание всё равно
+ * просит вход — так копится библиотека учителя), исходники закрыты.
  */
 export async function getProductAccess(
   userId: string | null,
   product: { id: string; subject: string; isFree: boolean }
 ): Promise<ProductAccess> {
-  if (product.isFree) {
-    // Бесплатные образцы открывают и исходники — это демо уровня source.
-    return { maxTier: "source", via: "free", purchaseTier: null };
-  }
-  if (!userId) return { maxTier: null, via: null, purchaseTier: null };
-
-  const [purchase, subs] = await Promise.all([
-    prisma.purchase.findUnique({
-      where: { userId_productId: { userId, productId: product.id } },
-    }),
-    getActiveSubscriptions(userId),
-  ]);
-
-  const viaSubSource = subsCover(subs, product.subject, "source");
-  const viaSubBasic = subsCover(subs, product.subject, "basic");
-
   let maxTier: Tier | null = null;
   let via: ProductAccess["via"] = null;
+  let purchaseTier: Tier | null = null;
 
-  if (purchase) {
-    maxTier = purchase.tier === "source" ? "source" : "basic";
-    via = "purchase";
-  }
-  if (viaSubSource && tierRank("source") > tierRank(maxTier ?? "")) {
-    maxTier = "source";
-    via = "subscription";
-  } else if (!maxTier && viaSubBasic) {
+  // Бесплатный доступ к PDF (basic) — открытая база материалов.
+  if (product.isFree) {
     maxTier = "basic";
-    via = "subscription";
+    via = "free";
   }
 
-  return {
-    maxTier,
-    via,
-    purchaseTier: purchase ? (purchase.tier as Tier) : null,
-  };
+  if (userId) {
+    const [purchase, subs] = await Promise.all([
+      prisma.purchase.findUnique({
+        where: { userId_productId: { userId, productId: product.id } },
+      }),
+      getActiveSubscriptions(userId),
+    ]);
+
+    if (purchase) {
+      purchaseTier = purchase.tier as Tier;
+      const pt: Tier = purchase.tier === "source" ? "source" : "basic";
+      if (accessRank(pt) > accessRank(maxTier)) {
+        maxTier = pt;
+        via = "purchase";
+      }
+    }
+
+    // Подписка предмета (tier=source) или «Всё включено» открывает исходники.
+    if (subsCover(subs, product.subject, "source") && accessRank("source") > accessRank(maxTier)) {
+      maxTier = "source";
+      via = "subscription";
+    } else if (subsCover(subs, product.subject, "basic") && accessRank("basic") > accessRank(maxTier)) {
+      maxTier = "basic";
+      if (via == null) via = "subscription";
+    }
+  }
+
+  return { maxTier, via, purchaseTier };
 }
 
 /** Может ли пользователь скачать конкретный ассет продукта. */

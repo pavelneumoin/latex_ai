@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { FEATURES } from "@/lib/features";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://rabochiilist.ru";
 
@@ -10,7 +11,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/", priority: 1.0, changeFrequency: "weekly" as const },
     { path: "/demo", priority: 0.85, changeFrequency: "monthly" as const },
     { path: "/templates", priority: 0.9, changeFrequency: "weekly" as const },
-    { path: "/marketplace", priority: 0.8, changeFrequency: "daily" as const },
+    ...(FEATURES.teacherMarketplace
+      ? [{ path: "/marketplace", priority: 0.8, changeFrequency: "daily" as const }]
+      : []),
     { path: "/pricing", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/offer", priority: 0.3, changeFrequency: "yearly" as const },
     { path: "/privacy", priority: 0.3, changeFrequency: "yearly" as const },

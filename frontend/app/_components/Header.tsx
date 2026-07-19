@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FEATURES } from "@/lib/features";
 
 function initialsOf(name?: string | null, email?: string | null): string {
   if (name && name.trim()) {
@@ -18,13 +19,36 @@ function initialsOf(name?: string | null, email?: string | null): string {
   return "?";
 }
 
-const NAV_ITEMS: { href: string; label: string }[] = [
+const NAV_ITEMS: { href: string; label: string; comingSoon?: boolean }[] = [
   { href: "/catalog", label: "Каталог" },
   { href: "/cabinet/checks", label: "Проверка работ" },
   { href: "/create", label: "Конструктор" },
-  { href: "/marketplace", label: "Листы учителей" },
+  {
+    href: "/marketplace",
+    label: "Листы учителей",
+    comingSoon: !FEATURES.teacherMarketplace,
+  },
   { href: "/pricing", label: "Тарифы" },
 ];
+
+function ComingSoonBadge() {
+  return (
+    <span
+      style={{
+        padding: "3px 6px",
+        borderRadius: 999,
+        background: "var(--accent-soft)",
+        color: "#92400E",
+        fontSize: 9,
+        fontWeight: 700,
+        lineHeight: 1,
+        whiteSpace: "nowrap",
+      }}
+    >
+      В разработке
+    </span>
+  );
+}
 
 function Logo() {
   return (
@@ -114,6 +138,30 @@ export function Header() {
         >
           {NAV_ITEMS.map((item) => {
             const active = isActive(item.href);
+            if (item.comingSoon) {
+              return (
+                <span
+                  key={item.href}
+                  aria-disabled="true"
+                  title="Раздел пока недоступен"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: "var(--fg-3)",
+                    whiteSpace: "nowrap",
+                    cursor: "not-allowed",
+                  }}
+                >
+                  {item.label}
+                  <ComingSoonBadge />
+                </span>
+              );
+            }
             return (
               <Link
                 key={item.href}
@@ -397,11 +445,31 @@ export function Header() {
               Кабинет
             </Link>
           )}
-          {NAV_ITEMS.map((item) => (
-            <Link key={item.href} href={item.href} style={mobileLinkStyle(isActive(item.href))}>
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) =>
+            item.comingSoon ? (
+              <span
+                key={item.href}
+                aria-disabled="true"
+                title="Раздел пока недоступен"
+                style={{
+                  ...mobileLinkStyle(false),
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  color: "var(--fg-3)",
+                  cursor: "not-allowed",
+                }}
+              >
+                {item.label}
+                <ComingSoonBadge />
+              </span>
+            ) : (
+              <Link key={item.href} href={item.href} style={mobileLinkStyle(isActive(item.href))}>
+                {item.label}
+              </Link>
+            )
+          )}
           {session?.user && (
             <>
               <Link href="/settings" style={mobileLinkStyle(isActive("/settings"))}>

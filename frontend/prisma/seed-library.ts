@@ -24,8 +24,20 @@ const LIB_DIR =
 const STORAGE_ROOT = process.env.STORAGE_DIR || path.join(process.cwd(), "storage");
 const PDFTOPPM = process.env.PDFTOPPM_CMD || "pdftoppm";
 
-const LESSON_PRICE = 4900;      // 49 ₽ PDF
-const LESSON_SRC_PRICE = 12900; // 129 ₽ PDF+исходники
+const LESSON_PRICE = 4900;      // 49 ₽ PDF (не показывается, пока ALL_FREE)
+
+// Фаза 1: все PDF бесплатны, Marp/LaTeX-исходники — по подписке.
+// Фаза 2 (потом «всё по подписке»): поставить ALL_FREE = false и пересидить —
+// тогда basic-уровень тоже закроется под подписку (см. getProductAccess).
+const ALL_FREE = true;
+
+// Пока на сайте публикуем ТОЛЬКО этот курс (остальные вернём при выгрузке на
+// сервер, ~через месяц). null = все курсы из COURSES.
+const ONLY_COURSES: string[] | null = ["ege06"];
+
+// Сколько страниц PDF рендерим в галерею предпросмотра.
+const PRESENTATION_PREVIEW_PAGES = 7; // 5–7 слайдов презентации
+const WORKSHEET_PREVIEW_PAGES = 4;    // 3–4 страницы рабочего листа
 
 interface CourseCfg {
   dir: string;         // имя папки в библиотеке
@@ -50,17 +62,19 @@ const COURSES: CourseCfg[] = [
 // Папки, которые не являются уроками/артефактами
 const SKIP_DIR = /^(_|figures$|VK_posts|.*Исходники|.*Банк|.*Доп_задачи|\.)/i;
 
-// PDF-суффикс → (kind, label, sort)
+// PDF-суффикс → (kind, label, sort).
+// Публикуем ТОЛЬКО 3 типа: презентация, рабочий лист, домашнее задание.
+// Шпаргалка и зачёт/самостоятельная пока не выкладываются (добавим позже).
 const PDF_KINDS: { re: RegExp; kind: string; label: string; sort: number }[] = [
   { re: /—\s*Презентация\.pdf$/i, kind: "presentation_pdf", label: "Презентация", sort: 1 },
   { re: /—\s*Рабочий лист\.pdf$/i, kind: "worksheet_pdf", label: "Рабочий лист", sort: 2 },
-  { re: /—\s*Шпаргалка\.pdf$/i, kind: "cheatsheet_pdf", label: "Шпаргалка", sort: 3 },
-  { re: /—\s*Домашн\w* задание\.pdf$/i, kind: "homework_pdf", label: "Домашняя работа", sort: 4 },
-  { re: /—\s*Зач[её]тная работа\s*1\.pdf$/i, kind: "test_pdf", label: "Зачёт — вариант 1", sort: 5 },
-  { re: /—\s*Зач[её]тная работа\s*2\.pdf$/i, kind: "test_pdf", label: "Зачёт — вариант 2", sort: 6 },
-  { re: /—\s*Зач[её]т\w*\.pdf$/i, kind: "test_pdf", label: "Зачёт", sort: 5 },
-  { re: /—\s*Самостоятельная[^.]*\.pdf$/i, kind: "test_pdf", label: "Самостоятельная", sort: 5 },
+  // ВАЖНО: \w в JS не матчит кириллицу — берём явный кирилл. класс, иначе ДЗ теряется.
+  { re: /—\s*Домашн[а-яё]*\s+(задание|работа)\.pdf$/i, kind: "homework_pdf", label: "Домашнее задание", sort: 4 },
 ];
+
+// Исходники (Marp/LaTeX) собираем ТОЛЬКО из подпапок трёх публикуемых типов —
+// чтобы по подписке не утекали шаблоны зачётов/шпаргалок, которые пока не выкладываем.
+const PUBLISHED_ARTIFACT = /^(презентаци|рабочий\s*лист|домашн)/i;
 
 interface FoundAsset {
   abs: string;
@@ -124,6 +138,8 @@ async function collectAssets(dirAbs: string): Promise<FoundAsset[]> {
           out.push({ abs: fAbs, kind: pdfKind.kind, tier: "basic", label: pdfKind.label, sort: pdfKind.sort });
           continue;
         }
+        // Исходники — только из подпапок публикуемых типов (не зачёт/шпаргалка).
+        if (!PUBLISHED_ARTIFACT.test(e.name)) continue;
         if (/\.md$/i.test(f.name) && !/^readme/i.test(f.name) && !/^bank/i.test(f.name)) {
           out.push({
             abs: fAbs,
@@ -173,14 +189,31 @@ async function findLessons(
       let readme: string | null = null;
       try {
         const raw = await fs.readFile(path.join(abs, "README.md"), "utf-8");
-        const para = raw
-          .split(/\r?\n/)
-          .filter((l) => l.trim() && !l.startsWith("#") && !l.startsWith("|") && !l.startsWith("-"))
-          .slice(0, 2)
+        // Берём ВЕСЬ первый содержательный абзац (не 2 строки): подряд идущие
+        // непустые строки, пропуская заголовки/таблицы/списки. $…$ сохраняем — KaTeX.
+        const lines = raw.split(/\r?\n/);
+        const para: string[] = [];
+        let started = false;
+        for (const l of lines) {
+          const t = l.trim();
+          const skip = !t || /^[#|>-]/.test(t);
+          if (!started) {
+            if (skip) continue;
+            started = true;
+            para.push(t);
+          } else {
+            if (skip) break; // пустая строка / заголовок / список = конец абзаца
+            para.push(t);
+          }
+        }
+        const text = para
           .join(" ")
           .replace(/\*\*?|`|\[|\]\([^)]*\)/g, "")
+          .replace(/\s+/g, " ")
           .trim();
-        if (para.length > 30) readme = para.slice(0, 280);
+        if (text.length > 30) {
+          readme = text.length > 600 ? text.slice(0, 600).replace(/\s+\S*$/, "") + "…" : text;
+        }
       } catch {
         // нет README — не страшно
       }
@@ -235,6 +268,16 @@ async function renderPages(
   return produced.sort();
 }
 
+const PDFINFO = process.env.PDFINFO_CMD || "pdfinfo";
+
+/** Число страниц PDF через pdfinfo (0, если недоступно). */
+function pdfPageCount(pdfAbs: string): number {
+  const res = spawnSync(PDFINFO, [pdfAbs], { timeout: 15000, encoding: "utf-8" });
+  if (res.error || !res.stdout) return 0;
+  const m = res.stdout.match(/^Pages:\s*(\d+)/m);
+  return m ? Number(m[1]) : 0;
+}
+
 async function main() {
   console.log(`Библиотека: ${LIB_DIR}`);
   console.log(`Storage:    ${STORAGE_ROOT}`);
@@ -246,6 +289,7 @@ async function main() {
   let totalLessons = 0;
 
   for (const course of COURSES) {
+    if (ONLY_COURSES && !ONLY_COURSES.includes(course.slug)) continue;
     const courseAbs = path.join(LIB_DIR, course.dir);
     if (!(await isDir(courseAbs))) {
       console.warn(`⚠ нет папки курса: ${course.dir}`);
@@ -264,7 +308,7 @@ async function main() {
       counter++;
       const lessonNo = counter;
       const slug = `${course.slug}-l${String(lessonNo).padStart(2, "0")}`;
-      const isFree = lessonNo === 1;
+      const isFree = ALL_FREE ? true : lessonNo === 1;
 
       const fullTitle = lesson.blockTitle && !lesson.title.includes(lesson.blockTitle)
         ? `${lesson.blockTitle}: ${lesson.title}`
@@ -286,7 +330,7 @@ async function main() {
           audience: "10–11 класс · ЕГЭ",
           kind: "lesson_kit",
           priceBasic: LESSON_PRICE,
-          priceSource: hasSource ? LESSON_SRC_PRICE : null,
+          priceSource: null, // исходники открываются ТОЛЬКО по подписке — разовой цены нет
           isFree,
           isPublished: true,
         },
@@ -299,6 +343,8 @@ async function main() {
         const ext = path.extname(a.abs);
         const name = safeName(`${a.kind}_${sortFix}${ext}`);
         const { rel, size } = await copyToStorage(a.abs, slug, name);
+        // Число страниц — только для PDF (для «Состав комплекта» и блока «Об уроке»).
+        const pages = ext.toLowerCase() === ".pdf" ? pdfPageCount(a.abs) || null : null;
         await prisma.productAsset.create({
           data: {
             productId: product.id,
@@ -307,17 +353,17 @@ async function main() {
             label: a.label,
             path: rel,
             size,
+            pages,
             sortKey: a.sort,
           },
         });
       }
 
-      // Превью: обложка = 1-я страница листа (или презентации)
+      // Превью: обложка = 1-й слайд презентации (fallback — лист).
       const ws = lesson.assets.find((a) => a.kind === "worksheet_pdf");
       const pres = lesson.assets.find((a) => a.kind === "presentation_pdf");
-      const cheat = lesson.assets.find((a) => a.kind === "cheatsheet_pdf");
 
-      const coverSrc = ws ?? pres;
+      const coverSrc = pres ?? ws;
       let previewPath: string | null = null;
       const gallery: string[] = [];
 
@@ -325,9 +371,9 @@ async function main() {
         const cover = await renderPages(coverSrc.abs, slug, "cover", 1, 1, 120);
         previewPath = cover[0] ?? null;
       }
-      if (pres) gallery.push(...(await renderPages(pres.abs, slug, "gal-p", 1, 2)));
-      if (ws) gallery.push(...(await renderPages(ws.abs, slug, "gal-w", 1, 1)));
-      if (cheat) gallery.push(...(await renderPages(cheat.abs, slug, "gal-c", 1, 1)));
+      // Галерея: 5–7 слайдов презентации, затем 3–4 страницы рабочего листа.
+      if (pres) gallery.push(...(await renderPages(pres.abs, slug, "gal-p", 1, PRESENTATION_PREVIEW_PAGES)));
+      if (ws) gallery.push(...(await renderPages(ws.abs, slug, "gal-w", 1, WORKSHEET_PREVIEW_PAGES)));
 
       await prisma.product.update({
         where: { id: product.id },
@@ -343,43 +389,16 @@ async function main() {
       );
     }
 
-    // Бандл курса: мягкая цена ≈ 50 % от поштучной, минимум 199 ₽
-    const bundleBasic = Math.max(19900, Math.round((counter * LESSON_PRICE * 0.5) / 10000) * 10000 - 100);
-    const bundleSource = bundleBasic * 2 + 10000;
-    await prisma.product.create({
-      data: {
-        slug: `${course.slug}-course`,
-        title: `Курс целиком: ${course.title} (${counter} ${lessonWord(counter)})`,
-        description: `Все ${counter} ${lessonWord(counter)} курса «${course.title}» одним пакетом со скидкой ~50 % от поштучной цены. Покупка навсегда, новые версии уроков — бесплатно.`,
-        subject: course.subject,
-        course: course.title,
-        courseSlug: course.slug,
-        audience: "10–11 класс · ЕГЭ",
-        kind: "course_bundle",
-        priceBasic: bundleBasic,
-        priceSource: bundleSource,
-        isFree: false,
-        isPublished: true,
-      },
-    });
-    console.log(`✓ ${course.slug}-course (${counter} уроков, ${Math.round(bundleBasic / 100)} ₽)`);
+    // Пакеты «курс целиком» на старте не выкладываем: все PDF и так бесплатны,
+    // платный уровень — только подписка на исходники. Вернём позже при Фазе 2.
   }
 
-  console.log(`\nГотово: ${totalLessons} уроков + ${COURSES.length} бандлов.`);
+  console.log(`\nГотово: ${totalLessons} уроков.`);
 }
 
 function summarize(assets: FoundAsset[]): string {
   const labels = new Set(assets.filter((a) => a.tier === "basic").map((a) => a.label.replace(/ — вариант \d/, "")));
   return Array.from(labels).join(", ").toLowerCase() || "материалы";
-}
-
-function lessonWord(n: number): string {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m100 >= 11 && m100 <= 14) return "уроков";
-  if (m10 === 1) return "урок";
-  if (m10 >= 2 && m10 <= 4) return "урока";
-  return "уроков";
 }
 
 main()

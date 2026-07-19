@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Header } from "../../_components/Header";
 import { PublicationActions } from "./PublicationActions";
 import { renderTaskCondition } from "@/lib/format-task";
+import { FEATURES } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,8 @@ function formatDate(d: Date): string {
 }
 
 export default async function PublicationDetailPage({ params }: { params: { id: string } }) {
+  if (!FEATURES.teacherMarketplace) redirect("/marketplace");
+
   const [session, publication] = await Promise.all([
     getServerSession(authOptions),
     prisma.publication.findUnique({

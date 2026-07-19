@@ -14,7 +14,19 @@ export default async function LibraryPage() {
   const session = await getServerSession(authOptions);
   const userId = session!.user!.id;
 
-  const [purchases, subs, bookmarks] = await Promise.all([
+  const productCardSelect = {
+    id: true,
+    slug: true,
+    title: true,
+    subject: true,
+    course: true,
+    lessonNo: true,
+    isFree: true,
+    priceBasic: true,
+    isPublished: true,
+  } as const;
+
+  const [purchases, subs, bookmarks, likes] = await Promise.all([
     prisma.purchase.findMany({
       where: { userId },
       include: { product: { include: { assets: { orderBy: { sortKey: "asc" } } } } },
@@ -23,11 +35,12 @@ export default async function LibraryPage() {
     getActiveSubscriptions(userId),
     prisma.favorite.findMany({
       where: { userId, productId: { not: null } },
-      include: {
-        product: {
-          select: { id: true, slug: true, title: true, subject: true, course: true, lessonNo: true, isFree: true, priceBasic: true, isPublished: true },
-        },
-      },
+      include: { product: { select: productCardSelect } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.productLike.findMany({
+      where: { userId },
+      include: { product: { select: productCardSelect } },
       orderBy: { createdAt: "desc" },
     }),
   ]);
@@ -88,16 +101,23 @@ export default async function LibraryPage() {
     {
       key: "free",
       title: "Бесплатные материалы",
-      note: "Открыты всем — включая исходники",
+      note: "Готовые PDF — открыты всем",
       items: freeSaved.map((prod) => ({
         product: prod,
-        tier: "source",
+        tier: "basic",
         badge: "бесплатно",
       })),
     },
   ];
 
-  const empty = sections.every((s) => s.items.length === 0) && bookmarks.length === 0;
+  // Сохранённое: лайки и закладки (без покупки) — из них строим личную подборку.
+  const likedProducts = likes.map((l) => l.product).filter((p) => p.isPublished);
+  const bookmarkedProducts = bookmarks.map((b) => b.product!).filter((p) => p.isPublished);
+
+  const empty =
+    sections.every((s) => s.items.length === 0) &&
+    likedProducts.length === 0 &&
+    bookmarkedProducts.length === 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 1060 }}>
@@ -117,7 +137,7 @@ export default async function LibraryPage() {
             Пока пусто
           </div>
           <div style={{ marginTop: 6 }}>
-            Начните с бесплатных уроков в каталоге — первый урок каждого курса открыт.
+            Все готовые PDF в каталоге бесплатны — скачивайте и печатайте.
           </div>
           <div style={{ marginTop: 14 }}>
             <Link href="/catalog" className="btn btn-primary">
@@ -127,47 +147,9 @@ export default async function LibraryPage() {
         </div>
       )}
 
-      {/* Закладки — сохранённое «посмотреть позже», покупка не нужна */}
-      {bookmarks.length > 0 && (
-        <section>
-          <div className="rl-row" style={{ gap: 10, marginBottom: 12 }}>
-            <h2 style={{ fontSize: 19 }}>Закладки</h2>
-            <span className="muted" style={{ fontSize: 12.5 }}>
-              Сохранено на потом
-            </span>
-          </div>
-          <div className="rl-grid rl-grid-2">
-            {bookmarks
-              .filter((b) => b.product?.isPublished)
-              .map((b) => (
-                <Link
-                  key={b.id}
-                  href={`/catalog/${b.product!.slug}`}
-                  className="card card-hover rl2-card-subject"
-                  data-subject={b.product!.subject}
-                  style={{ padding: 14, textDecoration: "none", display: "flex", justifyContent: "space-between", gap: 10 }}
-                >
-                  <span style={{ minWidth: 0 }}>
-                    <span style={{ display: "block", fontWeight: 700, fontFamily: "var(--display)", fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {b.product!.title}
-                    </span>
-                    <span className="muted" style={{ fontSize: 12 }}>
-                      {b.product!.course ?? subjectName(b.product!.subject)}
-                      {b.product!.lessonNo ? ` · урок ${b.product!.lessonNo}` : ""}
-                    </span>
-                  </span>
-                  <span className="rl2-price" style={{ fontSize: 15, whiteSpace: "nowrap" }}>
-                    {b.product!.isFree ? (
-                      <span className="rl2-price-free">0 ₽</span>
-                    ) : (
-                      `${Math.round(b.product!.priceBasic / 100)} ₽`
-                    )}
-                  </span>
-                </Link>
-              ))}
-          </div>
-        </section>
-      )}
+      {/* Сохранённое без покупки: понравившиеся (❤) и закладки (🔖) */}
+      <SavedSection title="Понравившиеся" note="Отмечено лайком" products={likedProducts} />
+      <SavedSection title="Закладки" note="Сохранено на потом" products={bookmarkedProducts} />
 
       {sections.map(
         (sec) =>
@@ -230,5 +212,66 @@ export default async function LibraryPage() {
           )
       )}
     </div>
+  );
+}
+
+type SavedProduct = {
+  id: string;
+  slug: string;
+  title: string;
+  subject: string;
+  course: string | null;
+  lessonNo: number | null;
+  isFree: boolean;
+  priceBasic: number;
+};
+
+function SavedSection({
+  title,
+  note,
+  products,
+}: {
+  title: string;
+  note: string;
+  products: SavedProduct[];
+}) {
+  if (products.length === 0) return null;
+  return (
+    <section>
+      <div className="rl-row" style={{ gap: 10, marginBottom: 12 }}>
+        <h2 style={{ fontSize: 19 }}>{title}</h2>
+        <span className="muted" style={{ fontSize: 12.5 }}>
+          {note}
+        </span>
+      </div>
+      <div className="rl-grid rl-grid-2">
+        {products.map((p) => (
+          <Link
+            key={p.id}
+            href={`/catalog/${p.slug}`}
+            className="card card-hover rl2-card-subject"
+            data-subject={p.subject}
+            style={{ padding: 14, textDecoration: "none", display: "flex", justifyContent: "space-between", gap: 10 }}
+          >
+            <span style={{ minWidth: 0 }}>
+              <span style={{ display: "block", fontWeight: 700, fontFamily: "var(--display)", fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {p.title}
+              </span>
+              <span className="muted" style={{ fontSize: 12 }}>
+                {p.course ?? subjectName(p.subject)}
+                {p.lessonNo ? ` · урок ${p.lessonNo}` : ""}
+              </span>
+            </span>
+            <span className="rl2-price" style={{ fontSize: 15, whiteSpace: "nowrap" }}>
+              {p.isFree ? (
+                <span className="rl2-price-free">Бесплатно</span>
+              ) : (
+                `${Math.round(p.priceBasic / 100)} ₽`
+              )}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }

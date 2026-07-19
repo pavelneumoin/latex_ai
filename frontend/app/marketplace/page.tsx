@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { FEATURES } from "@/lib/features";
 import { Header } from "../_components/Header";
 
 export const dynamic = "force-dynamic";
@@ -143,7 +144,46 @@ const GRID_AUTO: React.CSSProperties = {
   gap: 16,
 };
 
+function MarketplaceComingSoon() {
+  return (
+    <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
+      <Header />
+      <main
+        className="rl-container"
+        style={{ minHeight: "calc(100vh - 64px)", display: "grid", placeItems: "center", paddingTop: 32, paddingBottom: 32 }}
+      >
+        <div className="card rl2-gridpaper" style={{ width: "100%", maxWidth: 520, padding: "44px 28px", textAlign: "center" }}>
+          <span
+            style={{
+              display: "inline-flex",
+              padding: "5px 10px",
+              borderRadius: 999,
+              background: "var(--accent-soft)",
+              color: "#92400E",
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            В разработке
+          </span>
+          <h1 className="rl-h2" style={{ marginTop: 16 }}>
+            Листы учителей
+          </h1>
+          <p className="muted-2" style={{ margin: "10px auto 20px", maxWidth: 390 }}>
+            Раздел пока закрыт. Откроем его, когда публикация и проверка материалов будут готовы.
+          </p>
+          <Link href="/catalog" className="btn btn-primary">
+            Вернуться в каталог
+          </Link>
+        </div>
+      </main>
+    </div>
+  );
+}
+
 export default async function MarketplacePage({ searchParams }: { searchParams: SP }) {
+  if (!FEATURES.teacherMarketplace) return <MarketplaceComingSoon />;
+
   const subject = searchParams.subject?.trim() || "";
   const grade = searchParams.grade?.trim() || "";
   const q = searchParams.q?.trim() || "";

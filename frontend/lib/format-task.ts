@@ -40,17 +40,22 @@ function renderFormula(expr: string, displayMode: boolean): string {
   }
 }
 
+// Плейсхолдер формулы обрамляется символом из Private Use Area — в реальном
+// тексте он не встречается, поэтому фрагменты вроде «в ячейке F2» не путаются
+// с плейсхолдером (раньше литерал " F2 " съедался финальной заменой).
+const FORMULA_SENTINEL = "\uE000";
+
 export function renderTaskCondition(condition: string): string {
   if (!condition) return "";
   // 1) Защищаем формулы плейсхолдерами: сначала $$...$$ (display), потом $...$ (inline)
   const formulas: { expr: string; display: boolean }[] = [];
   let s = condition.replace(/\$\$([^$]+)\$\$/g, (_, expr: string) => {
     formulas.push({ expr, display: true });
-    return ` F${formulas.length - 1} `;
+    return `${FORMULA_SENTINEL}${formulas.length - 1}${FORMULA_SENTINEL}`;
   });
   s = s.replace(/\$([^$\n]+)\$/g, (_, expr: string) => {
     formulas.push({ expr, display: false });
-    return ` F${formulas.length - 1} `;
+    return `${FORMULA_SENTINEL}${formulas.length - 1}${FORMULA_SENTINEL}`;
   });
 
   // 2) Escape HTML
@@ -64,7 +69,7 @@ export function renderTaskCondition(condition: string): string {
   s = s.replace(/\n/g, "<br>");
 
   // 6) Возвращаем формулы — уже отрендеренные KaTeX
-  s = s.replace(/ F(\d+) /g, (_, idx: string) => {
+  s = s.replace(/\uE000(\d+)\uE000/g, (_, idx: string) => {
     const f = formulas[Number(idx)];
     if (!f) return "";
     return renderFormula(f.expr, f.display);

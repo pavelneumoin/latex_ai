@@ -10,7 +10,7 @@ import { getProductAccess, tierRank } from "@/lib/entitlements";
 import { ASSET_KIND_LABEL, formatKopecks, subjectName } from "@/lib/products";
 import { AssetIcon, IconLock } from "@/app/_components/Icons";
 import { Stars } from "@/app/_components/Stars";
-import { BuyButton } from "./BuyButton";
+import { renderTaskCondition } from "@/lib/format-task";
 import { ProductSocial } from "./ProductSocial";
 import { ReviewsSection } from "./ReviewsSection";
 import { PreviewGallery } from "./PreviewGallery";
@@ -18,13 +18,23 @@ import { PreviewGallery } from "./PreviewGallery";
 export const dynamic = "force-dynamic";
 
 function galleryLabels(paths: string[]): string[] {
-  return paths.map((p) => {
-    const f = p.split("/").pop() ?? "";
-    if (f.startsWith("gal-p")) return "Презентация";
-    if (f.startsWith("gal-w")) return "Рабочий лист";
-    if (f.startsWith("gal-c")) return "Шпаргалка";
+  let p = 0;
+  let w = 0;
+  return paths.map((pth) => {
+    const f = pth.split("/").pop() ?? "";
+    if (f.startsWith("gal-p")) return `Слайд ${++p}`;
+    if (f.startsWith("gal-w")) return `Рабочий лист · ${++w}`;
     return "Страница";
   });
+}
+
+function plural(n: number, one: string, few: string, many: string): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m100 >= 11 && m100 <= 14) return many;
+  if (m10 === 1) return one;
+  if (m10 >= 2 && m10 <= 4) return few;
+  return many;
 }
 
 export default async function ProductPage({
@@ -56,6 +66,10 @@ export default async function ProductPage({
   const basicAssets = product.assets.filter((a) => a.tier === "basic");
   const sourceAssets = product.assets.filter((a) => a.tier === "source");
 
+  const presAsset = basicAssets.find((a) => a.kind === "presentation_pdf");
+  const wsAsset = basicAssets.find((a) => a.kind === "worksheet_pdf");
+  const hwAsset = basicAssets.find((a) => a.kind === "homework_pdf");
+
   const canBasic = access.maxTier != null;
   const canSource = access.maxTier === "source";
 
@@ -74,7 +88,6 @@ export default async function ProductPage({
           courseSlug: product.courseSlug,
           isPublished: true,
           id: { not: product.id },
-          kind: product.kind === "course_bundle" ? "lesson_kit" : undefined,
         },
         orderBy: { lessonNo: "asc" },
         select: { id: true, slug: true, title: true, lessonNo: true, isFree: true, priceBasic: true, kind: true },
@@ -124,12 +137,6 @@ export default async function ProductPage({
               />
             </div>
 
-            {product.description && (
-              <p className="rl-lead" style={{ marginBottom: 20 }}>
-                {product.description}
-              </p>
-            )}
-
             {/* Предпросмотр: галерея страниц или обложка */}
             {galleryPages.length > 0 ? (
               <PreviewGallery
@@ -169,6 +176,56 @@ export default async function ProductPage({
                 )}
               </div>
             )}
+
+            {/* Об уроке — подробное описание под превью */}
+            <div style={{ marginBottom: 24 }}>
+              <h3 style={{ marginBottom: 10 }}>Об уроке</h3>
+              {product.description && (
+                <div
+                  className="rl-lead"
+                  style={{ fontSize: 15, lineHeight: 1.6, marginBottom: 14 }}
+                  dangerouslySetInnerHTML={{ __html: renderTaskCondition(product.description) }}
+                />
+              )}
+              <div className="card-flat" style={{ padding: "14px 16px" }}>
+                <b style={{ fontSize: 13.5, display: "block", marginBottom: 8 }}>Что входит в комплект</b>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: 18,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 7,
+                    fontSize: 13.5,
+                    color: "var(--fg-2)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {presAsset && (
+                    <li>
+                      <b>Презентация для доски</b>
+                      {presAsset.pages ? ` — ${presAsset.pages} ${plural(presAsset.pages, "слайд", "слайда", "слайдов")}` : ""}: тема
+                      разбирается шаг за шагом, готова к показу на уроке.
+                    </li>
+                  )}
+                  {wsAsset && (
+                    <li>
+                      <b>Рабочий лист</b>
+                      {wsAsset.pages ? ` — ${wsAsset.pages} ${plural(wsAsset.pages, "страница", "страницы", "страниц")}` : ""}: задачи
+                      с клеткой до низа страницы и местом для решения в классе.
+                    </li>
+                  )}
+                  {hwAsset && (
+                    <li>
+                      <b>Домашнее задание</b>
+                      {hwAsset.pages ? ` — ${hwAsset.pages} ${plural(hwAsset.pages, "страница", "страницы", "страниц")}` : ""}: задачи
+                      с ответами для закрепления дома.
+                    </li>
+                  )}
+                  <li>Профессиональная вёрстка, {product.audience ?? "ЕГЭ"} — печатайте и ведите урок.</li>
+                </ul>
+              </div>
+            </div>
 
             {/* Состав комплекта */}
             <h3 style={{ marginBottom: 10 }}>Состав комплекта</h3>
@@ -213,7 +270,7 @@ export default async function ProductPage({
                     ) : (
                       <span className="muted" style={{ fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 5 }}>
                         <IconLock size={12} />
-                        {a.tier === "source" ? "уровень «исходники»" : "после покупки"}
+                        по подписке
                       </span>
                     )}
                   </div>
@@ -224,10 +281,10 @@ export default async function ProductPage({
             {/* Что такое исходники */}
             {sourceAssets.length > 0 && (
               <div className="card-flat" style={{ padding: 16, fontSize: 13.5, color: "var(--fg-2)" }}>
-                <b>Что такое уровень «PDF + исходники»?</b> Помимо готовых PDF вы получаете
-                редактируемые исходники профессиональной вёрстки: презентация в формате{" "}
-                <b>Marp</b> (Markdown — правится в любом редакторе), листы в <b>LaTeX</b>.
-                Меняйте числа, фамилии, порядок задач — комплект становится вашим.
+                <b>Что такое исходники Marp/LaTeX?</b> Помимо бесплатных PDF по подписке
+                открываются редактируемые исходники профессиональной вёрстки: презентация
+                в формате <b>Marp</b> (Markdown — правится в любом редакторе), листы в{" "}
+                <b>LaTeX</b>. Меняйте числа, фамилии, порядок задач — комплект становится вашим.
               </div>
             )}
 
@@ -260,11 +317,11 @@ export default async function ProductPage({
                       }}
                     >
                       <span style={{ fontWeight: 600 }}>
-                        {r.kind === "course_bundle" ? "" : r.lessonNo ? `Урок ${r.lessonNo}. ` : ""}
+                        {r.lessonNo ? `Урок ${r.lessonNo}. ` : ""}
                         {r.title}
                       </span>
                       <span className="rl2-price" style={{ fontSize: 14 }}>
-                        {r.isFree ? <span className="rl2-price-free">0 ₽</span> : formatKopecks(r.priceBasic)}
+                        {r.isFree ? <span className="rl2-price-free">Бесплатно</span> : formatKopecks(r.priceBasic)}
                       </span>
                     </Link>
                   ))}
@@ -276,99 +333,75 @@ export default async function ProductPage({
           {/* Правая колонка: покупка */}
           <aside>
             <div className="card" style={{ padding: 20, position: "sticky", top: 84 }}>
-              {product.isFree ? (
-                <>
-                  <div className="rl2-price rl2-price-free" style={{ fontSize: 28 }}>
-                    Бесплатно
-                  </div>
-                  <p className="muted" style={{ fontSize: 13, margin: "6px 0 14px" }}>
-                    Демо-урок курса: все PDF и даже исходники — оцените качество.
-                  </p>
-                  {userId ? (
-                    <div className="badge badge-success" style={{ marginBottom: 10 }}>
-                      Доступно в вашей библиотеке
+              {/* PDF-материалы — бесплатно */}
+              <div
+                style={{
+                  paddingBottom: sourceAssets.length > 0 ? 16 : 0,
+                  borderBottom: sourceAssets.length > 0 ? "1px solid var(--border)" : "none",
+                }}
+              >
+                <div className="rl-row-between">
+                  <span className="rl2-tier" data-tier="basic">
+                    PDF-материалы
+                  </span>
+                  {product.isFree ? (
+                    <span className="rl2-price rl2-price-free" style={{ fontSize: 22 }}>
+                      Бесплатно
+                    </span>
+                  ) : (
+                    <span className="rl2-price" style={{ fontSize: 22 }}>
+                      {formatKopecks(product.priceBasic)}
+                    </span>
+                  )}
+                </div>
+                <p className="muted" style={{ fontSize: 12.5, margin: "6px 0 10px" }}>
+                  Презентация, рабочий лист и домашнее задание · печать без ограничений
+                </p>
+                {canBasic ? (
+                  userId ? (
+                    <div className="badge badge-success">
+                      {product.isFree
+                        ? "Доступно бесплатно"
+                        : access.via === "subscription"
+                          ? "Доступно по подписке"
+                          : "Куплено ✓"}
                     </div>
                   ) : (
                     <Link href="/register" className="btn btn-primary btn-lg" style={{ width: "100%" }}>
-                      Зарегистрироваться и скачать
+                      Войти и скачать бесплатно
+                    </Link>
+                  )
+                ) : (
+                  <Link href="/pricing" className="btn btn-primary btn-lg" style={{ width: "100%" }}>
+                    Доступно по подписке от 290 ₽/мес →
+                  </Link>
+                )}
+              </div>
+
+              {/* Исходники Marp/LaTeX — по подписке */}
+              {sourceAssets.length > 0 && (
+                <div style={{ paddingTop: 16 }}>
+                  <div className="rl-row-between">
+                    <span className="rl2-tier" data-tier="source">
+                      Marp-исходники
+                    </span>
+                    <span className="rl2-price" style={{ fontSize: 16 }}>
+                      по подписке
+                    </span>
+                  </div>
+                  <p className="muted" style={{ fontSize: 12.5, margin: "6px 0 10px" }}>
+                    Редактируемые шаблоны Marp/LaTeX — правьте числа, фамилии и задачи под класс
+                  </p>
+                  {canSource ? (
+                    <div className="badge badge-success">
+                      {access.via === "subscription" ? "Доступно по подписке ✓" : "Куплено ✓"}
+                    </div>
+                  ) : (
+                    <Link href="/pricing" className="btn btn-blue" style={{ width: "100%" }}>
+                      Подписка «{subjectName(product.subject)}» от 290 ₽/мес →
                     </Link>
                   )}
-                </>
-              ) : (
-                <>
-                  {/* Уровень PDF */}
-                  <div style={{ paddingBottom: 14, borderBottom: "1px solid var(--border)" }}>
-                    <div className="rl-row-between">
-                      <span className="rl2-tier" data-tier="basic">
-                        PDF
-                      </span>
-                      <span className="rl2-price" style={{ fontSize: 22 }}>
-                        {formatKopecks(product.priceBasic)}
-                      </span>
-                    </div>
-                    <p className="muted" style={{ fontSize: 12.5, margin: "6px 0 10px" }}>
-                      Все PDF комплекта · печать без ограничений · навсегда
-                    </p>
-                    {canBasic ? (
-                      <div className="badge badge-success">
-                        {access.via === "subscription" ? "Доступно по подписке" : "Куплено ✓"}
-                      </div>
-                    ) : (
-                      <BuyButton
-                        productId={product.id}
-                        tier="basic"
-                        label={`Купить за ${formatKopecks(product.priceBasic)}`}
-                        className="btn btn-primary"
-                        loggedIn={!!userId}
-                      />
-                    )}
-                  </div>
-
-                  {/* Уровень исходники */}
-                  {product.priceSource != null && (
-                    <div style={{ paddingTop: 14 }}>
-                      <div className="rl-row-between">
-                        <span className="rl2-tier" data-tier="source">
-                          PDF + исходники
-                        </span>
-                        <span className="rl2-price" style={{ fontSize: 22 }}>
-                          {formatKopecks(product.priceSource)}
-                        </span>
-                      </div>
-                      <p className="muted" style={{ fontSize: 12.5, margin: "6px 0 10px" }}>
-                        + Marp/LaTeX исходники — правьте под себя
-                      </p>
-                      {canSource ? (
-                        <div className="badge badge-success">
-                          {access.via === "subscription" ? "Доступно по подписке" : "Куплено ✓"}
-                        </div>
-                      ) : (
-                        <BuyButton
-                          productId={product.id}
-                          tier="source"
-                          label={
-                            access.purchaseTier === "basic"
-                              ? "Доплатить до исходников"
-                              : `Купить за ${formatKopecks(product.priceSource)}`
-                          }
-                          className="btn btn-blue"
-                          loggedIn={!!userId}
-                        />
-                      )}
-                    </div>
-                  )}
-
-                  <div
-                    className="card-flat rl2-gridpaper"
-                    style={{ padding: 12, marginTop: 16, fontSize: 12.5, color: "var(--fg-2)" }}
-                  >
-                    По подписке «{subjectName(product.subject)}» этот и все материалы
-                    предмета — уже включены.{" "}
-                    <Link href="/pricing" style={{ color: "var(--primary)" }}>
-                      От 290 ₽/мес →
-                    </Link>
-                  </div>
-                </>
+                </div>
               )}
 
               {product.checkable && (

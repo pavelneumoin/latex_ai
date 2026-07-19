@@ -9,6 +9,8 @@ import { formatKopecks, kitSummary, subjectName, PRODUCT_KIND_LABEL } from "@/li
 import { IconFolder } from "../_components/Icons";
 import { Stars } from "../_components/Stars";
 import { CatalogSearch } from "./CatalogSearch";
+import { scoreProductSearch } from "@/lib/product-search";
+import { FEATURES } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -28,10 +30,6 @@ function filterHref(cur: Search, patch: Partial<Search>): string {
   if (merged.q) params.set("q", merged.q);
   const qs = params.toString();
   return qs ? `/catalog?${qs}` : "/catalog";
-}
-
-function normText(s: string): string {
-  return s.toLowerCase().replace(/ё/g, "е");
 }
 
 export default async function CatalogPage({
@@ -63,48 +61,47 @@ export default async function CatalogPage({
     }),
   ]);
 
-  // Полнотекстовый фильтр ?q= (та же логика, что /api/products/search)
-  const words = q ? normText(q).split(/\s+/).filter((w) => w.length >= 2) : [];
+  // Та же нормализация и релевантность, что в живых подсказках поиска.
   const products =
-    words.length === 0
+    !q
       ? allProducts
-      : allProducts.filter((p) => {
-          const hay = `${normText(p.title)} ${normText(p.course ?? "")} ${normText(p.description ?? "")}`;
-          return words.every((w) => hay.includes(w));
-        });
+      : allProducts
+          .map((product) => ({ product, score: scoreProductSearch(product, q) }))
+          .filter(
+            (item): item is { product: (typeof allProducts)[number]; score: number } =>
+              item.score != null
+          )
+          .sort(
+            (a, b) =>
+              b.score - a.score ||
+              b.product.ratingCount - a.product.ratingCount ||
+              b.product.rating - a.product.rating ||
+              Number(b.product.isFree) - Number(a.product.isFree) ||
+              (a.product.lessonNo ?? Number.MAX_SAFE_INTEGER) -
+                (b.product.lessonNo ?? Number.MAX_SAFE_INTEGER) ||
+              a.product.title.localeCompare(b.product.title, "ru")
+          )
+          .map(({ product }) => product);
 
   const cur: Search = { subject, kind, course, q: q || undefined };
-
-  const kinds = [
-    ["lesson_kit", "Комплекты уроков"],
-    ["course_bundle", "Курсы целиком"],
-    ["worksheet", "Листы"],
-    ["test", "Зачёты"],
-  ] as const;
 
   return (
     <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
       <Header />
 
-      {/* Шапка каталога на клетке */}
+      {/* Поиск — главный и первый инструмент каталога. */}
       <div className="rl2-gridpaper-fade" style={{ background: "var(--bg)", borderBottom: "1px solid var(--border)" }}>
-        <div className="rl-container" style={{ paddingTop: 36, paddingBottom: 26, position: "relative" }}>
-          <h1 className="rl-h2" style={{ marginBottom: 6 }}>
-            Каталог материалов
-          </h1>
-          <p className="rl-lead" style={{ maxWidth: 640, marginBottom: 16 }}>
-            Готовые комплекты уроков: презентация, рабочий лист, шпаргалка, домашняя
-            работа и зачёты. Печатайте и ведите урок — а проверку мы возьмём на себя.
-          </p>
-          <Suspense fallback={<div className="rl-skeleton" style={{ height: 48, maxWidth: 560 }} />}>
+        <div className="rl-container" style={{ paddingTop: 20, paddingBottom: 20, position: "relative" }}>
+          <h1 className="rl-sr-only">Каталог материалов</h1>
+          <Suspense fallback={<div className="rl-skeleton" style={{ height: 58, maxWidth: 820 }} />}>
             <CatalogSearch />
           </Suspense>
         </div>
       </div>
 
-      <main className="rl-container" style={{ paddingTop: 20, paddingBottom: 72 }}>
+      <main className="rl-container" style={{ paddingTop: 16, paddingBottom: 72 }}>
         {/* Фильтры */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18 }}>
           <div className="rl-scroller">
             <Link href={filterHref(cur, { subject: undefined })} className={`btn btn-sm ${!subject ? "btn-blue" : "btn-outline"}`}>
               Все предметы
@@ -118,15 +115,6 @@ export default async function CatalogPage({
             >
               Информатика
             </Link>
-            <span style={{ width: 1, background: "var(--border-2)", margin: "4px 4px" }} />
-            <Link href={filterHref(cur, { kind: undefined })} className={`btn btn-sm ${!kind ? "btn-blue" : "btn-outline"}`}>
-              Все типы
-            </Link>
-            {kinds.map(([k, label]) => (
-              <Link key={k} href={filterHref(cur, { kind: k })} className={`btn btn-sm ${kind === k ? "btn-blue" : "btn-outline"}`}>
-                {label}
-              </Link>
-            ))}
           </div>
 
           {courses.length > 0 && (
@@ -168,15 +156,23 @@ export default async function CatalogPage({
 
         {/* Сетка товаров */}
         {products.length === 0 ? (
-          <div className="rl2-empty rl2-gridpaper" style={{ padding: 70 }}>
+          <div className="rl2-empty rl2-gridpaper" style={{ padding: "44px 20px" }}>
             <div style={{ color: "var(--fg-3)", marginBottom: 10 }}>
               <IconFolder size={34} />
             </div>
             <div style={{ fontSize: 16, fontWeight: 600, color: "var(--fg-2)" }}>
-              По этим фильтрам пока пусто
+              {q ? `По запросу «${q}» ничего не найдено` : "По этим фильтрам пока пусто"}
             </div>
             <div style={{ marginTop: 6 }}>
-              Каталог пополняется каждую неделю — фабрика материалов работает.
+              Попробуйте сформулировать короче или сбросить выбранные фильтры.
+            </div>
+            <div className="rl-row" style={{ justifyContent: "center", marginTop: 16 }}>
+              <Link href="/catalog" className="btn btn-sm btn-outline">
+                Сбросить фильтры
+              </Link>
+              <Link href="/create" className="btn btn-sm btn-blue">
+                Создать материал
+              </Link>
             </div>
           </div>
         ) : (
@@ -231,12 +227,12 @@ export default async function CatalogPage({
                     )}
                     <div className="rl2-product-foot">
                       {p.isFree ? (
-                        <span className="rl2-price rl2-price-free">0 ₽</span>
+                        <span className="rl2-price rl2-price-free">Бесплатно</span>
                       ) : (
                         <span className="rl2-price">
                           {formatKopecks(p.priceBasic)}
                           {p.priceSource != null && (
-                            <span className="rl2-price-note"> · исходники {formatKopecks(p.priceSource)}</span>
+                            <span className="rl2-price-note"> · исходники по подписке</span>
                           )}
                         </span>
                       )}
@@ -251,13 +247,15 @@ export default async function CatalogPage({
           </div>
         )}
 
-        <p className="muted" style={{ fontSize: 13, marginTop: 28 }}>
-          Листы сообщества, сгенерированные учителями, — в разделе{" "}
-          <Link href="/marketplace" style={{ color: "var(--primary)" }}>
-            Маркетплейс листов
-          </Link>
-          .
-        </p>
+        {FEATURES.teacherMarketplace && (
+          <p className="muted" style={{ fontSize: 13, marginTop: 28 }}>
+            Листы сообщества, сгенерированные учителями, — в разделе{" "}
+            <Link href="/marketplace" style={{ color: "var(--primary)" }}>
+              Маркетплейс листов
+            </Link>
+            .
+          </p>
+        )}
       </main>
     </div>
   );

@@ -1,10 +1,11 @@
 // Поиск по каталогу материалов со скорингом.
-// Все слова запроса должны встретиться (AND) хотя бы в одном из полей;
-// вес: точное вхождение в название > курс > описание. Плюс лёгкий буст
-// бесплатных и высокорейтинговых — чтобы топ выдачи был убедительным.
+// Все значимые слова запроса должны встретиться (AND) хотя бы в одном из полей.
+// Общий scorer учитывает точные фразы, префиксы, метаданные и небольшие опечатки.
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
+import { productSearchTerms, scoreProductSearch } from "@/lib/product-search";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,7 @@ interface Scored {
   slug: string;
   title: string;
   course: string | null;
+  audience: string | null;
   subject: string;
   lessonNo: number | null;
   kind: string;
@@ -24,21 +26,19 @@ interface Scored {
   score: number;
 }
 
-function norm(s: string): string {
-  return s.toLowerCase().replace(/ё/g, "е");
-}
-
 export async function GET(req: NextRequest) {
+  // Anti-abuse: поиск сканирует всю таблицу + скоринг в JS — не более 60 запросов в минуту с IP.
+  const r = checkRate("product-search", ipFromReq(req), { limit: 60, windowMs: 60_000 });
+  if (!r.ok) return rateLimited(r);
+
   const qRaw = (req.nextUrl.searchParams.get("q") ?? "").trim().slice(0, 120);
   const subject = req.nextUrl.searchParams.get("subject") ?? undefined;
-  const limit = Math.min(Number(req.nextUrl.searchParams.get("limit")) || 12, 40);
+  const kind = (req.nextUrl.searchParams.get("kind") ?? "").trim().slice(0, 40);
+  const course = (req.nextUrl.searchParams.get("course") ?? "").trim().slice(0, 80);
+  const requestedLimit = Number(req.nextUrl.searchParams.get("limit")) || 12;
+  const limit = Math.min(Math.max(requestedLimit, 1), 40);
 
-  if (qRaw.length < 2) {
-    return NextResponse.json({ query: qRaw, results: [] });
-  }
-
-  const words = norm(qRaw).split(/\s+/).filter((w) => w.length >= 2);
-  if (words.length === 0) {
+  if (productSearchTerms(qRaw).length === 0) {
     return NextResponse.json({ query: qRaw, results: [] });
   }
 
@@ -47,6 +47,8 @@ export async function GET(req: NextRequest) {
     where: {
       isPublished: true,
       ...(subject === "math" || subject === "informatics" ? { subject } : {}),
+      ...(kind ? { kind } : {}),
+      ...(course ? { courseSlug: course } : {}),
     },
     select: {
       id: true,
@@ -54,6 +56,8 @@ export async function GET(req: NextRequest) {
       title: true,
       description: true,
       course: true,
+      courseSlug: true,
+      audience: true,
       subject: true,
       lessonNo: true,
       kind: true,
@@ -62,42 +66,20 @@ export async function GET(req: NextRequest) {
       rating: true,
       ratingCount: true,
       previewPath: true,
-      likes: true,
     },
   });
 
   const results: Scored[] = [];
   for (const p of all) {
-    const title = norm(p.title);
-    const course = norm(p.course ?? "");
-    const desc = norm(p.description ?? "");
-
-    let score = 0;
-    let matchedAll = true;
-    for (const w of words) {
-      let wordScore = 0;
-      if (title.includes(w)) wordScore += title.startsWith(w) ? 30 : 20;
-      if (course.includes(w)) wordScore += 10;
-      if (desc.includes(w)) wordScore += 4;
-      if (wordScore === 0) {
-        matchedAll = false;
-        break;
-      }
-      score += wordScore;
-    }
-    if (!matchedAll) continue;
-
-    // Фраза целиком в названии — сильный буст
-    if (title.includes(norm(qRaw))) score += 25;
-    if (p.isFree) score += 6;
-    score += Math.min(p.rating * p.ratingCount, 15) * 0.4 + Math.min(p.likes, 20) * 0.2;
-    if (p.kind === "course_bundle") score += 3;
+    const score = scoreProductSearch(p, qRaw);
+    if (score == null) continue;
 
     results.push({
       id: p.id,
       slug: p.slug,
       title: p.title,
       course: p.course,
+      audience: p.audience,
       subject: p.subject,
       lessonNo: p.lessonNo,
       kind: p.kind,
@@ -110,7 +92,15 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  results.sort((a, b) => b.score - a.score);
+  results.sort(
+    (a, b) =>
+      b.score - a.score ||
+      b.ratingCount - a.ratingCount ||
+      b.rating - a.rating ||
+      Number(b.isFree) - Number(a.isFree) ||
+      (a.lessonNo ?? Number.MAX_SAFE_INTEGER) - (b.lessonNo ?? Number.MAX_SAFE_INTEGER) ||
+      a.title.localeCompare(b.title, "ru")
+  );
 
   return NextResponse.json({
     query: qRaw,

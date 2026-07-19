@@ -1,19 +1,22 @@
 // Лендинг v2 «Тетрадь в клетку»: маркетплейс готовых материалов + кабинет с автопроверкой.
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { prisma } from "@/lib/db";
 import { Header } from "./_components/Header";
 import { formatKopecks, kitSummary, subjectName } from "@/lib/products";
 import { IconFolder, IconPrinter, IconCamera, IconChart } from "./_components/Icons";
+import { CatalogSearch } from "./catalog/CatalogSearch";
+import { FEATURES } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
 export default async function Landing() {
   // Витрина: до 6 опубликованных материалов (бесплатные вперёд)
   const showcase = await prisma.product.findMany({
-    where: { isPublished: true, kind: { in: ["lesson_kit", "course_bundle"] } },
+    where: { isPublished: true, kind: "lesson_kit" },
     include: { assets: { select: { kind: true, tier: true } } },
-    orderBy: [{ isFree: "desc" }, { courseSlug: "asc" }, { lessonNo: "asc" }],
+    orderBy: [{ courseSlug: "asc" }, { lessonNo: "asc" }],
     take: 6,
   });
 
@@ -21,65 +24,24 @@ export default async function Landing() {
     <div className="hi" style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
       <Header />
 
-      {/* ============ HERO на клетке ============ */}
-      <section className="rl2-gridpaper-fade" style={{ position: "relative" }}>
-        <div
-          className="rl-container"
-          style={{
-            paddingTop: "clamp(44px, 7vw, 84px)",
-            paddingBottom: "clamp(40px, 6vw, 64px)",
-            position: "relative",
-            textAlign: "center",
-          }}
-        >
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "5px 12px",
-              borderRadius: 999,
-              background: "var(--accent-soft)",
-              color: "#92400E",
-              fontSize: 13,
-              fontWeight: 600,
-              marginBottom: 20,
-            }}
-          >
-            Мягкие цены старта: уроки от 0 ₽, подписка от 290 ₽
-          </span>
-          <h1 className="rl-h1" style={{ marginBottom: 18, maxWidth: 860, marginLeft: "auto", marginRight: "auto" }}>
-            Готовые уроки математики и информатики —{" "}
-            <span style={{ color: "var(--primary)" }}>напечатал и ведёшь</span>
-          </h1>
-          <p className="rl-lead" style={{ maxWidth: 620, margin: "0 auto 28px" }}>
-            Комплекты профессиональной вёрстки: презентация, рабочий лист, шпаргалка,
-            домашняя работа и зачёты. А после урока — загрузите работы учеников, и{" "}
-            <strong style={{ color: "var(--fg)" }}>кабинет сам посчитает отметки</strong> и
-            соберёт красивый отчёт.
-          </p>
-          <div className="rl-row rl-stack-mobile" style={{ gap: 12, justifyContent: "center" }}>
-            <Link href="/catalog" className="btn btn-primary btn-lg">
-              Смотреть каталог
-            </Link>
-            <Link href="/cabinet/checks" className="btn btn-outline btn-lg">
-              Проверка работ
-            </Link>
-          </div>
-          <div className="rl-row" style={{ gap: 18, justifyContent: "center", marginTop: 26, fontSize: 13, color: "var(--fg-3)" }}>
-            <span>✓ Первый урок курса — бесплатно</span>
-            <span>✓ Покупка — навсегда</span>
-            <span className="rl-desktop-only">✓ Исходники Marp / LaTeX</span>
-          </div>
+      {/* Поиск — первое действие после входа на сайт. */}
+      <section
+        className="rl2-gridpaper-fade"
+        style={{ background: "var(--bg)", borderBottom: "1px solid var(--border)" }}
+      >
+        <div className="rl-container" style={{ paddingTop: 20, paddingBottom: 20, position: "relative" }}>
+          <Suspense fallback={<div className="rl-skeleton" style={{ height: 48, maxWidth: 560 }} />}>
+            <CatalogSearch />
+          </Suspense>
         </div>
       </section>
 
       {/* ============ ВИТРИНА ============ */}
       {showcase.length > 0 && (
         <section style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
-          <div className="rl-container" style={{ paddingTop: 46, paddingBottom: 52 }}>
+          <div className="rl-container" style={{ paddingTop: 24, paddingBottom: 52 }}>
             <div className="rl-row-between" style={{ marginBottom: 20 }}>
-              <h2 className="rl-h2">Свежее в каталоге</h2>
+              <h1 className="rl-h2">Материалы</h1>
               <Link href="/catalog" style={{ color: "var(--primary)", fontWeight: 600, fontSize: 14, textDecoration: "none" }}>
                 Весь каталог →
               </Link>
@@ -127,7 +89,7 @@ export default async function Landing() {
                       )}
                       <div className="rl2-product-foot">
                         {p.isFree ? (
-                          <span className="rl2-price rl2-price-free">0 ₽</span>
+                          <span className="rl2-price rl2-price-free">Бесплатно</span>
                         ) : (
                           <span className="rl2-price">{formatKopecks(p.priceBasic)}</span>
                         )}
@@ -155,7 +117,7 @@ export default async function Landing() {
               n: "1",
               icon: <IconFolder size={24} />,
               title: "Выберите комплект",
-              text: "Презентация, лист, ДЗ и зачёты — единый стиль, выверенные задачи с ключами.",
+              text: "Презентация, рабочий лист и ДЗ — единый стиль, выверенные задачи с ключами.",
             },
             {
               n: "2",
@@ -194,10 +156,11 @@ export default async function Landing() {
       <section style={{ background: "var(--surface)", borderTop: "1px solid var(--border)" }}>
         <div className="rl-container" style={{ paddingTop: 52, paddingBottom: 56 }}>
           <h2 className="rl-h2" style={{ textAlign: "center", marginBottom: 8 }}>
-            Два уровня материалов
+            Бесплатно — и по подписке
           </h2>
           <p className="rl-lead" style={{ textAlign: "center", maxWidth: 560, margin: "0 auto 30px" }}>
-            Никто не продаёт редактируемые исходники профессиональной вёрстки. Мы — да.
+            Готовые PDF отдаём бесплатно. Платим только за то, чего нет ни у кого, —
+            редактируемые исходники профессиональной вёрстки.
           </p>
           <div className="rl-grid rl-grid-2" style={{ gap: 18, maxWidth: 860, margin: "0 auto" }}>
             <div className="card" style={{ padding: 24 }}>
@@ -206,24 +169,24 @@ export default async function Landing() {
               </span>
               <h3 style={{ margin: "12px 0 8px" }}>Печатай и веди</h3>
               <p className="muted-2" style={{ fontSize: 14, lineHeight: 1.55 }}>
-                Все PDF комплекта: презентация для доски, рабочие листы с клеткой до низа
-                страницы, шпаргалка, домашняя работа и два варианта зачёта с ключами.
+                Все PDF комплекта: презентация для доски, рабочий лист с клеткой до низа
+                страницы и домашнее задание с ключами. Скачивайте и печатайте без ограничений.
               </p>
-              <div className="rl2-price" style={{ marginTop: 14 }}>
-                от 19 ₽ <span className="rl2-price-note">за элемент · комплект 49 ₽</span>
+              <div className="rl2-price rl2-price-free" style={{ marginTop: 14 }}>
+                Бесплатно
               </div>
             </div>
             <div className="card" style={{ padding: 24, border: "2px solid var(--accent)" }}>
               <span className="rl2-tier" data-tier="source">
-                PDF + исходники
+                Marp-исходники
               </span>
               <h3 style={{ margin: "12px 0 8px" }}>Правь под себя</h3>
               <p className="muted-2" style={{ fontSize: 14, lineHeight: 1.55 }}>
-                Плюс исходники: презентация в Marp (обычный Markdown), листы в LaTeX.
+                По подписке — исходники: презентация в Marp (обычный Markdown), листы в LaTeX.
                 Меняйте числа и фамилии, пересобирайте варианты — комплект становится вашим.
               </p>
               <div className="rl2-price" style={{ marginTop: 14 }}>
-                от 49 ₽ <span className="rl2-price-note">за элемент · комплект 129 ₽</span>
+                по подписке <span className="rl2-price-note">от 290 ₽/мес</span>
               </div>
             </div>
           </div>
@@ -241,13 +204,13 @@ export default async function Landing() {
               name: "Математика",
               price: "290 ₽/мес",
               subject: "math",
-              text: "Все PDF по математике + 300 автопроверок",
+              text: "Marp-исходники по математике + 300 автопроверок",
             },
             {
               name: "Информатика",
               price: "290 ₽/мес",
               subject: "informatics",
-              text: "Все PDF по информатике + 300 автопроверок",
+              text: "Marp-исходники по информатике + 300 автопроверок",
             },
             {
               name: "Всё включено",
@@ -336,7 +299,18 @@ export default async function Landing() {
                 <Link href="/catalog" style={{ color: "var(--fg-2)", textDecoration: "none" }}>Каталог</Link>
                 <Link href="/pricing" style={{ color: "var(--fg-2)", textDecoration: "none" }}>Тарифы</Link>
                 <Link href="/create" style={{ color: "var(--fg-2)", textDecoration: "none" }}>Конструктор</Link>
-                <Link href="/marketplace" style={{ color: "var(--fg-2)", textDecoration: "none" }}>Листы учителей</Link>
+                {FEATURES.teacherMarketplace ? (
+                  <Link href="/marketplace" style={{ color: "var(--fg-2)", textDecoration: "none" }}>
+                    Листы учителей
+                  </Link>
+                ) : (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--fg-3)" }}>
+                    Листы учителей
+                    <small style={{ padding: "2px 5px", borderRadius: 999, background: "var(--accent-soft)", color: "#92400E", fontSize: 9, fontWeight: 700 }}>
+                      В разработке
+                    </small>
+                  </span>
+                )}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <b style={{ fontFamily: "var(--display)" }}>Документы</b>

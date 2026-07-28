@@ -8,11 +8,14 @@
 // Если pdf и xelatex недоступен — 503 с подсказкой. docx всегда работает (fallback).
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getExporter } from "@/lib/exporters";
 import type { ExportFormat, WorksheetContent } from "@/lib/exporters/types";
+import { getSessionUser } from "@/lib/session";
+import {
+  canReadWorksheet,
+  isWorksheetOwner,
+} from "@/lib/worksheet-privacy";
 
 const VALID: ExportFormat[] = ["pdf", "docx", "latex"];
 
@@ -22,7 +25,9 @@ export async function GET(
 ) {
   const url = new URL(req.url);
   const format = (url.searchParams.get("format") || "pdf").toLowerCase() as ExportFormat;
-  const includeAnswers = ["1", "true", "yes"].includes((url.searchParams.get("answers") || "").toLowerCase());
+  const wantsAnswers = ["1", "true", "yes"].includes(
+    (url.searchParams.get("answers") || "").toLowerCase()
+  );
 
   if (!VALID.includes(format)) {
     return NextResponse.json(
@@ -39,13 +44,15 @@ export async function GET(
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  if (!ws.isPublic) {
-    const session = await getServerSession(authOptions);
-    const uid = (session?.user as { id?: string } | undefined)?.id;
-    if (!uid || uid !== ws.userId) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
-    }
+  const user = await getSessionUser();
+  const isOwner = isWorksheetOwner(ws.userId, user?.id);
+  if (!canReadWorksheet(ws, user?.id)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
+  if (wantsAnswers && !isOwner) {
+    return NextResponse.json({ error: "answers_forbidden" }, { status: 403 });
+  }
+  const includeAnswers = wantsAnswers && isOwner;
 
   let content: WorksheetContent;
   try {

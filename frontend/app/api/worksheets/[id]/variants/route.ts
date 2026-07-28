@@ -9,6 +9,7 @@ import {
   nextVariantLetter,
   safeParseJson,
 } from "@/lib/worksheets";
+import { getLLMCapabilities } from "@/lib/llm";
 
 type ParentParams = {
   source?: "llm" | "bank";
@@ -77,6 +78,21 @@ export async function POST(
   // (другая случайная выборка по тем же фильтрам), а не дёргаем LLM.
   const parentParams = safeParseJson<ParentParams>(parent.paramsJson) ?? {};
   const isBankParent = parentParams.source === "bank" || parent.promptUsed === "bank_filter";
+
+  if (!isBankParent) {
+    const llm = getLLMCapabilities();
+    if (!llm.ready) {
+      return NextResponse.json(
+        {
+          error: "llm_unavailable",
+          message:
+            "Создание вариантов временно недоступно: администратору нужно настроить LLM-провайдер.",
+          llm,
+        },
+        { status: 503 }
+      );
+    }
+  }
 
   const letters = (await nextVariantLetter(parent.id)).slice(0, n);
   if (letters.length < n) {

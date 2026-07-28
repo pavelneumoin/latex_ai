@@ -1,6 +1,7 @@
 import { MockPayments } from "./mock";
 import { YooKassaPayments } from "./yookassa";
 import type { PaymentsProvider } from "./types";
+import { isMockPaymentsAllowed } from "./config";
 
 const providers: Record<string, PaymentsProvider> = {
   mock: new MockPayments(),
@@ -9,13 +10,22 @@ const providers: Record<string, PaymentsProvider> = {
 };
 
 export function getPayments(): PaymentsProvider {
-  const key = process.env.PAYMENTS_PROVIDER || "mock";
+  const key = (process.env.PAYMENTS_PROVIDER || "mock").trim().toLowerCase();
   const p = providers[key];
-  if (p && p.isReady()) return p;
-  if (key !== "mock") {
-    console.warn(`[payments] provider "${key}" not ready — falling back to mock`);
+
+  if (!p) {
+    throw new Error(`payments_provider_unsupported:${key}`);
   }
-  return providers.mock;
+  if (key === "mock" && !isMockPaymentsAllowed()) {
+    throw new Error(
+      "mock_payments_disabled: set PAYMENTS_PROVIDER=yookassa or explicitly enable ALLOW_MOCK_PAYMENTS=true"
+    );
+  }
+  if (!p.isReady()) {
+    throw new Error(`payments_provider_not_configured:${key}`);
+  }
+  return p;
 }
 
 export type { PaymentsProvider, CreatePaymentInput, CreatePaymentResult, WebhookEvent } from "./types";
+export { isMockPaymentsAllowed } from "./config";

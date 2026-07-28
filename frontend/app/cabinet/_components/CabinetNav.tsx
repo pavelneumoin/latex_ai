@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   IconHome,
+  IconFile,
   IconLibrary,
   IconUsers,
   IconCheckSquare,
@@ -16,6 +17,7 @@ import {
 
 const ITEMS = [
   { href: "/cabinet", label: "Обзор", icon: IconHome, exact: true },
+  { href: "/my", label: "Мои листы", icon: IconFile },
   { href: "/cabinet/library", label: "Библиотека", icon: IconLibrary },
   { href: "/cabinet/classes", label: "Классы", icon: IconUsers },
   { href: "/cabinet/checks", label: "Проверка", icon: IconCheckSquare },
@@ -25,7 +27,7 @@ const ITEMS = [
 ];
 
 // В нижних табах помещается 5 — самые ходовые.
-const MOBILE_ITEMS = [ITEMS[0], ITEMS[1], ITEMS[3], ITEMS[2], ITEMS[4]];
+const MOBILE_ITEMS = [ITEMS[0], ITEMS[1], ITEMS[4], ITEMS[3], ITEMS[2]];
 
 function useActive() {
   const pathname = usePathname() || "";

@@ -39,6 +39,15 @@ interface BankStats {
   by_source: Record<string, number>;
 }
 
+interface ProductCapabilities {
+  llm: {
+    provider: string;
+    model: string;
+    ready: boolean;
+    vision: boolean;
+  };
+}
+
 const EXAM_LABELS: Record<string, string> = {
   ege: "ЕГЭ (профиль)",
   ege_base: "ЕГЭ (база)",
@@ -55,10 +64,12 @@ export default function CreatePage() {
   const router = useRouter();
   const [templates, setTemplates] = useState<Template[] | null>(null);
   const [bankStats, setBankStats] = useState<BankStats | null>(null);
+  const [capabilities, setCapabilities] = useState<ProductCapabilities | null>(null);
 
   // Form state
   const [templateId, setTemplateId] = useState<string>("");
-  const [source, setSource] = useState<"llm" | "bank">("llm");
+  // Банк работает локально и не зависит от внешнего API.
+  const [source, setSource] = useState<"llm" | "bank">("bank");
   const [topic, setTopic] = useState<string>("");
   const [subject, setSubject] = useState<"math" | "informatics" | "mixed">("math");
   const [grade, setGrade] = useState<number>(11);
@@ -87,6 +98,15 @@ export default function CreatePage() {
     fetch("/api/bank/stats").then((r) => r.json()).then(setBankStats).catch(() => {
       // Bank необязателен.
     });
+
+    fetch("/api/capabilities")
+      .then((r) => r.json())
+      .then((d) => setCapabilities(d as ProductCapabilities))
+      .catch(() =>
+        setCapabilities({
+          llm: { provider: "unavailable", model: "", ready: false, vision: false },
+        })
+      );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -125,6 +145,7 @@ export default function CreatePage() {
 
   const bankMatchKey = `${subject === "mixed" ? "math" : subject}|${bankExam}`;
   const bankMatchCount = bankStats?.by_subject_exam[bankMatchKey] ?? 0;
+  const llmReady = capabilities?.llm.ready === true;
 
   async function generate() {
     if (!tpl) return;
@@ -190,34 +211,66 @@ export default function CreatePage() {
           Выбери источник задач и параметры. PDF, DOCX, .tex и автопроверку получишь сразу после генерации.
         </p>
 
-        {/* Фото-фишка прямо в интерфейсе создания */}
-        <Link
-          href="/upload"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            padding: "12px 16px",
-            marginBottom: 22,
-            borderRadius: 14,
-            textDecoration: "none",
-            background: "linear-gradient(100deg, var(--primary-soft), var(--accent-soft))",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <span style={{ flex: "0 0 auto", color: "var(--primary)", display: "inline-flex" }}>
-            <IconCamera size={26} />
-          </span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontWeight: 700, fontSize: 14, color: "var(--fg)" }}>
-              Уже есть задачи на бумаге? Сфотографируй
+        {/* Импорт показываем как действие только когда сервер действительно готов. */}
+        {llmReady ? (
+          <Link
+            href="/upload"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "12px 16px",
+              marginBottom: 22,
+              borderRadius: 14,
+              textDecoration: "none",
+              background: "linear-gradient(100deg, var(--primary-soft), var(--accent-soft))",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <span style={{ flex: "0 0 auto", color: "var(--primary)", display: "inline-flex" }}>
+              <IconCamera size={26} />
             </span>
-            <span style={{ display: "block", fontSize: 12.5, color: "var(--fg-2)" }}>
-              Сними страницу учебника — нейросеть сама соберёт лист
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "block", fontWeight: 700, fontSize: 14, color: "var(--fg)" }}>
+                {capabilities?.llm.vision
+                  ? "Уже есть задачи на бумаге? Сфотографируйте"
+                  : "Уже есть текстовый PDF? Загрузите его"}
+              </span>
+              <span style={{ display: "block", fontSize: 12.5, color: "var(--fg-2)" }}>
+                Нейросеть перенесёт задания и соберёт новый рабочий лист
+              </span>
             </span>
-          </span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--primary)", flex: "0 0 auto" }}>Открыть →</span>
-        </Link>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--primary)", flex: "0 0 auto" }}>
+              Открыть →
+            </span>
+          </Link>
+        ) : (
+          <div
+            role="status"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "12px 16px",
+              marginBottom: 22,
+              borderRadius: 14,
+              background: "var(--surface-2)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <span style={{ color: "var(--fg-3)", display: "inline-flex" }}>
+              <IconCamera size={24} />
+            </span>
+            <span>
+              <span style={{ display: "block", fontSize: 13.5, fontWeight: 700 }}>
+                AI-генерация сейчас не подключена
+              </span>
+              <span style={{ display: "block", fontSize: 12.5, color: "var(--fg-2)" }}>
+                Банк проверенных задач работает полностью — начните с него.
+              </span>
+            </span>
+          </div>
+        )}
 
         {/* Источник */}
         <Section title="1. Источник задач">
@@ -225,9 +278,20 @@ export default function CreatePage() {
             <SourceCard
               checked={source === "llm"}
               onClick={() => setSource("llm")}
-              title="LLM — сгенерировать с нуля"
-              desc="GigaChat придумает задачи по теме и посчитает ответы. Подходит когда нужны свежие задачи или нет банка под тему."
-              badge="GigaChat-Max"
+              disabled={!llmReady}
+              title="Нейросеть — создать с нуля"
+              desc={
+                llmReady
+                  ? "Модель придумает свежие задачи по теме и рассчитает ответы."
+                  : "Временно недоступно: на сервере не подключён рабочий AI-провайдер."
+              }
+              badge={
+                capabilities === null
+                  ? "Проверяем"
+                  : llmReady
+                    ? capabilities.llm.provider
+                    : "Не подключено"
+              }
             />
             <SourceCard
               checked={source === "bank"}
@@ -506,7 +570,11 @@ export default function CreatePage() {
 
         <button
           onClick={generate}
-          disabled={loading || !tpl || (source === "llm" && !topic.trim())}
+          disabled={
+            loading ||
+            !tpl ||
+            (source === "llm" && (!topic.trim() || !llmReady))
+          }
           style={{
             marginTop: 24,
             width: "100%",
@@ -517,13 +585,21 @@ export default function CreatePage() {
             fontWeight: 700,
             fontSize: 16,
             border: "none",
-            cursor: loading ? "wait" : "pointer",
-            opacity: loading || !tpl ? 0.6 : 1,
+            cursor:
+              loading
+                ? "wait"
+                : !tpl || (source === "llm" && (!topic.trim() || !llmReady))
+                  ? "not-allowed"
+                  : "pointer",
+            opacity:
+              loading || !tpl || (source === "llm" && (!topic.trim() || !llmReady))
+                ? 0.6
+                : 1,
             boxShadow: "var(--shadow-sm)",
           }}
         >
           {loading
-            ? source === "bank" ? "Выбираем задачи из банка…" : "GigaChat генерирует…"
+            ? source === "bank" ? "Выбираем задачи из банка…" : "Нейросеть генерирует…"
             : `Сгенерировать «${tpl?.name ?? "лист"}» →`}
         </button>
 
@@ -534,7 +610,7 @@ export default function CreatePage() {
         )}
 
         {err && (
-          <div style={{ marginTop: 16, padding: 12, background: "#FEE2E2", color: "#991B1B", borderRadius: 8, fontSize: 14 }}>
+          <div role="alert" style={{ marginTop: 16, padding: 12, background: "#FEE2E2", color: "#991B1B", borderRadius: 8, fontSize: 14 }}>
             {err}
           </div>
         )}
@@ -562,17 +638,28 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-function SourceCard(props: { checked: boolean; onClick: () => void; title: string; desc: string; badge: string }) {
+function SourceCard(props: {
+  checked: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+  title: string;
+  desc: string;
+  badge: string;
+}) {
   return (
     <button
+      type="button"
       onClick={props.onClick}
+      disabled={props.disabled}
+      aria-pressed={props.checked}
       style={{
         textAlign: "left",
         padding: 16,
         border: `2px solid ${props.checked ? "var(--primary)" : "var(--border)"}`,
         borderRadius: 12,
         background: props.checked ? "var(--primary-soft)" : "var(--bg)",
-        cursor: "pointer",
+        cursor: props.disabled ? "not-allowed" : "pointer",
+        opacity: props.disabled ? 0.62 : 1,
         display: "flex",
         flexDirection: "column",
         gap: 6,

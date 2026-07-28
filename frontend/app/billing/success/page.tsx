@@ -73,7 +73,7 @@ export default function BillingSuccessPage({ searchParams }: { searchParams: SP 
             </div>
           )}
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-            <Link href="/dashboard" className="btn btn-blue btn-lg">
+            <Link href="/cabinet" className="btn btn-blue btn-lg">
               В кабинет
             </Link>
             <Link href="/billing" className="btn btn-outline btn-lg">

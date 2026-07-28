@@ -1,5 +1,6 @@
 // Защита приватных роутов через NextAuth middleware.
-// Незарегистрированный пользователь на /my, /dashboard, /settings, /billing → редирект на /login.
+// UI кабинета редиректим на вход. API проверяют сессию внутри route handlers:
+// это важно для публичного просмотра и экспорта опубликованных листов.
 
 export { default } from "next-auth/middleware";
 
@@ -10,7 +11,6 @@ export const config = {
     "/my/:path*",
     "/settings/:path*",
     "/billing/:path*",
-    "/api/worksheets/:path*",
     "/api/upload/:path*",
     "/api/billing/:path*",
     "/api/classes/:path*",

@@ -20,6 +20,7 @@ function initialsOf(name?: string | null, email?: string | null): string {
 }
 
 const NAV_ITEMS: { href: string; label: string; comingSoon?: boolean }[] = [
+  { href: "/materials", label: "Темы ЕГЭ" },
   { href: "/catalog", label: "Каталог" },
   { href: "/cabinet/checks", label: "Проверка работ" },
   { href: "/create", label: "Конструктор" },
@@ -50,10 +51,10 @@ function ComingSoonBadge() {
   );
 }
 
-function Logo() {
+function Logo({ href }: { href: string }) {
   return (
     <Link
-      href="/"
+      href={href}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -90,6 +91,7 @@ export function Header() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const homeHref = session?.user ? "/cabinet" : "/";
 
   // Закрываем меню при смене маршрута.
   useEffect(() => {
@@ -131,7 +133,7 @@ export function Header() {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 24, minWidth: 0 }}>
-        <Logo />
+        <Logo href={homeHref} />
         <nav
           className="rl-desktop-only"
           style={{ display: "flex", alignItems: "center", gap: 4 }}
@@ -350,7 +352,7 @@ export function Header() {
             background: "var(--bg)",
           }}
         >
-          <Logo />
+          <Logo href={homeHref} />
           <button
             type="button"
             aria-label="Закрыть"

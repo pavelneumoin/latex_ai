@@ -5,9 +5,13 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getSessionUser } from "@/lib/session";
+import {
+  canReadWorksheet,
+  isWorksheetOwner,
+  redactWorksheetAnswers,
+} from "@/lib/worksheet-privacy";
 import { WorksheetPreview } from "../../my/[id]/WorksheetPreview";
 
 export const dynamic = "force-dynamic";
@@ -37,8 +41,6 @@ export default async function SharePage({
   params: { id: string };
   searchParams?: { answers?: string };
 }) {
-  const showAnswers = searchParams?.answers !== "0";
-
   const ws = await prisma.worksheet.findUnique({
     where: { id: params.id },
     include: {
@@ -48,16 +50,17 @@ export default async function SharePage({
   });
   if (!ws) notFound();
 
-  // Доступ: публичный лист ИЛИ владелец
-  let allowed = ws.isPublic;
-  if (!allowed) {
-    const session = await getServerSession(authOptions);
-    const uid = (session?.user as { id?: string } | undefined)?.id;
-    allowed = !!uid && uid === ws.userId;
-  }
-  if (!allowed) notFound();
+  const user = await getSessionUser();
+  const isOwner = isWorksheetOwner(ws.userId, user?.id);
+  if (!canReadWorksheet(ws, user?.id)) notFound();
 
-  const content = parseContent(ws.contentJson);
+  // Параметр URL управляет ответами только в авторизованной сессии владельца.
+  const showAnswers = isOwner && searchParams?.answers !== "0";
+
+  const parsedContent = parseContent(ws.contentJson);
+  const content = (
+    isOwner ? parsedContent : redactWorksheetAnswers(parsedContent)
+  ) as Content | null;
   const tasks = content?.tasks ?? [];
 
   return (
@@ -146,12 +149,20 @@ export default async function SharePage({
             templateStyle={ws.template?.style ?? null}
             templateName={ws.template?.name ?? null}
             templateId={ws.template?.id ?? ws.templateId}
-            tasks={tasks.map((t, i) => ({
-              n: t.n ?? i + 1,
-              condition: t.condition ?? "",
-              expected_answer: t.expected_answer ?? t.expected ?? t.answer ?? undefined,
-              hint: t.hint,
-            }))}
+            tasks={tasks.map((t, i) => {
+              const task = {
+                n: t.n ?? i + 1,
+                condition: t.condition ?? "",
+                hint: t.hint,
+              };
+              return isOwner
+                ? {
+                    ...task,
+                    expected_answer:
+                      t.expected_answer ?? t.expected ?? t.answer ?? undefined,
+                  }
+                : task;
+            })}
             showAnswers={showAnswers}
             teacherName={ws.user?.name ?? null}
             schoolName={ws.user?.school ?? null}
@@ -171,14 +182,16 @@ export default async function SharePage({
           }}
         >
           <div>
-            <Link
-              href={
-                showAnswers ? `?answers=0` : `?answers=1`
-              }
-              style={{ color: "var(--fg-2)", textDecoration: "none" }}
-            >
-              {showAnswers ? "Скрыть ответы" : "Показать ответы"}
-            </Link>
+            {isOwner ? (
+              <Link
+                href={showAnswers ? "?answers=0" : "?answers=1"}
+                style={{ color: "var(--fg-2)", textDecoration: "none" }}
+              >
+                {showAnswers ? "Скрыть ответы" : "Показать ответы"}
+              </Link>
+            ) : (
+              <span>Версия для ученика</span>
+            )}
           </div>
           <div>
             <a

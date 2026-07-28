@@ -54,7 +54,7 @@ export default function RegisterPage() {
         setErr("Регистрация прошла, но автовход не сработал. Войдите вручную.");
         return;
       }
-      router.push("/dashboard");
+      router.push("/cabinet");
       router.refresh();
     } catch {
       setErr("Что-то пошло не так. Попробуйте ещё раз.");

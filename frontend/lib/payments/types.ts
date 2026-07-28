@@ -22,6 +22,7 @@ export interface WebhookEvent {
   providerPaymentId: string;
   status: "succeeded" | "failed" | "cancelled";
   amount: number;
+  currency: string;
   raw: unknown;
 }
 

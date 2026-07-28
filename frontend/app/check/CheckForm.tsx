@@ -41,7 +41,7 @@ export function CheckForm({ worksheets }: { worksheets: Worksheet[] }) {
       const r = await fetch("/api/check", { method: "POST", body: fd });
       const data = await r.json();
       if (!r.ok) {
-        setErr(data.detail || data.error || "Не удалось проверить");
+        setErr(data.hint || data.detail || data.error || "Не удалось проверить");
         return;
       }
       setResult(data.result || { fields: [] });
@@ -83,21 +83,21 @@ export function CheckForm({ worksheets }: { worksheets: Worksheet[] }) {
             />
           </div>
           <div>
-            <label className="label" htmlFor="file">Фото или скан заполненного листа</label>
+            <label className="label" htmlFor="file">Фото заполненного листа</label>
             <input
               id="file"
               type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf"
+              accept="image/jpeg,image/png,image/webp"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               required
             />
             <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
-              JPG/PNG/WEBP/PDF, до 10 МБ.
+              JPG, PNG или WEBP, до 10 МБ.
             </div>
           </div>
 
           {err && (
-            <div style={{ padding: "10px 12px", background: "#FEE2E2", color: "#991B1B", borderRadius: 8, fontSize: 13 }}>
+            <div role="alert" style={{ padding: "10px 12px", background: "#FEE2E2", color: "#991B1B", borderRadius: 8, fontSize: 13 }}>
               {err}
             </div>
           )}

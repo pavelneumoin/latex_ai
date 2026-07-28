@@ -12,6 +12,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { compareAnswer, percentToMark, type AnswerType } from "@/lib/answer-compare";
 import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
+import { getSessionUser } from "@/lib/session";
+import {
+  canReadWorksheet,
+  isWorksheetOwner,
+  ownerOnlyAnswerFields,
+} from "@/lib/worksheet-privacy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,6 +45,13 @@ export async function POST(req: NextRequest) {
   const ws = await prisma.worksheet.findUnique({ where: { id: parsed.data.worksheetId } });
   if (!ws) return NextResponse.json({ error: "worksheet_not_found" }, { status: 404 });
 
+  const user = await getSessionUser();
+  const isOwner = isWorksheetOwner(ws.userId, user?.id);
+  if (!canReadWorksheet(ws, user?.id)) {
+    // Не раскрываем существование приватного листа постороннему.
+    return NextResponse.json({ error: "worksheet_not_found" }, { status: 404 });
+  }
+
   let content: { tasks?: Array<{ n: number; expected_answer?: string; answer_type?: string; tolerance?: number; options?: string[] }> } | null = null;
   try { content = ws.contentJson ? JSON.parse(ws.contentJson) : null; } catch {}
   const tasks = content?.tasks ?? [];
@@ -58,15 +71,20 @@ export async function POST(req: NextRequest) {
       tolerance: t.tolerance,
       options: Array.isArray(t.options) ? t.options : undefined,
     });
-    return {
+    const publicResult = {
       n: t.n,
-      expected: exp,
       got,
       correct: cmp.correct,
       manual: cmp.manual ?? false,
       reason: cmp.reason,
-      normalized_expected: cmp.normalized_expected,
       normalized_got: cmp.normalized_got,
+    };
+    return {
+      ...publicResult,
+      ...ownerOnlyAnswerFields(isOwner, {
+        expected: exp,
+        normalized_expected: cmp.normalized_expected,
+      }),
     };
   });
 

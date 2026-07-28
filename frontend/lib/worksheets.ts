@@ -2,7 +2,7 @@
 // POST /api/worksheets, /variants, /harder.
 
 import { prisma } from "./db";
-import { getProvider } from "./llm";
+import { getLLMCapabilities, getProvider } from "./llm";
 import { loadPrompt, renderTemplate, type PromptId } from "./llm/prompts";
 import { searchBank, bankTaskToWorksheetTask, type BankTask } from "./bank";
 import {
@@ -135,16 +135,12 @@ export async function generateWorksheetContent(
   };
 }
 
-/** Провайдеры, которые умеют принимать изображения (vision). */
-const VISION_PROVIDERS = new Set(["claude", "openai", "openrouter"]);
-
 /**
  * Поддерживает ли текущий (или заданный) провайдер распознавание фото.
  * Используется в /api/worksheets/from-image, чтобы честно сказать «фото пока недоступно».
  */
 export function providerSupportsVision(key?: string): boolean {
-  const k = (key || process.env.LLM_PROVIDER || "mock").toLowerCase();
-  return VISION_PROVIDERS.has(k);
+  return getLLMCapabilities(key).vision;
 }
 
 export interface InputImage {

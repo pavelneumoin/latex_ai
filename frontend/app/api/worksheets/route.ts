@@ -9,6 +9,7 @@ import {
   incrementWorksheetUsage,
   safeParseJson,
 } from "@/lib/worksheets";
+import { getLLMCapabilities } from "@/lib/llm";
 import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -66,6 +67,23 @@ export async function POST(req: NextRequest) {
     );
   }
   const data = parsed.data;
+
+  // Банк задач работает без LLM. Для нейрогенерации fail-closed: не создаём
+  // даже черновик, если выбран mock, неизвестный провайдер или нет ключа.
+  if (data.source === "llm") {
+    const llm = getLLMCapabilities();
+    if (!llm.ready) {
+      return NextResponse.json(
+        {
+          error: "llm_unavailable",
+          message:
+            "Нейрогенерация временно недоступна: администратору нужно настроить LLM-провайдер.",
+          llm,
+        },
+        { status: 503 }
+      );
+    }
+  }
 
   // Лимиты
   const lim = await checkWorksheetLimit(user.id);

@@ -30,10 +30,21 @@ function LoginShell() {
   );
 }
 
+function safeCallbackPath(value: string | null, origin: string): string {
+  if (!value) return "/cabinet";
+  try {
+    const parsed = new URL(value, origin);
+    if (parsed.origin !== origin) return "/cabinet";
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return "/cabinet";
+  }
+}
+
 function LoginForm() {
   const router = useRouter();
   const sp = useSearchParams();
-  const callbackUrl = sp.get("callbackUrl") ?? "/dashboard";
+  const requestedCallback = sp.get("callbackUrl") ?? sp.get("next");
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -58,7 +69,7 @@ function LoginForm() {
         setErr("Неверный email или пароль");
         return;
       }
-      router.push(callbackUrl);
+      router.push(safeCallbackPath(requestedCallback, window.location.origin));
       router.refresh();
     } catch {
       setErr("Что-то пошло не так. Попробуйте ещё раз.");

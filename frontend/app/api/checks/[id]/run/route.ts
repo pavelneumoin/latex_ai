@@ -9,9 +9,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { getProvider } from "@/lib/llm";
+import { getLLMCapabilities, getProvider } from "@/lib/llm";
 import { loadPrompt, renderTemplate } from "@/lib/llm/prompts";
-import { providerSupportsVision } from "@/lib/worksheets";
 import { extractLooseJson } from "@/lib/llm/json-extract";
 import { readUploadedFile } from "@/lib/storage";
 import { computeMark, computePct, DEFAULT_SCALE } from "@/lib/marks";
@@ -56,8 +55,10 @@ export async function POST(
     ? { scale5: job.class.scale5, scale4: job.class.scale4, scale3: job.class.scale3 }
     : DEFAULT_SCALE;
 
+  const llm = getLLMCapabilities();
   const canVision =
-    providerSupportsVision() &&
+    llm.ready &&
+    llm.vision &&
     !!job.product?.answerKeyJson &&
     job.uploads.some((u) => VISION_MIME.has(u.mimeType));
 

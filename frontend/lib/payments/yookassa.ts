@@ -14,6 +14,25 @@ import type {
 
 const API_BASE = "https://api.yookassa.ru/v3";
 
+type YooKassaPayment = {
+  id: string;
+  status: string;
+  amount?: {
+    value: string;
+    currency: string;
+  };
+  confirmation?: {
+    confirmation_url?: string;
+  };
+};
+
+function amountToKopecks(value: string): number | null {
+  if (!/^\d+(?:\.\d{1,2})?$/.test(value)) return null;
+  const [rubles, kopecks = ""] = value.split(".");
+  const amount = Number(rubles) * 100 + Number(kopecks.padEnd(2, "0"));
+  return Number.isSafeInteger(amount) ? amount : null;
+}
+
 export class YooKassaPayments implements PaymentsProvider {
   readonly name = "yookassa";
 
@@ -52,18 +71,16 @@ export class YooKassaPayments implements PaymentsProvider {
       const text = await res.text();
       throw new Error(`yookassa_error_${res.status}: ${text}`);
     }
-    const data = (await res.json()) as {
-      id: string;
-      status: string;
-      confirmation?: { confirmation_url?: string };
-    };
+    const data = (await res.json()) as YooKassaPayment;
 
     const payment = await prisma.payment.create({
       data: {
         userId: input.userId,
         amount: input.amount,
         currency: input.currency ?? "RUB",
-        status: data.status === "succeeded" ? "succeeded" : "pending",
+        // "succeeded" зарезервирован за атомарно обработанным webhook:
+        // до выдачи entitlement локальная запись остаётся pending.
+        status: "pending",
         provider: this.name,
         providerPaymentId: data.id,
         purpose: input.purpose,
@@ -75,28 +92,66 @@ export class YooKassaPayments implements PaymentsProvider {
       paymentId: payment.id,
       providerPaymentId: data.id,
       confirmationUrl: data.confirmation?.confirmation_url ?? input.returnUrl,
-      status: data.status === "succeeded" ? "succeeded" : "pending",
+      status: "pending",
     };
   }
 
   async parseWebhook(_headers: Record<string, string>, body: unknown): Promise<WebhookEvent | null> {
-    // YooKassa webhook: { event: "payment.succeeded" | ..., object: { id, status, amount: { value, currency } } }
-    const b = body as {
-      event?: string;
-      object?: { id: string; status: string; amount?: { value: string; currency: string } };
-    };
-    if (!b?.object?.id) return null;
+    // Тело уведомления сообщает только id. Статус и сумма считаются достоверными
+    // лишь после отдельного запроса к API ЮKassa с секретным ключом магазина.
+    const notification = body as { object?: { id?: unknown } };
+    const providerPaymentId =
+      typeof notification?.object?.id === "string"
+        ? notification.object.id.trim()
+        : "";
+    if (!providerPaymentId) return null;
+    if (!this.isReady()) throw new Error("yookassa_not_configured");
+
+    const res = await fetch(
+      `${API_BASE}/payments/${encodeURIComponent(providerPaymentId)}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: this.authHeader(),
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      }
+    );
+    if (!res.ok) {
+      throw new Error(`yookassa_verification_failed:${res.status}`);
+    }
+
+    const payment = (await res.json()) as YooKassaPayment;
+    if (payment.id !== providerPaymentId) {
+      throw new Error("yookassa_verification_id_mismatch");
+    }
+    if (!payment.amount?.currency) {
+      throw new Error("yookassa_verification_amount_missing");
+    }
+
+    const amount = amountToKopecks(payment.amount.value);
+    if (amount == null) {
+      throw new Error("yookassa_verification_amount_invalid");
+    }
+
     const status =
-      b.event === "payment.succeeded"
+      payment.status === "succeeded"
         ? "succeeded"
-        : b.event === "payment.canceled"
+        : payment.status === "canceled"
           ? "cancelled"
-          : "failed";
+          : null;
+    if (!status) return null;
+
     return {
-      providerPaymentId: b.object.id,
+      providerPaymentId,
       status,
-      amount: b.object.amount ? Math.round(parseFloat(b.object.amount.value) * 100) : 0,
-      raw: body,
+      amount,
+      currency: payment.amount.currency.toUpperCase(),
+      raw: {
+        notification: body,
+        verifiedPayment: payment,
+      },
     };
   }
 }

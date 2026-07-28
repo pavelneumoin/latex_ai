@@ -28,7 +28,7 @@ export default async function TemplatesPage() {
       <Header />
       <main className="rl-container" style={{ maxWidth: 1280, paddingTop: 32, paddingBottom: 64 }}>
         <Link
-          href="/dashboard"
+          href="/cabinet"
           style={{ color: "var(--fg-3)", fontSize: 13, textDecoration: "none" }}
         >
           ← В кабинет

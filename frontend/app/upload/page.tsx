@@ -20,6 +20,15 @@ interface Picked {
   url: string;
 }
 
+interface ProductCapabilities {
+  llm: {
+    provider: string;
+    model: string;
+    ready: boolean;
+    vision: boolean;
+  };
+}
+
 const IMG_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_IMAGES = 4;
 
@@ -30,6 +39,7 @@ export default function UploadPage() {
   const [pdf, setPdf] = useState<File | null>(null);
 
   const [templates, setTemplates] = useState<Template[] | null>(null);
+  const [capabilities, setCapabilities] = useState<ProductCapabilities | null>(null);
   const [templateId, setTemplateId] = useState("T1");
   const [topic, setTopic] = useState("");
   const [subject, setSubject] = useState<"math" | "informatics">("math");
@@ -44,6 +54,19 @@ export default function UploadPage() {
       .then((r) => r.json())
       .then((d) => setTemplates(d.templates ?? []))
       .catch(() => {});
+
+    fetch("/api/capabilities")
+      .then((r) => r.json())
+      .then((d: ProductCapabilities) => {
+        setCapabilities(d);
+        if (!d.llm.ready || !d.llm.vision) setMode("pdf");
+      })
+      .catch(() => {
+        setCapabilities({
+          llm: { provider: "unavailable", model: "", ready: false, vision: false },
+        });
+        setMode("pdf");
+      });
   }, []);
 
   // Чистим object URLs при размонтировании.
@@ -78,6 +101,11 @@ export default function UploadPage() {
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
+    const available =
+      mode === "photo"
+        ? capabilities?.llm.ready === true && capabilities.llm.vision
+        : capabilities?.llm.ready === true;
+    if (!available) return;
     const files = e.dataTransfer.files;
     if (!files?.length) return;
     if (mode === "photo") addImages(files);
@@ -90,6 +118,18 @@ export default function UploadPage() {
 
   async function submit() {
     setErr(null);
+    const available =
+      mode === "photo"
+        ? capabilities?.llm.ready === true && capabilities.llm.vision
+        : capabilities?.llm.ready === true;
+    if (!available) {
+      setErr(
+        mode === "photo"
+          ? "Распознавание фото пока не подключено на этом сервере."
+          : "AI-обработка PDF пока не подключена на этом сервере."
+      );
+      return;
+    }
     if (mode === "photo" && images.length === 0) {
       setErr("Добавь хотя бы одно фото с задачами.");
       return;
@@ -131,7 +171,12 @@ export default function UploadPage() {
     }
   }
 
-  const canSubmit = mode === "photo" ? images.length > 0 : !!pdf;
+  const modeAvailable =
+    mode === "photo"
+      ? capabilities?.llm.ready === true && capabilities.llm.vision
+      : capabilities?.llm.ready === true;
+  const canSubmit =
+    modeAvailable && (mode === "photo" ? images.length > 0 : !!pdf);
 
   return (
     <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
@@ -165,16 +210,47 @@ export default function UploadPage() {
               marginBottom: 12,
             }}
           >
-            Главная фишка
+            {capabilities === null
+              ? "Проверяем подключение"
+              : capabilities.llm.ready
+                ? "AI-импорт"
+                : "Временно недоступно"}
           </div>
           <h1 className="rl-h2" style={{ marginBottom: 8 }}>
-            Сфотографируй задание — получи рабочий лист
+            {capabilities?.llm.ready && capabilities.llm.vision
+              ? "Сфотографируйте задание — получите рабочий лист"
+              : capabilities?.llm.ready
+                ? "Загрузите PDF — получите рабочий лист"
+                : "Импорт фото и PDF готов к подключению"}
           </h1>
           <p className="rl-lead" style={{ maxWidth: 560 }}>
-            Сними страницу учебника или распечатку на телефон. Нейросеть распознает условия и соберёт
-            аккуратный PDF с полями для ответов, автопроверкой и твоим оформлением.
+            {capabilities?.llm.ready
+              ? "Нейросеть перенесёт условия и соберёт аккуратный лист с полями для ответов и выбранным оформлением."
+              : "На сервере пока нет рабочего AI-провайдера. Мы не создаём демонстрационный лист вместо ваших заданий — используйте банк проверенных задач."}
           </p>
         </div>
+
+        {capabilities && !capabilities.llm.ready && (
+          <div
+            role="status"
+            style={{
+              marginBottom: 18,
+              padding: "13px 15px",
+              borderRadius: 12,
+              border: "1px solid var(--border)",
+              background: "var(--primary-soft)",
+              color: "var(--fg-2)",
+              fontSize: 13.5,
+              lineHeight: 1.5,
+            }}
+          >
+            Импорт отключён безопасно: ваши файлы не отправятся в заглушку и не будут
+            подменены демо-задачами.{" "}
+            <Link href="/create" style={{ color: "var(--primary)", fontWeight: 700 }}>
+              Создать лист из банка ФИПИ →
+            </Link>
+          </div>
+        )}
 
         {/* Переключатель режима */}
         <div
@@ -187,8 +263,28 @@ export default function UploadPage() {
             marginBottom: 18,
           }}
         >
-          <ModeTab active={mode === "photo"} onClick={() => setMode("photo")} icon="" label="Фото" hint="айфон/андроид" />
-          <ModeTab active={mode === "pdf"} onClick={() => setMode("pdf")} icon="" label="PDF" hint="с текстом" />
+          <ModeTab
+            active={mode === "photo"}
+            disabled={
+              capabilities?.llm.ready !== true || capabilities.llm.vision !== true
+            }
+            onClick={() => setMode("photo")}
+            icon=""
+            label="Фото"
+            hint={
+              capabilities?.llm.ready && capabilities.llm.vision
+                ? "камера/галерея"
+                : "не подключено"
+            }
+          />
+          <ModeTab
+            active={mode === "pdf"}
+            disabled={capabilities?.llm.ready !== true}
+            onClick={() => setMode("pdf")}
+            icon=""
+            label="PDF"
+            hint={capabilities?.llm.ready ? "с текстом" : "не подключено"}
+          />
         </div>
 
         {/* Зона загрузки */}
@@ -208,7 +304,9 @@ export default function UploadPage() {
             marginBottom: 16,
           }}
         >
-          {mode === "photo" ? (
+          {!modeAvailable ? (
+            <UnavailableZone loading={capabilities === null} />
+          ) : mode === "photo" ? (
             <PhotoZone images={images} onPick={addImages} onRemove={removeImage} />
           ) : (
             <PdfZone pdf={pdf} onPick={setPdf} />
@@ -262,6 +360,7 @@ export default function UploadPage() {
 
         {err && (
           <div
+            role="alert"
             style={{
               marginBottom: 16,
               padding: "12px 14px",
@@ -298,7 +397,11 @@ export default function UploadPage() {
             transition: "all 0.15s",
           }}
         >
-          {mode === "photo" ? "Распознать и собрать лист →" : "Превратить PDF в лист →"}
+          {!modeAvailable
+            ? "AI-импорт пока недоступен"
+            : mode === "photo"
+              ? "Распознать и собрать лист →"
+              : "Превратить PDF в лист →"}
         </button>
 
         {/* Как это работает */}
@@ -321,12 +424,14 @@ export default function UploadPage() {
 
 function ModeTab({
   active,
+  disabled,
   onClick,
   icon,
   label,
   hint,
 }: {
   active: boolean;
+  disabled?: boolean;
   onClick: () => void;
   icon: string;
   label: string;
@@ -336,6 +441,8 @@ function ModeTab({
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
+      aria-pressed={active}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -344,10 +451,11 @@ function ModeTab({
         padding: "8px 16px",
         borderRadius: 9,
         border: "none",
-        cursor: "pointer",
+        cursor: disabled ? "not-allowed" : "pointer",
         background: active ? "var(--bg)" : "transparent",
         boxShadow: active ? "var(--shadow-sm)" : "none",
         color: active ? "var(--fg)" : "var(--fg-3)",
+        opacity: disabled ? 0.58 : 1,
       }}
     >
       <span style={{ fontWeight: 700, fontSize: 14 }}>
@@ -355,6 +463,36 @@ function ModeTab({
       </span>
       <span style={{ fontSize: 10.5, color: active ? "var(--fg-3)" : "var(--fg-3)" }}>{hint}</span>
     </button>
+  );
+}
+
+function UnavailableZone({ loading }: { loading: boolean }) {
+  return (
+    <div
+      role="status"
+      style={{
+        minHeight: 150,
+        display: "grid",
+        placeItems: "center",
+        textAlign: "center",
+        color: "var(--fg-3)",
+        padding: 20,
+      }}
+    >
+      <div>
+        <div style={{ fontSize: 26, marginBottom: 8 }} aria-hidden>
+          {loading ? "…" : "—"}
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--fg-2)" }}>
+          {loading ? "Проверяем готовность сервера" : "Этот режим пока недоступен"}
+        </div>
+        {!loading && (
+          <div style={{ fontSize: 12.5, marginTop: 4 }}>
+            Выберите доступный режим или создайте лист из банка задач.
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

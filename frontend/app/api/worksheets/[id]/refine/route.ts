@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
+import { getLLMCapabilities } from "@/lib/llm";
 import { generateWorksheetContent, safeParseJson, normalizeWorksheetContent } from "@/lib/worksheets";
 import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
 
@@ -42,6 +43,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const current = safeParseJson<{ title?: string; subtitle?: string; tasks?: unknown[] }>(parent.contentJson);
   if (!current?.tasks) {
     return NextResponse.json({ error: "no_content", detail: "contentJson отсутствует" }, { status: 409 });
+  }
+
+  const llm = getLLMCapabilities();
+  if (!llm.ready) {
+    return NextResponse.json(
+      {
+        error: "llm_unavailable",
+        message:
+          "Редактирование нейросетью временно недоступно: администратору нужно настроить LLM-провайдер.",
+        llm,
+      },
+      { status: 503 }
+    );
   }
 
   try {

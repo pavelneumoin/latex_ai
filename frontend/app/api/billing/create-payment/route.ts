@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
 
   const returnUrl =
     process.env.YOOKASSA_RETURN_URL ||
-    `${process.env.NEXTAUTH_URL || "http://localhost:3010"}/dashboard?paid=1`;
+    `${process.env.NEXTAUTH_URL || "http://localhost:3010"}/cabinet?paid=1`;
 
   try {
     const result = await getPayments().createPayment({

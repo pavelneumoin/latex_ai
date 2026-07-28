@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { prisma } from "../db";
+import { isMockPaymentsAllowed } from "./config";
 import type {
   CreatePaymentInput,
   CreatePaymentResult,
@@ -13,10 +14,12 @@ export class MockPayments implements PaymentsProvider {
   readonly name = "mock";
 
   isReady(): boolean {
-    return true;
+    return isMockPaymentsAllowed();
   }
 
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
+    if (!this.isReady()) throw new Error("mock_payments_disabled");
+
     const providerPaymentId = `mock_${randomUUID()}`;
 
     const payment = await prisma.payment.create({
@@ -48,12 +51,30 @@ export class MockPayments implements PaymentsProvider {
   }
 
   async parseWebhook(_headers: Record<string, string>, body: unknown): Promise<WebhookEvent | null> {
-    const b = body as { providerPaymentId?: string; status?: string; amount?: number };
-    if (!b?.providerPaymentId) return null;
+    if (!this.isReady()) throw new Error("mock_payments_disabled");
+
+    const b = body as {
+      providerPaymentId?: string;
+      status?: string;
+      amount?: number;
+      currency?: string;
+    };
+    const statuses = new Set(["succeeded", "failed", "cancelled"]);
+    if (
+      !b?.providerPaymentId ||
+      !b.status ||
+      !statuses.has(b.status) ||
+      typeof b.amount !== "number" ||
+      !Number.isInteger(b.amount) ||
+      !b.currency
+    ) {
+      return null;
+    }
     return {
       providerPaymentId: b.providerPaymentId,
-      status: (b.status as "succeeded" | "failed" | "cancelled") ?? "succeeded",
-      amount: b.amount ?? 0,
+      status: b.status as "succeeded" | "failed" | "cancelled",
+      amount: b.amount,
+      currency: b.currency.toUpperCase(),
       raw: body,
     };
   }

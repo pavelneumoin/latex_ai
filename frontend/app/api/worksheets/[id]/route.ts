@@ -4,6 +4,12 @@ import path from "node:path";
 import { prisma } from "@/lib/db";
 import { getSessionUser, requireUser } from "@/lib/session";
 import { safeParseJson } from "@/lib/worksheets";
+import {
+  canReadWorksheet,
+  isWorksheetOwner,
+  ownerOnlyAnswerFields,
+  redactWorksheetAnswers,
+} from "@/lib/worksheet-privacy";
 
 export const runtime = "nodejs";
 
@@ -23,47 +29,53 @@ export async function GET(
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const isOwner = !!user && ws.userId === user.id;
-  if (!isOwner && !ws.isPublic) {
+  const isOwner = isWorksheetOwner(ws.userId, user?.id);
+  if (!canReadWorksheet(ws, user?.id)) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  return NextResponse.json({
-    worksheet: {
-      id: ws.id,
-      userId: ws.userId,
-      templateId: ws.templateId,
-      title: ws.title,
-      topic: ws.topic,
-      subject: ws.subject,
-      grade: ws.grade,
-      status: ws.status,
-      variant: ws.variant,
-      difficulty: ws.difficulty,
-      parentId: ws.parentId,
-      llmProvider: ws.llmProvider,
-      llmModel: ws.llmModel,
-      paramsJson: safeParseJson(ws.paramsJson),
-      contentJson: safeParseJson(ws.contentJson),
-      pdfPath: ws.pdfPath,
-      answerKeyPath: ws.answerKeyPath,
-      isPublic: ws.isPublic,
-      publishedAt: ws.publishedAt,
-      createdAt: ws.createdAt,
-      updatedAt: ws.updatedAt,
-      template: ws.template
-        ? {
-            id: ws.template.id,
-            name: ws.template.name,
-            description: ws.template.description,
-            subject: ws.template.subject,
-            layout: ws.template.layout,
-            style: ws.template.style,
-            taskCount: ws.template.taskCount,
-          }
-        : null,
+  const paramsJson = safeParseJson(ws.paramsJson);
+  const contentJson = safeParseJson(ws.contentJson);
+
+  return NextResponse.json(
+    {
+      worksheet: {
+        id: ws.id,
+        userId: ws.userId,
+        templateId: ws.templateId,
+        title: ws.title,
+        topic: ws.topic,
+        subject: ws.subject,
+        grade: ws.grade,
+        status: ws.status,
+        variant: ws.variant,
+        difficulty: ws.difficulty,
+        parentId: ws.parentId,
+        llmProvider: ws.llmProvider,
+        llmModel: ws.llmModel,
+        paramsJson: isOwner ? paramsJson : redactWorksheetAnswers(paramsJson),
+        contentJson: isOwner ? contentJson : redactWorksheetAnswers(contentJson),
+        pdfPath: ws.pdfPath,
+        ...ownerOnlyAnswerFields(isOwner, { answerKeyPath: ws.answerKeyPath }),
+        isPublic: ws.isPublic,
+        publishedAt: ws.publishedAt,
+        createdAt: ws.createdAt,
+        updatedAt: ws.updatedAt,
+        template: ws.template
+          ? {
+              id: ws.template.id,
+              name: ws.template.name,
+              description: ws.template.description,
+              subject: ws.template.subject,
+              layout: ws.template.layout,
+              style: ws.template.style,
+              taskCount: ws.template.taskCount,
+            }
+          : null,
+      },
     },
-  });
+    { headers: { "Cache-Control": "private, no-store" } }
+  );
 }
 
 export async function DELETE(

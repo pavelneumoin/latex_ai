@@ -9,6 +9,8 @@ export function CheckoutClient({
   payment: {
     id: string;
     providerPaymentId: string;
+    amount: number;
+    currency: string;
     amountLabel: string;
     status: string;
     title: string;
@@ -29,6 +31,8 @@ export function CheckoutClient({
         body: JSON.stringify({
           providerPaymentId: payment.providerPaymentId,
           status,
+          amount: payment.amount,
+          currency: payment.currency,
         }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -7,6 +7,7 @@ import {
   incrementVariantUsage,
   safeParseJson,
 } from "@/lib/worksheets";
+import { getLLMCapabilities } from "@/lib/llm";
 
 export const runtime = "nodejs";
 
@@ -64,6 +65,19 @@ export async function POST(
     return NextResponse.json(
       { error: "parent_not_ready", detail: "contentJson отсутствует" },
       { status: 409 }
+    );
+  }
+
+  const llm = getLLMCapabilities();
+  if (!llm.ready) {
+    return NextResponse.json(
+      {
+        error: "llm_unavailable",
+        message:
+          "Усложнение листа временно недоступно: администратору нужно настроить LLM-провайдер.",
+        llm,
+      },
+      { status: 503 }
     );
   }
 

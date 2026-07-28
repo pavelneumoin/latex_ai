@@ -2,8 +2,15 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { redactWorksheetAnswers } from "@/lib/worksheet-privacy";
+import { safeParseJson } from "@/lib/worksheets";
 
 export const runtime = "nodejs";
+
+function publicContentJson(json: string | null): string | null {
+  const parsed = safeParseJson(json);
+  return parsed == null ? null : JSON.stringify(redactWorksheetAnswers(parsed));
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,10 +21,12 @@ export async function GET(req: NextRequest) {
       Math.max(1, Number(searchParams.get("limit") ?? "100") || 100)
     );
 
-    const where: Record<string, unknown> = { isBestlist: true };
-    if (subject) {
-      where.worksheet = { subject };
-    }
+    const worksheetWhere: Record<string, unknown> = { isPublic: true };
+    if (subject) worksheetWhere.subject = subject;
+    const where: Record<string, unknown> = {
+      isBestlist: true,
+      worksheet: worksheetWhere,
+    };
 
     const rows = await prisma.publication.findMany({
       where,
@@ -49,7 +58,10 @@ export async function GET(req: NextRequest) {
       rating: r.rating,
       downloads: r.downloads,
       author: { id: r.user.id, name: r.user.name },
-      worksheet: r.worksheet,
+      worksheet: {
+        ...r.worksheet,
+        contentJson: publicContentJson(r.worksheet.contentJson),
+      },
     }));
 
     return NextResponse.json({ bestlist: items });

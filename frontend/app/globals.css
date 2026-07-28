@@ -54,6 +54,10 @@
 
 .hi { font-family: var(--body); color: var(--fg); background: var(--bg); }
 .hi *, .hi *::before, .hi *::after { box-sizing: border-box; }
+.hi :where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 42%, transparent);
+  outline-offset: 3px;
+}
 .hi h1, .hi h2, .hi h3, .hi h4 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; }
 .hi h1 { font-size: 36px; font-weight: 700; line-height: 1.1; }
 .hi h2 { font-size: 28px; font-weight: 700; line-height: 1.2; }

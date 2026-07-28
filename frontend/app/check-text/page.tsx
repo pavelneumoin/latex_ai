@@ -26,7 +26,7 @@ interface CheckResult {
   studentName: string | null;
   results: Array<{
     n: number;
-    expected: string;
+    expected?: string;
     got: string;
     correct: boolean;
     manual?: boolean;
@@ -206,7 +206,7 @@ function CheckTextInner() {
                             {r.correct ? "✓ верно" : "✗ ошибка"}
                           </span>
                         )}
-                        {!r.manual && !r.correct && (
+                        {!r.manual && !r.correct && r.expected && (
                           <span style={{ fontSize: 12, color: "var(--fg-3)" }}>
                             правильно: <strong>{r.expected}</strong>
                           </span>

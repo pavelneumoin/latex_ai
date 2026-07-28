@@ -11,10 +11,10 @@ import {
   checkWorksheetLimit,
   generateWorksheetFromImages,
   incrementWorksheetUsage,
-  providerSupportsVision,
   safeParseJson,
   type InputImage,
 } from "@/lib/worksheets";
+import { getLLMCapabilities } from "@/lib/llm";
 import { checkRate, rateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -31,13 +31,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  if (!providerSupportsVision()) {
+  const llm = getLLMCapabilities();
+  if (!llm.ready || !llm.vision) {
     return NextResponse.json(
       {
-        error: "vision_unavailable",
+        error: llm.ready ? "vision_unavailable" : "llm_unavailable",
+        llm,
         hint:
-          "Распознавание по фото временно недоступно на этом сервере. " +
-          "Загрузите PDF с текстом на странице «Загрузить» — это работает уже сейчас.",
+          !llm.ready
+            ? "Распознавание по фото временно недоступно: администратору нужно настроить LLM-провайдер."
+            : "Выбранный LLM-провайдер не поддерживает распознавание фото.",
       },
       { status: 503 }
     );

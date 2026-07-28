@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { notFound, redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isMockPaymentsAllowed } from "@/lib/payments";
 import { formatKopecks } from "@/lib/products";
 import { CheckoutClient } from "./CheckoutClient";
 
@@ -17,13 +18,21 @@ export default async function CheckoutPage({
   params: { paymentId: string };
   searchParams: { return?: string };
 }) {
+  if (!isMockPaymentsAllowed()) notFound();
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect(`/login?callbackUrl=/billing`);
 
   const payment = await prisma.payment.findUnique({
     where: { id: params.paymentId },
   });
-  if (!payment || payment.userId !== session.user.id) notFound();
+  if (
+    !payment ||
+    payment.userId !== session.user.id ||
+    payment.provider !== "mock"
+  ) {
+    notFound();
+  }
 
   const returnUrl =
     typeof searchParams.return === "string" && searchParams.return.startsWith("http")
@@ -56,6 +65,8 @@ export default async function CheckoutPage({
         payment={{
           id: payment.id,
           providerPaymentId: payment.providerPaymentId ?? "",
+          amount: payment.amount,
+          currency: payment.currency,
           amountLabel: formatKopecks(payment.amount),
           status: payment.status,
           title,

@@ -9,8 +9,7 @@
 //   3. Прогоняем через LLM-абстракцию с промптом check_worksheet.
 //   4. Сохраняем фото на 5 минут (по 152-ФЗ), возвращаем результат.
 //
-// Утром: подключить vision-модель (Claude Sonnet или GigaChat-Vision).
-// На mock-провайдере возвращает stub-ответ для отладки UI.
+// Fail-closed: без реально настроенной vision-модели файл не принимаем.
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -19,10 +18,10 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getProvider } from "@/lib/llm";
+import { getLLMCapabilities, getProvider } from "@/lib/llm";
 import { loadPrompt, renderTemplate } from "@/lib/llm/prompts";
 
-const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export const runtime = "nodejs";
@@ -31,6 +30,18 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   const uid = (session?.user as { id?: string } | undefined)?.id;
   if (!uid) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const llm = getLLMCapabilities();
+  if (!llm.ready || !llm.vision) {
+    return NextResponse.json(
+      {
+        error: llm.ready ? "vision_unavailable" : "llm_unavailable",
+        hint: "Автопроверка по фото пока недоступна. Используйте ручную проверку в кабинете.",
+        llm,
+      },
+      { status: 503 }
+    );
+  }
 
   let form: FormData;
   try {

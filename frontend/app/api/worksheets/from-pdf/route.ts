@@ -13,6 +13,7 @@ import {
   incrementWorksheetUsage,
   safeParseJson,
 } from "@/lib/worksheets";
+import { getLLMCapabilities } from "@/lib/llm";
 import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -30,6 +31,19 @@ export async function POST(req: NextRequest) {
 
   const r = checkRate("worksheets-from-pdf", user.id, { limit: 10, windowMs: 60 * 60_000 });
   if (!r.ok) return rateLimited(r);
+
+  const llm = getLLMCapabilities();
+  if (!llm.ready) {
+    return NextResponse.json(
+      {
+        error: "llm_unavailable",
+        message:
+          "Создание листа из PDF временно недоступно: администратору нужно настроить LLM-провайдер.",
+        llm,
+      },
+      { status: 503 }
+    );
+  }
 
   let form: FormData;
   try { form = await req.formData(); } catch (e) {

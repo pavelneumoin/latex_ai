@@ -19,8 +19,10 @@ export async function GET(
   const ws = await prisma.worksheet.findUnique({ where: { id: params.id } });
   if (!ws) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
+  // Диагностика может цитировать эталонные ответы в тексте замечаний,
+  // поэтому доступна только владельцу даже для опубликованного листа.
   const isOwner = !!user && ws.userId === user.id;
-  if (!isOwner && !ws.isPublic) {
+  if (!isOwner) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 

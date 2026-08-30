@@ -40,7 +40,7 @@ export async function GET(
     job.productId
       ? prisma.product.findUnique({
           where: { id: job.productId },
-          select: { id: true, title: true, answerKeyJson: true, checkable: true },
+          select: { id: true, title: true, checkable: true },
         })
       : null,
   ]);
@@ -65,7 +65,9 @@ export async function GET(
           scale3: cls.scale3,
         }
       : null,
-    product,
+    product: product
+      ? { id: product.id, title: product.title, checkable: product.checkable }
+      : null,
     results: results.map((r) => ({
       id: r.id,
       studentId: r.studentId,

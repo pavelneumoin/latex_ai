@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { checkChecksLimit } from "@/lib/entitlements";
+import { checkChecksLimit, getProductAccess } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 
@@ -88,8 +88,22 @@ export async function POST(req: NextRequest) {
   }
   let product = null;
   if (productId) {
-    product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product) {
+    product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: {
+        id: true,
+        subject: true,
+        isFree: true,
+        isPublished: true,
+        answerKeyJson: true,
+      },
+    });
+    if (!product || !product.isPublished) {
+      return NextResponse.json({ error: "product_not_found" }, { status: 404 });
+    }
+
+    const access = await getProductAccess(user.id, product);
+    if (!access.maxTier) {
       return NextResponse.json({ error: "product_not_found" }, { status: 404 });
     }
   }

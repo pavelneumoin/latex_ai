@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { validateWorksheet } from "./worksheet-validator";
+import {
+  assertValidGeneratedWorksheet,
+  GeneratedWorksheetValidationError,
+  validateWorksheet,
+} from "./worksheet-validator";
 
 describe("validateWorksheet", () => {
   it("чистый лист проходит без ошибок, score 100", () => {
@@ -142,5 +146,44 @@ describe("validateWorksheet", () => {
     });
     expect(dirty.score).toBeLessThan(clean.score);
     expect(dirty.ok).toBe(false);
+  });
+
+  it("не позволяет пометить non-JSON fallback готовым листом", () => {
+    expect(() =>
+      assertValidGeneratedWorksheet({ raw: "not json", _warning: "non_json_response" })
+    ).toThrow(GeneratedWorksheetValidationError);
+  });
+
+  it("возвращает стабильные коды ошибок невалидной генерации", () => {
+    try {
+      assertValidGeneratedWorksheet({
+        title: "Черновик",
+        tasks: [{ n: 1, condition: "", expected_answer: "", answer_type: "string" }],
+      });
+      throw new Error("expected validation error");
+    } catch (error) {
+      expect(error).toBeInstanceOf(GeneratedWorksheetValidationError);
+      const validationError = error as GeneratedWorksheetValidationError;
+      expect(validationError.code).toBe("generated_content_invalid");
+      expect(validationError.validation.issues.map((issue) => issue.code)).toEqual(
+        expect.arrayContaining(["empty_condition", "empty_answer"])
+      );
+    }
+  });
+
+  it("допускает валидный сгенерированный лист с предупреждениями", () => {
+    const result = assertValidGeneratedWorksheet({
+      title: "Черновик",
+      tasks: [
+        {
+          n: 1,
+          condition: "Найдите $x$",
+          expected_answer: "не число",
+          answer_type: "number",
+        },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    expect(result.counts.warning).toBe(1);
   });
 });

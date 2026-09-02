@@ -8,6 +8,7 @@ import {
   safeParseJson,
 } from "@/lib/worksheets";
 import { getLLMCapabilities } from "@/lib/llm";
+import { GeneratedWorksheetValidationError } from "@/lib/worksheet-validator";
 
 export const runtime = "nodejs";
 
@@ -146,9 +147,17 @@ export async function POST(
       where: { id: ws.id },
       data: { status: "failed" },
     });
+    const invalid = e instanceof GeneratedWorksheetValidationError;
     return NextResponse.json(
-      { error: "generation_failed", detail: (e as Error).message, worksheetId: ws.id },
-      { status: 500 }
+      invalid
+        ? {
+            error: e.code,
+            detail: "Модель вернула неполный усложнённый вариант. Квота не списана.",
+            issues: e.validation.issues.filter((issue) => issue.severity === "error"),
+            worksheetId: ws.id,
+          }
+        : { error: "generation_failed", detail: (e as Error).message, worksheetId: ws.id },
+      { status: invalid ? 502 : 500 }
     );
   }
 }

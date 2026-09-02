@@ -9,6 +9,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { getLLMCapabilities } from "@/lib/llm";
+import { GeneratedWorksheetValidationError } from "@/lib/worksheet-validator";
 import { generateWorksheetContent, safeParseJson, normalizeWorksheetContent } from "@/lib/worksheets";
 import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
 
@@ -130,8 +131,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     });
   } catch (e) {
     console.error("[refine] error", e);
+    const invalid = e instanceof GeneratedWorksheetValidationError;
     return NextResponse.json(
-      { error: "refine_failed", detail: (e as Error).message },
+      invalid
+        ? {
+            error: e.code,
+            detail: "Модель вернула неполную правку. Исходный лист не изменён.",
+            issues: e.validation.issues.filter((issue) => issue.severity === "error"),
+          }
+        : { error: "refine_failed", detail: (e as Error).message },
       { status: 502 }
     );
   }

@@ -23,6 +23,19 @@ export interface ValidationResult {
   counts: { error: number; warning: number; info: number };
 }
 
+/** Ошибка контракта ответа LLM, безопасная для обработки в API. */
+export class GeneratedWorksheetValidationError extends Error {
+  readonly code = "generated_content_invalid";
+
+  constructor(readonly validation: ValidationResult) {
+    const errorCodes = validation.issues
+      .filter((issue) => issue.severity === "error")
+      .map((issue) => issue.code);
+    super(errorCodes.join(",") || "unknown_validation_error");
+    this.name = "GeneratedWorksheetValidationError";
+  }
+}
+
 interface VTask {
   n?: number | string;
   condition?: string;
@@ -165,6 +178,18 @@ export function validateWorksheet(content: unknown): ValidationResult {
   }
 
   return finalize(issues);
+}
+
+/**
+ * Не позволяет сохранять как готовый лист результат генерации, который нельзя
+ * корректно показать или экспортировать. Предупреждения остаются допустимыми.
+ */
+export function assertValidGeneratedWorksheet(content: unknown): ValidationResult {
+  const validation = validateWorksheet(content);
+  if (!validation.ok) {
+    throw new GeneratedWorksheetValidationError(validation);
+  }
+  return validation;
 }
 
 function finalize(issues: ValidationIssue[]): ValidationResult {

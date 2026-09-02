@@ -187,7 +187,9 @@ export default function CreatePage() {
       if (!r.ok) {
         throw new Error(data?.error === "bank_no_match"
           ? "В банке нет подходящих задач под этот фильтр — расширь параметры или переключи на LLM."
-          : data?.error || `HTTP ${r.status}`);
+          : data?.error === "generated_content_invalid"
+            ? data?.detail
+            : data?.error || `HTTP ${r.status}`);
       }
       router.push(`/my/${data.worksheet.id}`);
     } catch (e) {

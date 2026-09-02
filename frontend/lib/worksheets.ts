@@ -12,6 +12,7 @@ import {
 } from "./formulation-styles";
 import { extractLooseJson } from "./llm/json-extract";
 import { getPrimarySubscription } from "./entitlements";
+import { assertValidGeneratedWorksheet } from "./worksheet-validator";
 
 export interface LimitCheck {
   ok: boolean;
@@ -39,8 +40,10 @@ export async function checkWorksheetLimit(userId: string): Promise<LimitCheck> {
 }
 
 export async function incrementWorksheetUsage(userId: string): Promise<void> {
-  await prisma.subscription.updateMany({
-    where: { userId },
+  const sub = await getPrimarySubscription(userId);
+  if (!sub) return;
+  await prisma.subscription.update({
+    where: { id: sub.id },
     data: { usedWorksheets: { increment: 1 } },
   });
 }
@@ -49,8 +52,10 @@ export async function incrementVariantUsage(
   userId: string,
   by = 1
 ): Promise<void> {
-  await prisma.subscription.updateMany({
-    where: { userId },
+  const sub = await getPrimarySubscription(userId);
+  if (!sub) return;
+  await prisma.subscription.update({
+    where: { id: sub.id },
     data: { usedVariants: { increment: by } },
   });
 }
@@ -125,6 +130,7 @@ export async function generateWorksheetContent(
   // (особенно GigaChat: id/question/answer вместо n/condition/expected_answer).
   // Приводим к каноническим именам, чтобы рендер и чекер не падали.
   parsed = normalizeWorksheetContent(parsed);
+  assertValidGeneratedWorksheet(parsed);
 
   const contentJson = JSON.stringify(parsed);
   return {
@@ -194,6 +200,7 @@ export async function generateWorksheetFromImages(
     }
   }
   parsed = normalizeWorksheetContent(parsed);
+  assertValidGeneratedWorksheet(parsed);
 
   return {
     contentJson: JSON.stringify(parsed),

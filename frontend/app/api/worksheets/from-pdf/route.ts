@@ -15,6 +15,7 @@ import {
 } from "@/lib/worksheets";
 import { getLLMCapabilities } from "@/lib/llm";
 import { checkRate, ipFromReq, rateLimited } from "@/lib/rate-limit";
+import { GeneratedWorksheetValidationError } from "@/lib/worksheet-validator";
 
 export const runtime = "nodejs";
 
@@ -161,9 +162,17 @@ export async function POST(req: NextRequest) {
       where: { id: ws.id },
       data: { status: "failed" },
     });
+    const invalid = e instanceof GeneratedWorksheetValidationError;
     return NextResponse.json(
-      { error: "generation_failed", detail: (e as Error).message, worksheetId: ws.id },
-      { status: 500 }
+      invalid
+        ? {
+            error: e.code,
+            detail: "Модель не смогла собрать корректный лист из PDF. Попробуйте другой файл — квота не списана.",
+            issues: e.validation.issues.filter((issue) => issue.severity === "error"),
+            worksheetId: ws.id,
+          }
+        : { error: "generation_failed", detail: (e as Error).message, worksheetId: ws.id },
+      { status: invalid ? 502 : 500 }
     );
   }
 }

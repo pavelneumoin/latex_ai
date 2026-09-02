@@ -10,6 +10,7 @@ import {
   safeParseJson,
 } from "@/lib/worksheets";
 import { getLLMCapabilities } from "@/lib/llm";
+import { GeneratedWorksheetValidationError } from "@/lib/worksheet-validator";
 
 type ParentParams = {
   source?: "llm" | "bank";
@@ -107,6 +108,7 @@ export async function POST(
   const taskCount = tpl?.taskCount ?? 5;
 
   const created: unknown[] = [];
+  let successful = 0;
 
   for (const letter of letters) {
     const ws = await prisma.worksheet.create({
@@ -167,6 +169,7 @@ export async function POST(
         contentJson: safeParseJson(updated.contentJson),
         createdAt: updated.createdAt,
       });
+      successful += 1;
     } catch (e) {
       console.error("[variants] generation error", e);
       await prisma.worksheet.update({
@@ -177,12 +180,18 @@ export async function POST(
         id: ws.id,
         variant: ws.variant,
         status: "failed",
-        error: (e as Error).message,
+        error:
+          e instanceof GeneratedWorksheetValidationError
+            ? e.code
+            : (e as Error).message,
       });
     }
   }
 
-  await incrementVariantUsage(user.id, letters.length);
+  // Не списываем квоту за варианты, которые провайдер не смог сгенерировать.
+  if (successful > 0) {
+    await incrementVariantUsage(user.id, successful);
+  }
 
   return NextResponse.json({ variants: created });
 }

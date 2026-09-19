@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/session";
@@ -5,7 +6,7 @@ import { readUploadedFile } from "@/lib/storage";
 
 export const runtime = "nodejs";
 
-export async function GET(
+async function GETImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -46,3 +47,5 @@ export async function GET(
     },
   });
 }
+
+export const GET = developmentOnly(GETImplementation);

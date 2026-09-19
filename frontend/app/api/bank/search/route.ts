@@ -1,10 +1,11 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { searchBank } from "@/lib/bank";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+async function GETImplementation(req: NextRequest) {
   const sp = new URL(req.url).searchParams;
   const subject = sp.get("subject") as "math" | "informatics" | null;
   const exam = sp.get("exam") as "ege" | "ege_base" | "oge" | null;
@@ -30,3 +31,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const GET = developmentOnly(GETImplementation);

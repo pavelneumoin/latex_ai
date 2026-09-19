@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Запуск автопроверки загруженных работ.
 //
 // Если настроен vision-провайдер (LLM_PROVIDER=claude|openai|openrouter) и у продукта
@@ -29,7 +30,7 @@ interface LlmCheckOut {
   percent?: number;
 }
 
-export async function POST(
+async function POSTImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -168,3 +169,5 @@ export async function POST(
     failed,
   });
 }
+
+export const POST = developmentOnly(POSTImplementation);

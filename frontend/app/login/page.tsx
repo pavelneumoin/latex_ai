@@ -4,6 +4,7 @@ import { Suspense, useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { VKLoginButton } from "../_components/VKLoginButton";
 import { Header } from "../_components/Header";
 
 // Next.js требует, чтобы useSearchParams() был обёрнут в Suspense на странице,
@@ -101,6 +102,7 @@ function LoginForm() {
             Войдите, чтобы открыть свои рабочие листы.
           </p>
 
+          <VKLoginButton />
           <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
               <label className="label" htmlFor="email">Email</label>
@@ -156,7 +158,7 @@ function LoginForm() {
 
           <div style={{ marginTop: 18, fontSize: 14, color: "var(--fg-2)", textAlign: "center" }}>
             Нет аккаунта?{" "}
-            <Link href="/register" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: 600 }}>
+            <Link href={requestedCallback ? `/register?callbackUrl=${encodeURIComponent(requestedCallback)}` : "/register"} style={{ color: "var(--primary)", textDecoration: "none", fontWeight: 600 }}>
               Зарегистрироваться
             </Link>
           </div>

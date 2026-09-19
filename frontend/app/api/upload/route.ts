@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -17,7 +18,7 @@ const ALLOWED_MIME = new Set([
 
 const purposeSchema = z.enum(["material", "photo", "logo", "check_photo"]);
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   let user;
   try {
     user = await requireUser();
@@ -133,3 +134,5 @@ export async function POST(req: NextRequest) {
     },
   });
 }
+
+export const POST = developmentOnly(POSTImplementation);

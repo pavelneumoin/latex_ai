@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Текстовый чекер. Учитель/ученик вводит ответы вручную в форме на /check-text,
 // сервер сравнивает с эталонами листа и возвращает оценку.
 //
@@ -28,7 +29,7 @@ const schema = z.object({
   answers: z.record(z.string().min(0).max(200)),
 });
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   // Не более 60 проверок в минуту с одного IP (для класса 30 учеников × 2 листа).
   const r = checkRate("check-text", ipFromReq(req), { limit: 60, windowMs: 60_000 });
   if (!r.ok) return rateLimited(r);
@@ -105,3 +106,5 @@ export async function POST(req: NextRequest) {
     mark,
   });
 }
+
+export const POST = developmentOnly(POSTImplementation);

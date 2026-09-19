@@ -1,17 +1,17 @@
 import type { MetadataRoute } from "next";
 
-// PWA-манифест: позволяет «установить» РабочийЛист.ai на телефон/десктоп
+// PWA-манифест: позволяет «установить» Неумошка на телефон/десктоп
 // как приложение (иконка на рабочем столе, запуск в отдельном окне).
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "РабочийЛист.ai",
-    short_name: "РабочийЛист",
+    name: "Неумошка",
+    short_name: "Неумошка",
     description:
-      "Генератор рабочих листов для учителей: тема или фото → готовый PDF за минуту.",
+      "Готовые материалы по математике и информатике. Подготовься к уроку немножко.",
     start_url: "/",
     display: "standalone",
     background_color: "#FFFFFF",
-    theme_color: "#1E40AF",
+    theme_color: "#286753",
     lang: "ru",
     icons: [
       {

@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Vision-чекер заполненной работы.
 //
 // POST /api/check
@@ -26,7 +27,7 @@ const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   const session = await getServerSession(authOptions);
   const uid = (session?.user as { id?: string } | undefined)?.id;
   if (!uid) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -173,3 +174,5 @@ export async function POST(req: NextRequest) {
     rawText: llmResult.json ? undefined : llmResult.text,
   });
 }
+
+export const POST = developmentOnly(POSTImplementation);

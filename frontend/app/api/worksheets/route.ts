@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -40,7 +41,7 @@ const createSchema = z.object({
   params: z.record(z.unknown()).optional(),
 });
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   let user;
   try {
     user = await requireUser();
@@ -221,7 +222,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+async function GETImplementation(req: NextRequest) {
   let user;
   try {
     user = await requireUser();
@@ -259,3 +260,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ worksheets: rows });
 }
+
+export const POST = developmentOnly(POSTImplementation);
+export const GET = developmentOnly(GETImplementation);

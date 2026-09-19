@@ -17,15 +17,8 @@ import { PreviewGallery } from "./PreviewGallery";
 
 export const dynamic = "force-dynamic";
 
-function galleryLabels(paths: string[]): string[] {
-  let p = 0;
-  let w = 0;
-  return paths.map((pth) => {
-    const f = pth.split("/").pop() ?? "";
-    if (f.startsWith("gal-p")) return `Слайд ${++p}`;
-    if (f.startsWith("gal-w")) return `Рабочий лист · ${++w}`;
-    return "Страница";
-  });
+function galleryLabels(paths: string[], assets: {sortKey:number;label:string}[]): string[] {
+ return paths.map(p => { const filename=p.split("/").pop()??""; const match=filename.match(/^gal-[a-z]-(\d+)-(\d+)\.png$/); if(match){const asset=assets.find(a=>a.sortKey===Number(match[1]));return `${asset?.label??"Материал"} · ${Number(match[2])}`;}return "Материал · 1"; });
 }
 
 function plural(n: number, one: string, few: string, many: string): string {
@@ -95,14 +88,14 @@ export default async function ProductPage({
     : [];
 
   return (
-    <div className="hi" style={{ minHeight: "100vh", background: "var(--surface)" }}>
+    <div className="hi product-page" style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <Header />
       <main className="rl-container" style={{ paddingTop: 24, paddingBottom: 80 }}>
         <Link href="/catalog" style={{ fontSize: 13, color: "var(--primary)", textDecoration: "none" }}>
           ← Каталог
         </Link>
 
-        <div className="rl-split" style={{ marginTop: 14, gap: 28 }}>
+        <div className="product-layout">
           {/* Левая колонка: описание и состав */}
           <div style={{ minWidth: 0 }}>
             <div className="rl-row" style={{ gap: 8, marginBottom: 10 }}>
@@ -143,7 +136,7 @@ export default async function ProductPage({
                 productId={product.id}
                 pageCount={galleryPages.length}
                 title={product.title}
-                labels={galleryLabels(galleryPages)}
+                labels={galleryLabels(galleryPages, product.assets)}
               />
             ) : (
               <div
@@ -177,6 +170,7 @@ export default async function ProductPage({
               </div>
             )}
 
+            {product.slug === "ege-math-08-circle" && <div className="print-note"><b>Для печати ученикам</b><p>Рабочий лист: стр. 1–11 · ДЗ: стр. 1–4 · Зачётные работы: стр. 1–3. Ответы находятся в конце файлов. Масштаб печати — 100%, формат A4.</p></div>}
             {/* Об уроке — подробное описание под превью */}
             <div style={{ marginBottom: 24 }}>
               <h3 style={{ marginBottom: 10 }}>Об уроке</h3>
@@ -212,14 +206,14 @@ export default async function ProductPage({
                     <li>
                       <b>Рабочий лист</b>
                       {wsAsset.pages ? ` — ${wsAsset.pages} ${plural(wsAsset.pages, "страница", "страницы", "страниц")}` : ""}: задачи
-                      с клеткой до низа страницы и местом для решения в классе.
+                      для работы в классе.
                     </li>
                   )}
                   {hwAsset && (
                     <li>
                       <b>Домашнее задание</b>
                       {hwAsset.pages ? ` — ${hwAsset.pages} ${plural(hwAsset.pages, "страница", "страницы", "страниц")}` : ""}: задачи
-                      с ответами для закрепления дома.
+                      для закрепления дома.
                     </li>
                   )}
                   <li>Профессиональная вёрстка, {product.audience ?? "ЕГЭ"} — печатайте и ведите урок.</li>
@@ -236,7 +230,7 @@ export default async function ProductPage({
                 </p>
               )}
               {[...basicAssets, ...sourceAssets].map((a) => {
-                const unlocked = tierRank(access.maxTier ?? "") >= tierRank(a.tier);
+                const unlocked = !!userId && access.maxTier != null && tierRank(access.maxTier) >= tierRank(a.tier);
                 return (
                   <div
                     key={a.id}
@@ -268,10 +262,9 @@ export default async function ProductPage({
                         Скачать
                       </a>
                     ) : (
-                      <span className="muted" style={{ fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                        <IconLock size={12} />
-                        по подписке
-                      </span>
+                      <Link className="btn btn-sm btn-outline" href={!userId ? `/login?callbackUrl=${encodeURIComponent(`/catalog/${product.slug}`)}` : "/pricing"}>
+                        <IconLock size={12} /> {!userId ? "Войти и скачать" : "По подписке"}
+                      </Link>
                     )}
                   </div>
                 );
@@ -281,7 +274,7 @@ export default async function ProductPage({
             {/* Что такое исходники */}
             {sourceAssets.length > 0 && (
               <div className="card-flat" style={{ padding: 16, fontSize: 13.5, color: "var(--fg-2)" }}>
-                <b>Что такое исходники Marp/LaTeX?</b> Помимо бесплатных PDF по подписке
+                <b>Что такое исходники Marp/LaTeX?</b> По подписке вместе с PDF
                 открываются редактируемые исходники профессиональной вёрстки: презентация
                 в формате <b>Marp</b> (Markdown — правится в любом редакторе), листы в{" "}
                 <b>LaTeX</b>. Меняйте числа, фамилии, порядок задач — комплект становится вашим.
@@ -331,7 +324,7 @@ export default async function ProductPage({
           </div>
 
           {/* Правая колонка: покупка */}
-          <aside>
+          <aside className="product-downloads">
             <div className="card" style={{ padding: 20, position: "sticky", top: 84 }}>
               {/* PDF-материалы — бесплатно */}
               <div
@@ -350,7 +343,7 @@ export default async function ProductPage({
                     </span>
                   ) : (
                     <span className="rl2-price" style={{ fontSize: 22 }}>
-                      {formatKopecks(product.priceBasic)}
+                      499 ₽/мес
                     </span>
                   )}
                 </div>
@@ -367,13 +360,13 @@ export default async function ProductPage({
                           : "Куплено ✓"}
                     </div>
                   ) : (
-                    <Link href="/register" className="btn btn-primary btn-lg" style={{ width: "100%" }}>
+                    <Link href={`/login?callbackUrl=${encodeURIComponent(`/catalog/${product.slug}`)}`} className="btn btn-primary btn-lg" style={{ width: "100%" }}>
                       Войти и скачать бесплатно
                     </Link>
                   )
                 ) : (
                   <Link href="/pricing" className="btn btn-primary btn-lg" style={{ width: "100%" }}>
-                    Доступно по подписке от 290 ₽/мес →
+                    Все материалы за 499 ₽/мес →
                   </Link>
                 )}
               </div>
@@ -398,7 +391,7 @@ export default async function ProductPage({
                     </div>
                   ) : (
                     <Link href="/pricing" className="btn btn-blue" style={{ width: "100%" }}>
-                      Подписка «{subjectName(product.subject)}» от 290 ₽/мес →
+                      Все материалы за 499 ₽/мес →
                     </Link>
                   )}
                 </div>

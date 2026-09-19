@@ -143,7 +143,7 @@ export function buildCheckReportTex(input: CheckReportInput): string {
 `
       : "";
 
-  return `% Отчёт сгенерирован РабочийЛист.ai — ${new Date().toISOString()}
+  return `% Отчёт сгенерирован Неумошка — ${new Date().toISOString()}
 % Компиляция: xelatex report.tex
 \\documentclass[11pt,a4paper]{article}
 \\usepackage[margin=18mm,top=16mm,bottom=18mm]{geometry}
@@ -181,7 +181,7 @@ export function buildCheckReportTex(input: CheckReportInput): string {
 
 % ── Шапка ──────────────────────────────────────────────
 {\\headfont
-{\\color{primary}\\Large\\textbf{РабочийЛист.ai}} \\hfill {\\small ${fmtDate(input.date)}}
+{\\color{primary}\\Large\\textbf{Неумошка}} \\hfill {\\small ${fmtDate(input.date)}}
 
 \\vspace{2mm}
 {\\huge\\textbf{Отчёт о проверке}}
@@ -243,7 +243,7 @@ ${tasksBlock}
 \\vfill
 \\textcolor{primary}{\\rule{\\linewidth}{0.6pt}}
 
-{\\footnotesize\\headfont Отчёт сформирован автоматически в кабинете учителя на \\textbf{РабочийЛист.ai}. ${
+{\\footnotesize\\headfont Отчёт сформирован автоматически в кабинете учителя на \\textbf{Неумошка}. ${
     input.teacherName ? `Учитель: ${escapeLatex(input.teacherName)}.` : ""
   }}
 

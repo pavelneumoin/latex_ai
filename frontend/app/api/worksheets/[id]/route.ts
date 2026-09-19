@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "node:fs";
 import path from "node:path";
@@ -13,7 +14,7 @@ import {
 
 export const runtime = "nodejs";
 
-export async function GET(
+async function GETImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -78,7 +79,7 @@ export async function GET(
   );
 }
 
-export async function DELETE(
+async function DELETEImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -109,3 +110,6 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true, deletedId: params.id });
 }
+
+export const GET = developmentOnly(GETImplementation);
+export const DELETE = developmentOnly(DELETEImplementation);

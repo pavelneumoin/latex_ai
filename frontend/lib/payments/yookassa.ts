@@ -53,6 +53,7 @@ export class YooKassaPayments implements PaymentsProvider {
     const payload = {
       amount: { value: (input.amount / 100).toFixed(2), currency: input.currency ?? "RUB" },
       capture: true,
+      save_payment_method: false, // One-off payment only; never request card binding.
       confirmation: { type: "redirect", return_url: input.returnUrl },
       description: input.description,
       metadata: { ...(input.metadata ?? {}), userId: input.userId, purpose: input.purpose },

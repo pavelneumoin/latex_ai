@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -7,7 +8,7 @@ export const runtime = "nodejs";
 
 const PAGE_LIMIT = 50;
 
-export async function GET(req: NextRequest) {
+async function GETImplementation(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const subject = searchParams.get("subject");
@@ -88,3 +89,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const GET = developmentOnly(GETImplementation);

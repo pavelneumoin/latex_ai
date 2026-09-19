@@ -111,7 +111,7 @@ export default async function SharePage({
             >
               РЛ
             </span>
-            РабочийЛист.ai
+            Неумошка
           </Link>
           {ws.isPublic && (
             <span

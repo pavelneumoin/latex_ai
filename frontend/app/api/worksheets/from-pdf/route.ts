@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // POST /api/worksheets/from-pdf
 //   FormData: file (application/pdf, max 10MB), templateId, topic?, subject?, grade?
 //
@@ -22,7 +23,7 @@ export const runtime = "nodejs";
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_MIME = ["application/pdf"];
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   let user;
   try {
     user = await requireUser();
@@ -176,3 +177,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = developmentOnly(POSTImplementation);

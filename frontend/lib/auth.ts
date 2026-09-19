@@ -1,6 +1,6 @@
 // NextAuth конфиг.
 // MVP: email + password (Credentials). Magic-link на nodemailer добавим, когда подключим SMTP.
-// VK ID — потом, как договорено.
+// VK ID is enabled when the application ID is configured.
 
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -8,6 +8,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "./db";
+import { createVKIDProvider } from "./auth-vkid";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -22,6 +23,7 @@ export const authOptions: NextAuthOptions = {
     newUser: "/cabinet",
   },
   providers: [
+    ...(process.env.VK_ID_CLIENT_ID ? [createVKIDProvider()] : []),
     CredentialsProvider({
       name: "Email",
       credentials: {
@@ -52,6 +54,13 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "vkid") {
+        const linked = await prisma.account.findUnique({ where: { provider_providerAccountId: { provider: "vkid", providerAccountId: account.providerAccountId } }, include: { user: true } });
+        if (linked?.user.status === "banned") return false;
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.uid = user.id;
@@ -62,6 +71,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.uid) {
         (session.user as { id?: string }).id = token.uid as string;
       }
+      if (session.user?.email?.endsWith("@vk-id.invalid")) session.user.email = null;
       return session;
     },
   },

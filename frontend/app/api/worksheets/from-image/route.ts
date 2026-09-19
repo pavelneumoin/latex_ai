@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // POST /api/worksheets/from-image
 //   FormData: file (1..4 изображений, поле "file" повторяется), templateId?, topic?, subject?, grade?
 //
@@ -24,7 +25,7 @@ const MAX_SIZE = 8 * 1024 * 1024; // 8 MB на изображение
 const MAX_IMAGES = 4;
 const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   let user;
   try {
     user = await requireUser();
@@ -196,3 +197,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = developmentOnly(POSTImplementation);

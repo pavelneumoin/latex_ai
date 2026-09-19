@@ -137,7 +137,7 @@ export default async function LibraryPage() {
             Пока пусто
           </div>
           <div style={{ marginTop: 6 }}>
-            Все готовые PDF в каталоге бесплатны — скачивайте и печатайте.
+            Подписка открывает скачивание всех материалов. Превью можно посмотреть бесплатно.
           </div>
           <div style={{ marginTop: 14 }}>
             <Link href="/catalog" className="btn btn-primary">

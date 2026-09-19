@@ -1,30 +1,6 @@
-import type { Metadata } from "next";
 import { Header } from "../_components/Header";
-import { MaterialsNavigator } from "./MaterialsNavigator";
-
-export const metadata: Metadata = {
-  title: "Темы ЕГЭ по профильной математике — РабочийЛист.ai",
-  description:
-    "Навигатор по 19 заданиям и 95 подтемам профильной математики ЕГЭ с поиском и отметками прогресса.",
-};
-
-export default function MaterialsPage() {
-  return (
-    <div
-      className="hi"
-      style={{
-        minHeight: "100vh",
-        background: "var(--surface)",
-        color: "var(--fg)",
-      }}
-    >
-      <Header />
-      <main
-        className="rl-container rl-container-wide"
-        style={{ paddingTop: 24, paddingBottom: 72 }}
-      >
-        <MaterialsNavigator />
-      </main>
-    </div>
-  );
-}
+import { prisma } from "@/lib/db";
+import { ExamNavigator } from "./ExamNavigator";
+export const dynamic = "force-dynamic";
+export const metadata = { title: "Навигатор ЕГЭ — Неумошка" };
+export default async function MaterialsPage(){const products=await prisma.product.findMany({where:{isPublished:true},select:{id:true,slug:true,title:true,subject:true,course:true,courseSlug:true,audience:true,previewPath:true,assets:{select:{kind:true}}}});return <div className="hi library-site"><Header/><ExamNavigator products={products}/></div>}

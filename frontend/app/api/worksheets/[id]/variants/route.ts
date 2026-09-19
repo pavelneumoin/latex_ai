@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -31,7 +32,7 @@ const schema = z.object({
   n: z.number().int().min(1).max(3).optional(),
 });
 
-export async function POST(
+async function POSTImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -195,3 +196,5 @@ export async function POST(
 
   return NextResponse.json({ variants: created });
 }
+
+export const POST = developmentOnly(POSTImplementation);

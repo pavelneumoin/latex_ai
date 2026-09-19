@@ -169,7 +169,7 @@ export function WorksheetPreview({
           alignItems: "center",
         }}
       >
-        <span>Сгенерировано на РабочийЛист.ai</span>
+        <span>Сгенерировано на Неумошка</span>
         <span>{tasks.length} задач</span>
       </div>
 

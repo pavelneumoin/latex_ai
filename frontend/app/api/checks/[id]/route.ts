@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -11,7 +12,7 @@ async function ownJob(userId: string, id: string) {
   return job;
 }
 
-export async function GET(
+async function GETImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -92,7 +93,7 @@ const patchSchema = z.object({
   notes: z.string().max(2000).nullish(),
 });
 
-export async function PATCH(
+async function PATCHImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -126,7 +127,7 @@ export async function PATCH(
   return NextResponse.json({ ok: true, status: updated.status });
 }
 
-export async function DELETE(
+async function DELETEImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -142,3 +143,7 @@ export async function DELETE(
   await prisma.checkJob.delete({ where: { id: job.id } });
   return NextResponse.json({ ok: true });
 }
+
+export const GET = developmentOnly(GETImplementation);
+export const PATCH = developmentOnly(PATCHImplementation);
+export const DELETE = developmentOnly(DELETEImplementation);

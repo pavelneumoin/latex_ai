@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Загрузка работ учеников (PDF/фото, можно несколько файлов за раз) в проверку.
 
 import { NextRequest, NextResponse } from "next/server";
@@ -17,7 +18,7 @@ const ALLOWED_MIME = new Set([
   "application/pdf",
 ]);
 
-export async function POST(
+async function POSTImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -94,3 +95,5 @@ export async function POST(
 
   return NextResponse.json({ ok: true, uploads: saved });
 }
+
+export const POST = developmentOnly(POSTImplementation);

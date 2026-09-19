@@ -68,7 +68,7 @@ export class OpenAIProvider implements LLMProvider {
     };
     if (this.name === "openrouter") {
       headers["HTTP-Referer"] = process.env.NEXTAUTH_URL || "https://rabochiilist.ru";
-      headers["X-Title"] = "РабочийЛист.ai";
+      headers["X-Title"] = "Неумошка";
     }
 
     const res = await fetch(this.apiUrl, {

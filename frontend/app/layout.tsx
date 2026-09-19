@@ -1,49 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./library.css";
 import "katex/dist/katex.min.css";
 import { AppProviders } from "./_components/AppProviders";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://rabochiilist.ru";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3010";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "РабочийЛист.ai — готовые уроки и автопроверка работ",
-    template: "%s",
-  },
-  description:
-    "Готовые комплекты уроков математики и информатики: презентация, рабочий лист и домашнее задание — бесплатно. Редактируемые Marp/LaTeX-исходники по подписке от 290 ₽. Кабинет учителя с автопроверкой работ, классами и PDF-отчётами.",
-  keywords: [
-    "рабочий лист",
-    "генератор рабочих листов",
-    "материалы для учителя",
-    "математика",
-    "информатика",
-    "ОГЭ",
-    "ЕГЭ",
-    "автопроверка",
-    "PDF для печати",
-  ],
-  authors: [{ name: "РабочийЛист.ai" }],
-  openGraph: {
-    type: "website",
-    locale: "ru_RU",
-    url: SITE_URL,
-    siteName: "РабочийЛист.ai",
-    title: "РабочийЛист.ai — готовые уроки и автопроверка работ",
-    description:
-      "Комплекты уроков математики и информатики профессиональной вёрстки + кабинет с автопроверкой работ и красивыми отчётами. Готовые PDF бесплатно, исходники — по подписке.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "РабочийЛист.ai — готовые уроки и автопроверка работ",
-    description:
-      "Комплекты уроков математики и информатики + кабинет с автопроверкой работ и PDF-отчётами.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+ metadataBase: new URL(SITE_URL),
+ title: { default: "Неумошка — подготовься к уроку немножко", template: "%s" },
+ description: "Готовые комплекты уроков математики и информатики: презентации, рабочие листы, домашние и проверочные работы. Выбирайте материалы по заданиям ЕГЭ.",
+ openGraph: { type:"website",locale:"ru_RU",title:"Неумошка",description:"Подготовься к уроку немножко. Материалы для учителей математики и информатики." },
+ robots: {index:process.env.NODE_ENV === "production",follow:process.env.NODE_ENV === "production"},
 };
 
 export default function RootLayout({

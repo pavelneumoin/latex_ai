@@ -5,7 +5,7 @@ import { WorksheetPreview } from "../my/[id]/WorksheetPreview";
 import { getStylePalette, STYLE_PALETTE } from "@/lib/style-palette";
 
 export const metadata: Metadata = {
-  title: "Пример рабочего листа — РабочийЛист.ai",
+  title: "Пример рабочего листа — Неумошка",
   description:
     "Живой пример рабочего листа: разные типы заданий (выбор, верно/неверно, пропуск, соответствие) и оформление под выбранный шаблон.",
 };

@@ -48,7 +48,7 @@ export function kitSummary(assets: { kind: string; tier: string }[]): string[] {
     const n = counts.get(k);
     if (!n) continue;
     const [one, many] = short[k] ?? [k, k];
-    out.push(n === 1 ? one : `${n} ${many.toLowerCase()}`);
+    out.push(n === 1 ? one : k === "homework_pdf" ? `ДЗ · ${n} версии` : `${n} ${many.toLowerCase()}`);
   }
   const hasSource = assets.some((a) => a.tier === "source");
   if (hasSource) out.push("исходники");

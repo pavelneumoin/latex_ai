@@ -7,6 +7,8 @@ import {
   type WebhookEvent,
 } from "@/lib/payments";
 
+import { subscriptionPeriodEnd } from "@/lib/payments/subscription-period";
+
 export const runtime = "nodejs";
 
 function parseMetadata<T>(payment: Payment): T | null {
@@ -24,16 +26,14 @@ async function grantPaymentEntitlement(
 ) {
   if (payment.purpose === "subscription") {
     const metadata = parseMetadata<{ planId?: string; period?: string }>(payment);
-    const planId = metadata?.planId || "pro";
+    if (metadata?.planId !== "all" || metadata?.period !== "month") throw new Error("unsupported_subscription");
+    const planId = metadata.planId;
     const plan = await tx.plan.findUnique({ where: { id: planId } });
-    const subject = plan?.subject ?? "all";
-
-    const periodEnd = new Date();
-    if (metadata?.period === "year") {
-      periodEnd.setFullYear(periodEnd.getFullYear() + 1);
-    } else {
-      periodEnd.setMonth(periodEnd.getMonth() + 1);
-    }
+    if (!plan) throw new Error("payment_plan_missing");
+    const subject = plan.subject;
+    const previous = await tx.subscription.findUnique({where:{userId_subject:{userId:payment.userId,subject}}});
+    const existingEnd = previous?.status === "active" && previous.planId !== "free" ? previous.currentPeriodEnd : null;
+    const periodEnd = subscriptionPeriodEnd(new Date(), existingEnd);
 
     await tx.subscription.upsert({
       where: {
@@ -44,7 +44,7 @@ async function grantPaymentEntitlement(
         status: "active",
         currentPeriodStart: new Date(),
         currentPeriodEnd: periodEnd,
-        cancelAtPeriodEnd: false,
+        cancelAtPeriodEnd: true,
         usedWorksheets: 0,
         usedVariants: 0,
         usedChecks: 0,
@@ -55,6 +55,7 @@ async function grantPaymentEntitlement(
         subject,
         status: "active",
         currentPeriodEnd: periodEnd,
+        cancelAtPeriodEnd: true,
       },
     });
     return;

@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextResponse } from "next/server";
 import path from "node:path";
 import { promises as fs } from "node:fs";
@@ -5,7 +6,7 @@ import { promises as fs } from "node:fs";
 const VALID = new Set(["T1", "T2", "T3", "T4", "T5"]);
 const CLI_OUTPUT = path.join(process.cwd(), "..", "cli", "output");
 
-export async function GET(
+async function GETImplementation(
   _req: Request,
   { params }: { params: Promise<{ template: string }> }
 ) {
@@ -33,3 +34,5 @@ export async function GET(
     );
   }
 }
+
+export const GET = developmentOnly(GETImplementation);

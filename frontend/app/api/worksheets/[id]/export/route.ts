@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Единый эндпоинт экспорта рабочего листа.
 // Использование:
 //   GET /api/worksheets/<id>/export?format=pdf
@@ -19,7 +20,7 @@ import {
 
 const VALID: ExportFormat[] = ["pdf", "docx", "latex"];
 
-export async function GET(
+async function GETImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -133,3 +134,5 @@ export async function GET(
     return NextResponse.json({ error: "export_failed", detail: msg }, { status: code });
   }
 }
+
+export const GET = developmentOnly(GETImplementation);

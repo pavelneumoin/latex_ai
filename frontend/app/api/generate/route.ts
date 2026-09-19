@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
 import { promises as fs } from "node:fs";
@@ -12,7 +13,7 @@ type ValidTemplate = (typeof VALID_TEMPLATES)[number];
 // frontend/ -> ../cli/output/{T}/ ...
 const CLI_OUTPUT = path.join(process.cwd(), "..", "cli", "output");
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   let body: unknown;
   try {
     body = await req.json();
@@ -45,3 +46,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = developmentOnly(POSTImplementation);

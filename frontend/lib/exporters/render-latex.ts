@@ -166,7 +166,7 @@ export async function renderLatex(
     ? `\\WorksheetSubtitle{${escapeLatex(brand.teacherName)}${brand.school ? ` · ${escapeLatex(brand.school)}` : ""}}`
     : "";
 
-  const texSource = `% Сгенерировано автоматически РабочийЛист.ai
+  const texSource = `% Сгенерировано автоматически Неумошка
 % Шаблон: ${content.templateId}  стиль: ${styleSlug}
 \\documentclass[a4paper,11pt]{article}
 
@@ -265,7 +265,7 @@ export async function renderLatexStandalone(
   }
 
   // Самодостаточный standalone: всё из CTAN, никаких ссылок на Lessons/_templates.
-  const texSource = `% РабочийЛист.ai — самодостаточный LaTeX для Overleaf / локальной правки.
+  const texSource = `% Неумошка — самодостаточный LaTeX для Overleaf / локальной правки.
 % Чтобы скомпилировать: xelatex (рекомендуется) или pdflatex.
 
 \\documentclass[a4paper,11pt]{article}
@@ -318,7 +318,7 @@ ${teacherLine}
 ${tasksTex}
 
 \\vfill
-\\begin{center}\\tiny\\color{gray}Сгенерировано на \\textbf{РабочийЛист.ai}\\end{center}
+\\begin{center}\\tiny\\color{gray}Сгенерировано на \\textbf{Неумошка}\\end{center}
 
 \\end{document}
 `;

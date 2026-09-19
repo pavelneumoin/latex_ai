@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Перебрасывает учителя в Overleaf для редактирования LaTeX.
 //
 // Способ: возвращаем HTML-страничку с авто-сабмитом формы POST на https://www.overleaf.com/docs
@@ -12,7 +13,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { renderLatexStandalone } from "@/lib/exporters/render-latex";
 
-export async function GET(
+async function GETImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -120,3 +121,5 @@ export async function GET(
     },
   });
 }
+
+export const GET = developmentOnly(GETImplementation);

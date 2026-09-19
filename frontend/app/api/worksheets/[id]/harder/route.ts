@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -25,7 +26,7 @@ function bumpDifficulty(d: string, step: number): string {
   return DIFF_ORDER[next];
 }
 
-export async function POST(
+async function POSTImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -161,3 +162,5 @@ export async function POST(
     );
   }
 }
+
+export const POST = developmentOnly(POSTImplementation);

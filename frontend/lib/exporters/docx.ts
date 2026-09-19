@@ -146,7 +146,7 @@ function buildDocumentXml(c: WorksheetContent): string {
     })
     .join("");
 
-  const footer = `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:i/><w:sz w:val="16"/></w:rPr><w:t xml:space="preserve">Сгенерировано на РабочийЛист.ai</w:t></w:r></w:p>`;
+  const footer = `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:i/><w:sz w:val="16"/></w:rPr><w:t xml:space="preserve">Сгенерировано на Неумошка</w:t></w:r></w:p>`;
 
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">

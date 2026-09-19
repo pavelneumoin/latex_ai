@@ -16,18 +16,12 @@ import {
 } from "@/app/_components/Icons";
 
 const ITEMS = [
-  { href: "/cabinet", label: "Обзор", icon: IconHome, exact: true },
-  { href: "/my", label: "Мои листы", icon: IconFile },
-  { href: "/cabinet/library", label: "Библиотека", icon: IconLibrary },
-  { href: "/cabinet/classes", label: "Классы", icon: IconUsers },
-  { href: "/cabinet/checks", label: "Проверка", icon: IconCheckSquare },
-  { href: "/cabinet/reports", label: "Отчёты", icon: IconChart },
-  { href: "/cabinet/billing", label: "Подписка", icon: IconCard },
-  { href: "/cabinet/settings", label: "Настройки", icon: IconSettings },
+ { href: "/cabinet", label: "Обзор", icon: IconHome, exact: true },
+ { href: "/cabinet/library", label: "Мои материалы", icon: IconLibrary },
+ { href: "/cabinet/billing", label: "Подписка", icon: IconCard },
+ { href: "/cabinet/settings", label: "Настройки", icon: IconSettings },
 ];
-
-// В нижних табах помещается 5 — самые ходовые.
-const MOBILE_ITEMS = [ITEMS[0], ITEMS[1], ITEMS[4], ITEMS[3], ITEMS[2]];
+const MOBILE_ITEMS = ITEMS;
 
 function useActive() {
   const pathname = usePathname() || "";

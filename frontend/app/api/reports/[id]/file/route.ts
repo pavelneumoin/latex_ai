@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Скачивание файла отчёта: ?kind=pdf | tex
 
 import { NextRequest, NextResponse } from "next/server";
@@ -7,7 +8,7 @@ import { readUploadedFile } from "@/lib/storage";
 
 export const runtime = "nodejs";
 
-export async function GET(
+async function GETImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -46,3 +47,5 @@ export async function GET(
     },
   });
 }
+
+export const GET = developmentOnly(GETImplementation);

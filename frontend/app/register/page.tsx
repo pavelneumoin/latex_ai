@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { VKLoginButton } from "../_components/VKLoginButton";
 import { Header } from "../_components/Header";
 
 export default function RegisterPage() {
@@ -54,7 +55,10 @@ export default function RegisterPage() {
         setErr("Регистрация прошла, но автовход не сработал. Войдите вручную.");
         return;
       }
-      router.push("/cabinet");
+      const requested = new URLSearchParams(window.location.search).get("callbackUrl");
+      let destination = "/cabinet";
+      try { const url = new URL(requested || destination, window.location.origin); if (url.origin === window.location.origin) destination = url.pathname + url.search; } catch {}
+      router.push(destination);
       router.refresh();
     } catch {
       setErr("Что-то пошло не так. Попробуйте ещё раз.");
@@ -70,9 +74,10 @@ export default function RegisterPage() {
         <div className="card" style={{ width: "100%", maxWidth: 420, padding: 32 }}>
           <h1 style={{ marginBottom: 6 }}>Регистрация</h1>
           <p className="muted" style={{ marginBottom: 24, fontSize: 14 }}>
-            Создайте аккаунт — получите бесплатный план Free.
+            Сохраняйте избранное и пользуйтесь подпиской на любом устройстве.
           </p>
 
+          <VKLoginButton />
           <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
               <label className="label" htmlFor="email">Email *</label>

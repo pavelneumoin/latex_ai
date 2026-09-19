@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -10,7 +11,7 @@ const schema = z.object({
   isBestlist: z.boolean(),
 });
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   let user;
   try {
     user = await requireUser();
@@ -56,3 +57,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ publication: updated });
 }
+
+export const POST = developmentOnly(POSTImplementation);

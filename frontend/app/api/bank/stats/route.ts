@@ -1,10 +1,11 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextResponse } from "next/server";
 import { bankStats } from "@/lib/bank";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+async function GETImplementation() {
   try {
     const s = await bankStats();
     return NextResponse.json(s);
@@ -15,3 +16,5 @@ export async function GET() {
     );
   }
 }
+
+export const GET = developmentOnly(GETImplementation);

@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -6,7 +7,7 @@ import { checkChecksLimit, getProductAccess } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+async function GETImplementation() {
   let user;
   try {
     user = await requireUser();
@@ -47,7 +48,7 @@ const createSchema = z.object({
   maxScore: z.number().int().min(1).max(300).nullish(),
 });
 
-export async function POST(req: NextRequest) {
+async function POSTImplementation(req: NextRequest) {
   let user;
   try {
     user = await requireUser();
@@ -157,3 +158,6 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ id: job.id }, { status: 201 });
 }
+
+export const GET = developmentOnly(GETImplementation);
+export const POST = developmentOnly(POSTImplementation);

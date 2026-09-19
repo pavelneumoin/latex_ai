@@ -41,7 +41,7 @@ export default async function CabinetBillingPage() {
       <div>
         <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)" }}>Подписка и платежи</h1>
         <p className="muted-2" style={{ marginTop: 4, fontSize: 14.5 }}>
-          Подписки раздельные: математика и информатика. Покупки — навсегда.
+          Одна подписка открывает все материалы по математике и информатике.
         </p>
       </div>
 
@@ -55,7 +55,7 @@ export default async function CabinetBillingPage() {
         </div>
         {paidSubs.length === 0 ? (
           <div className="rl2-empty rl2-gridpaper">
-            Активных подписок нет. Бесплатный доступ: открытые материалы и 10 проверок в месяц.
+            Активной подписки пока нет. Можно бесплатно посмотреть превью любого комплекта.
             <div style={{ marginTop: 12 }}>
               <Link href="/pricing" className="btn btn-primary">
                 Выбрать подписку
@@ -78,16 +78,14 @@ export default async function CabinetBillingPage() {
                   <div style={{ fontWeight: 700, fontFamily: "var(--display)" }}>
                     {s.plan.name}{" "}
                     <span className="rl2-tier" data-tier={s.plan.tier} style={{ marginLeft: 6 }}>
-                      {tierLabel(s.plan.tier)}
+                      Все материалы
                     </span>
                   </div>
                   <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>
                     {s.plan.subject === "all"
                       ? "Оба предмета"
                       : subjectLabel(s.plan.subject)}{" "}
-                    · до {s.currentPeriodEnd.toLocaleDateString("ru-RU")} · проверок
-                    использовано: {s.usedChecks}
-                    {s.plan.checksLimit > 0 ? ` из ${s.plan.checksLimit}` : " (безлимит)"}
+                    · до {s.currentPeriodEnd.toLocaleDateString("ru-RU")} · доступ сохранён в аккаунте
                   </div>
                 </div>
                 <span className="badge badge-success">активна</span>
@@ -97,8 +95,8 @@ export default async function CabinetBillingPage() {
         )}
       </div>
 
-      {/* Покупки */}
-      <div className="card" style={{ padding: 18 }}>
+      {/* Покупки прошлых версий, если есть */}
+      {purchases.length > 0 && <div className="card" style={{ padding: 18 }}>
         <h3 style={{ marginBottom: 12 }}>Покупки</h3>
         {purchases.length === 0 ? (
           <p className="muted" style={{ fontSize: 13.5 }}>
@@ -127,7 +125,7 @@ export default async function CabinetBillingPage() {
             ))}
           </div>
         )}
-      </div>
+      </div>}
 
       {/* История платежей */}
       <div className="card" style={{ padding: 18 }}>
@@ -181,8 +179,7 @@ export default async function CabinetBillingPage() {
       </div>
 
       <p className="muted" style={{ fontSize: 12.5 }}>
-        Оплата сейчас работает в тестовом режиме (локальная касса). Перед запуском
-        подключаем ЮKassa: карты РФ, СБП, чеки по 54-ФЗ. Хостинг — Yandex Cloud.
+        Подписка действует один месяц. Продление — отдельным платежом; автоматического списания нет.
       </p>
     </div>
   );

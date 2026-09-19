@@ -22,59 +22,8 @@ interface RegistryTemplate {
 async function seedPlans() {
   // v2: подписки по предметам. Мягкая ценовая политика на старте.
   const plans = [
-    {
-      id: "free",
-      name: "Бесплатный",
-      description: "Все PDF бесплатно, кабинет, классы и 10 автопроверок в месяц.",
-      subject: "all",
-      tier: "basic",
-      priceMonthly: 0,
-      priceYearly: 0,
-      worksheetsLimit: 5,
-      variantsLimit: 2,
-      checksLimit: 10,
-      marketplaceCommissionPct: 30,
-    },
-    {
-      id: "math",
-      name: "Математика",
-      description: "Редактируемые Marp/LaTeX-исходники по математике, 300 автопроверок в месяц, отчёты.",
-      subject: "math",
-      tier: "source",
-      priceMonthly: 29000, // ₽290
-      priceYearly: 261000, // ₽2 610 (−25 %)
-      worksheetsLimit: 30,
-      variantsLimit: 30,
-      checksLimit: 300,
-      marketplaceCommissionPct: 20,
-    },
-    {
-      id: "informatics",
-      name: "Информатика",
-      description: "Редактируемые Marp/LaTeX-исходники по информатике, 300 автопроверок в месяц, отчёты.",
-      subject: "informatics",
-      tier: "source",
-      priceMonthly: 29000, // ₽290
-      priceYearly: 261000,
-      worksheetsLimit: 30,
-      variantsLimit: 30,
-      checksLimit: 300,
-      marketplaceCommissionPct: 20,
-    },
-    {
-      id: "all",
-      name: "Всё включено",
-      description:
-        "Оба предмета + исходники Marp/LaTeX всех материалов + безлимит проверок.",
-      subject: "all",
-      tier: "source",
-      priceMonthly: 49000, // ₽490
-      priceYearly: 441000, // ₽4 410 (−25 %)
-      worksheetsLimit: -1,
-      variantsLimit: -1,
-      checksLimit: -1,
-      marketplaceCommissionPct: 15,
-    },
+    {id:"free",name:"Без подписки",description:"Просмотр превью материалов и личный кабинет.",subject:"all",tier:"basic",priceMonthly:0,priceYearly:0,worksheetsLimit:0,variantsLimit:0,checksLimit:0,marketplaceCommissionPct:0,isActive:true},
+    {id:"all",name:"Все материалы",description:"Математика и информатика. Цена раннего доступа — пока библиотека пополняется.",subject:"all",tier:"source",priceMonthly:49900,priceYearly:0,worksheetsLimit:0,variantsLimit:0,checksLimit:0,marketplaceCommissionPct:0,isActive:true},
   ];
 
   for (const p of plans) {
@@ -86,10 +35,10 @@ async function seedPlans() {
   }
   // Старые планы прячем, если остались в dev-базе.
   await prisma.plan.updateMany({
-    where: { id: { in: ["pro", "school"] } },
+    where: { id: { notIn: ["free", "all"] } },
     data: { isActive: false },
   });
-  console.log(`✓ seeded ${plans.length} plans (v2, по предметам)`);
+  console.log(`✓ seeded ${plans.length} plans (monthly library access)`);
 }
 
 // Курация v3: вместо 45 однотипных шаблонов-«тем» — 9 понятных СТИЛЕЙ вёрстки.

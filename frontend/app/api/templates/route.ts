@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -5,7 +6,7 @@ import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-export async function GET(req: NextRequest) {
+async function GETImplementation(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const subject = searchParams.get("subject");
@@ -57,3 +58,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const GET = developmentOnly(GETImplementation);

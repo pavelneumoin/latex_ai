@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Возвращает zip-архив с .tex и README — для скачивания на локальный TeX-дистрибутив.
 //
 // Содержимое архива:
@@ -11,7 +12,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { renderLatexStandalone } from "@/lib/exporters/render-latex";
 
-export async function GET(
+async function GETImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -126,3 +127,5 @@ function makeZip(files: { name: string; data: Buffer }[]): Buffer {
   eocd.writeUInt32LE(centralSize, 12); eocd.writeUInt32LE(offset, 16); eocd.writeUInt16LE(0, 20);
   return Buffer.concat([...localParts, ...centralParts, eocd]);
 }
+
+export const GET = developmentOnly(GETImplementation);

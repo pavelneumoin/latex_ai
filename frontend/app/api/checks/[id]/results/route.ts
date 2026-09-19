@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Результаты проверки: пакетное сохранение (ручной ввод или итог LLM-проверки).
 // Проценты и отметки пересчитываются на сервере по шкале класса.
 
@@ -25,7 +26,7 @@ const patchSchema = z.object({
   markDone: z.boolean().optional(), // пометить проверку завершённой
 });
 
-export async function PATCH(
+async function PATCHImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -151,3 +152,5 @@ export async function PATCH(
     })),
   });
 }
+
+export const PATCH = developmentOnly(PATCHImplementation);

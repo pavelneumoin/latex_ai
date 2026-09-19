@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // POST /api/worksheets/[id]/refine
 //   body: { instruction: string, replace?: boolean }
 // LLM получает текущий contentJson + инструкцию учителя, возвращает новый contentJson.
@@ -20,7 +21,7 @@ const schema = z.object({
   replace: z.boolean().optional().default(false),
 });
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+async function POSTImplementation(req: NextRequest, { params }: { params: { id: string } }) {
   let user;
   try { user = await requireUser(); } catch {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -144,3 +145,5 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     );
   }
 }
+
+export const POST = developmentOnly(POSTImplementation);

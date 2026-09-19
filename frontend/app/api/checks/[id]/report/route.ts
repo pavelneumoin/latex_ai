@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // Сформировать LaTeX-отчёт по проверке (+PDF, если xelatex доступен).
 
 import { NextRequest, NextResponse } from "next/server";
@@ -10,7 +11,7 @@ import { DEFAULT_SCALE } from "@/lib/marks";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-export async function POST(
+async function POSTImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -102,3 +103,5 @@ export async function POST(
     );
   }
 }
+
+export const POST = developmentOnly(POSTImplementation);

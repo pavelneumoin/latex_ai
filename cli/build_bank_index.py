@@ -33,7 +33,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-VAULT = Path(r"E:\YA\YandexDisk\Lessons\vault\02-Банк_задач")
+VAULT = Path(os.environ.get("BANK_SOURCE_DIR", r"E:\YA\YandexDisk\Lessons\vault\02-Банк_задач"))
 OUT_DIR = Path(__file__).resolve().parent.parent / "frontend" / "data"
 
 # Соответствие имён папок vault → каноничные метаданные.
@@ -250,6 +250,9 @@ def walk_bank() -> tuple[list[dict[str, Any]], dict[str, Any]]:
 
 
 def main() -> int:
+    if not VAULT.is_dir():
+        sys.stderr.write(f"Bank source not found: {VAULT}. Set BANK_SOURCE_DIR.\n")
+        return 1
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     records, meta = walk_bank()
     # Сортируем для воспроизводимости.

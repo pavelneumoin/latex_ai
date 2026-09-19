@@ -1,10 +1,11 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 
 export const runtime = "nodejs";
 
-export async function POST(
+async function POSTImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -32,3 +33,5 @@ export async function POST(
 
   return NextResponse.json({ ok: true });
 }
+
+export const POST = developmentOnly(POSTImplementation);

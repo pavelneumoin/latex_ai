@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -18,7 +19,7 @@ const postSchema = z.object({
   names: z.array(z.string().min(1).max(120)).min(1).max(60),
 });
 
-export async function POST(
+async function POSTImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -72,7 +73,7 @@ const patchSchema = z.object({
   name: z.string().min(1).max(120),
 });
 
-export async function PATCH(
+async function PATCHImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -111,7 +112,7 @@ export async function PATCH(
 
 const deleteSchema = z.object({ studentId: z.string().min(1) });
 
-export async function DELETE(
+async function DELETEImplementation(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -144,3 +145,7 @@ export async function DELETE(
   await prisma.student.delete({ where: { id: student.id } });
   return NextResponse.json({ ok: true });
 }
+
+export const POST = developmentOnly(POSTImplementation);
+export const PATCH = developmentOnly(PATCHImplementation);
+export const DELETE = developmentOnly(DELETEImplementation);

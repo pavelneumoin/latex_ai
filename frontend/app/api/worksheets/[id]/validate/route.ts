@@ -1,3 +1,4 @@
+import { developmentOnly } from "@/lib/development-route";
 // GET /api/worksheets/[id]/validate
 // Прогоняет сохранённый contentJson через детерминированный валидатор и возвращает
 // отчёт о качестве (score + список замечаний). Не дёргает LLM.
@@ -10,7 +11,7 @@ import { validateWorksheet } from "@/lib/worksheet-validator";
 
 export const runtime = "nodejs";
 
-export async function GET(
+async function GETImplementation(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -37,3 +38,5 @@ export async function GET(
   const result = validateWorksheet(content);
   return NextResponse.json({ worksheetId: ws.id, ...result });
 }
+
+export const GET = developmentOnly(GETImplementation);

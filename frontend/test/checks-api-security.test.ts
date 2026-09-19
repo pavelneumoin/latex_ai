@@ -1,3 +1,5 @@
+// Test the dormant implementation as well as the separate release gate tests.
+vi.mock("@/lib/development-route", () => ({ developmentOnly: (handler: unknown) => handler }));
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

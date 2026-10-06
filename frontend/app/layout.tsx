@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./library.css";
+import "./school-integration.css";
 import "katex/dist/katex.min.css";
 import { AppProviders } from "./_components/AppProviders";
 
@@ -21,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <body>
+      <body className="school-integrated">
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

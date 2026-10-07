@@ -71,3 +71,5 @@ describe("YooKassa webhook delivery race", () => {
     warn.mockRestore();
   });
 });
+// Keep the legacy payment handler covered while public billing is disabled.
+vi.mock("@/lib/library-mode", () => ({ MANUAL_LIBRARY_ACCESS: false }));

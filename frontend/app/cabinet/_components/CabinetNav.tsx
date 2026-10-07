@@ -18,7 +18,6 @@ import {
 const ITEMS = [
  { href: "/cabinet", label: "Обзор", icon: IconHome, exact: true },
  { href: "/cabinet/library", label: "Мои материалы", icon: IconLibrary },
- { href: "/cabinet/billing", label: "Подписка", icon: IconCard },
  { href: "/cabinet/settings", label: "Настройки", icon: IconSettings },
 ];
 const MOBILE_ITEMS = ITEMS;

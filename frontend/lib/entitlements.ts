@@ -61,7 +61,7 @@ export function subsCover(
 export interface ProductAccess {
   /** Максимальный доступный уровень: null = нет доступа даже к basic. */
   maxTier: Tier | null;
-  via: "free" | "purchase" | "subscription" | "admin" | null;
+  via: "free" | "purchase" | "subscription" | "admin" | "invitation" | null;
   purchaseTier: Tier | null;
 }
 
@@ -88,8 +88,9 @@ export async function getProductAccess(
 ): Promise<ProductAccess> {
   if (userId) {
     if (await isCatalogAdmin(userId)) return {maxTier:"source",via:"admin",purchaseTier:null};
-    const user=await prisma.user.findUnique({where:{id:userId},select:{status:true}});
+    const user=await prisma.user.findUnique({where:{id:userId},select:{status:true,libraryAccessForever:true}});
     if(!user || user.status!=="active") return {maxTier:null,via:null,purchaseTier:null};
+    if(user.libraryAccessForever) return {maxTier:"source",via:"invitation",purchaseTier:null};
   }
   let maxTier: Tier | null = null;
   let via: ProductAccess["via"] = null;

@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { getSessionUser } from "@/lib/session";
 import { Header } from "../_components/Header";
 import { CabinetSidebar, CabinetBottomNav } from "./_components/CabinetNav";
 
@@ -11,8 +12,8 @@ export default async function CabinetLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const user = await getSessionUser();
+  if (!user) {
     redirect("/login?callbackUrl=/cabinet");
   }
 

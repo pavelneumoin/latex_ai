@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { getPayments } from "@/lib/payments";
+import { MANUAL_LIBRARY_ACCESS } from "@/lib/library-mode";
 
 export const runtime = "nodejs";
 
@@ -20,6 +21,7 @@ const schema = z
   );
 
 export async function POST(req: NextRequest) {
+  if (MANUAL_LIBRARY_ACCESS) return NextResponse.json({error:"payments_disabled"}, {status:403});
   let user;
   try {
     user = await requireUser();

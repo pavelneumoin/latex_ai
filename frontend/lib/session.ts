@@ -2,6 +2,7 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth";
+import { prisma } from "./db";
 
 export interface SessionUser {
   id: string;
@@ -12,6 +13,8 @@ export interface SessionUser {
 export async function getSessionUser(): Promise<SessionUser | null> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return null;
+  const account = await prisma.user.findUnique({where:{id:session.user.id},select:{status:true}});
+  if (account?.status !== "active") return null;
   return {
     id: session.user.id,
     email: session.user.email,

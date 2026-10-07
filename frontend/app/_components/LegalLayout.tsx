@@ -40,7 +40,7 @@ export function LegalLayout({
             fontSize: 13,
           }}
         >
-          <Link href="/offer" style={{ color: "var(--primary)", textDecoration: "none" }}>Публичная оферта</Link>
+          <Link href="/access" style={{ color: "var(--primary)", textDecoration: "none" }}>Как получить доступ</Link>
           <Link href="/privacy" style={{ color: "var(--primary)", textDecoration: "none" }}>Политика конфиденциальности</Link>
           <Link href="/terms" style={{ color: "var(--primary)", textDecoration: "none" }}>Пользовательское соглашение</Link>
         </div>

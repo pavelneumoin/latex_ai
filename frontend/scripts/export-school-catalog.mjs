@@ -5,13 +5,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 process.loadEnvFile('.env');
-const destination=path.resolve(process.argv[2]||'../../school-ege');
+const destination=path.resolve(process.argv[2]||'../../school-ege-shared');
 const storage=await fs.realpath(process.env.STORAGE_DIR||'storage');
 const db=new PrismaClient();
 try{
  await fs.access(path.join(destination,'components','SiteHeader.tsx'));
- const plan=await db.plan.findUniqueOrThrow({where:{id:'all'}});
- if(!plan.isActive||plan.priceMonthly<=0)throw new Error('Monthly plan unavailable');
  const products=await db.product.findMany({where:{isPublished:true},orderBy:{subject:'desc'},select:{slug:true,title:true,subject:true,description:true,course:true,examTask:true,topic:true,subtopic:true,kind:true,compositionJson:true,previewPagesJson:true,previewLabelsJson:true,assets:{select:{kind:true,label:true,pages:true,sortKey:true},orderBy:{sortKey:'asc'}}}});
  const dir=path.join(destination,'public','teachers','previews');await fs.mkdir(dir,{recursive:true});const items=[];let total=0;
  for(const product of products){
@@ -31,6 +29,6 @@ try{
   const worksheet=previews.find(p=>p.label.startsWith('Рабочий лист'))?.src||cover;
   items.push({slug:product.slug,title:product.title,subject:product.subject,description:product.description,examTask:product.examTask??(Number(product.course?.match(/Задание\s*(\d+)/i)?.[1])||null),topic:product.topic||'',subtopic:product.subtopic||'',kind:product.kind,composition:JSON.parse(product.compositionJson||'[]'),images:{cover,worksheet},previews,assets:product.assets.map(({kind,label,pages})=>({kind,label,pages}))});
  }
- await fs.writeFile(path.join(destination,'lib','teacher-library-catalog.json'),JSON.stringify({monthlyPriceRub:plan.priceMonthly/100,regularPriceRub:1000,items},null,2)+'\n');
+ await fs.writeFile(path.join(destination,'lib','teacher-library-catalog.json'),JSON.stringify({items},null,2)+'\n');
  console.log(JSON.stringify({kits:items.length,previewBytes:total,previews:items.reduce((n,p)=>n+p.previews.length,0),privateDataExported:false}));
 }finally{await db.$disconnect();}

@@ -17,6 +17,8 @@ export async function GET() {
     select: {
       id: true,
       email: true,
+      username: true,
+      libraryAccessForever: true,
       name: true,
       role: true,
       status: true,
@@ -48,6 +50,8 @@ export async function GET() {
     user: {
       id: user.id,
       email: user.email,
+      username: user.username,
+      libraryAccessForever: user.libraryAccessForever,
       name: user.name,
       role: user.role,
       status: user.status,

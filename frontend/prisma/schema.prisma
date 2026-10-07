@@ -15,7 +15,8 @@ datasource db {
 
 model User {
   id            String    @id @default(cuid())
-  email         String    @unique
+  email         String?   @unique
+  username      String?   @unique
   emailVerified DateTime?
   name          String?
   image         String?
@@ -31,6 +32,7 @@ model User {
 
   role          String    @default("user") // user | moderator | admin
   status        String    @default("active") // active | pending | banned
+  libraryAccessForever Boolean @default(false)
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

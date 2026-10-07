@@ -4,7 +4,6 @@ import { Suspense, useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { VKLoginButton } from "../_components/VKLoginButton";
 import { Header } from "../_components/Header";
 
 // Next.js требует, чтобы useSearchParams() был обёрнут в Suspense на странице,
@@ -47,7 +46,7 @@ function LoginForm() {
   const sp = useSearchParams();
   const requestedCallback = sp.get("callbackUrl") ?? sp.get("next");
 
-  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [err, setErr] = useState<string | null>(null);
@@ -58,7 +57,7 @@ function LoginForm() {
     setErr(null);
     try {
       const res = await signIn("credentials", {
-        email,
+        username,
         password,
         redirect: false,
       });
@@ -67,7 +66,7 @@ function LoginForm() {
         return;
       }
       if (res.error) {
-        setErr("Неверный email или пароль");
+        setErr("Неверный логин или пароль");
         return;
       }
       router.push(safeCallbackPath(requestedCallback, window.location.origin));
@@ -99,22 +98,23 @@ function LoginForm() {
         >
           <h1 style={{ marginBottom: 6 }}>Вход в кабинет</h1>
           <p className="muted" style={{ marginBottom: 24, fontSize: 14 }}>
-            Войдите, чтобы открыть свои рабочие листы.
+            Введите логин и пароль, которые выдал администратор.
           </p>
 
-          <VKLoginButton />
           <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
-              <label className="label" htmlFor="email">Email</label>
+              <label className="label" htmlFor="username">Логин</label>
               <input
-                id="email"
-                type="email"
+                id="username"
+                type="text"
                 required
-                autoComplete="email"
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
                 className="input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ivan@example.com"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Ваш логин"
               />
             </div>
             <div>
@@ -128,7 +128,7 @@ function LoginForm() {
                 className="input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="не менее 6 символов"
+                placeholder="Ваш пароль"
               />
             </div>
 
@@ -157,9 +157,8 @@ function LoginForm() {
           </form>
 
           <div style={{ marginTop: 18, fontSize: 14, color: "var(--fg-2)", textAlign: "center" }}>
-            Нет аккаунта?{" "}
-            <Link href={requestedCallback ? `/register?callbackUrl=${encodeURIComponent(requestedCallback)}` : "/register"} style={{ color: "var(--primary)", textDecoration: "none", fontWeight: 600 }}>
-              Зарегистрироваться
+            <Link href="/access" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: 600 }}>
+              Как получить доступ
             </Link>
           </div>
         </div>

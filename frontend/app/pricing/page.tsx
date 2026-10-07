@@ -1,7 +1,5 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { Header } from "../_components/Header";
-import { PricingClient } from "./PricingClient";
-export const dynamic="force-dynamic";
-export default async function PricingPage(){const session=await getServerSession(authOptions);const [plans,subs]=await Promise.all([prisma.plan.findMany({where:{isActive:true}}),session?.user.id?prisma.subscription.findMany({where:{userId:session.user.id,status:"active",currentPeriodEnd:{gt:new Date()}}}):Promise.resolve([])]);const test=(process.env.PAYMENTS_PROVIDER||"mock")==="mock";return <div className="hi library-site"><Header/><main className="pricing-page"><span className="eyebrow">ПОДПИСКА НЕУМОШКИ</span><h1>Материалы для ваших уроков</h1><p>Все комплекты по математике и информатике — по одной подписке. Смотрите превью, выбирайте тему и скачивайте материалы для урока.</p>{test&&<div className="test-payment-note"><b>Тестовый режим</b><p>Деньги не списываются. Здесь можно проверить оформление подписки и открытие доступа к материалам.</p></div>}<PricingClient plans={plans.map(p=>({id:p.id,name:p.name,description:p.description,subject:p.subject,tier:p.tier,priceMonthly:p.priceMonthly,priceYearly:p.priceYearly,checksLimit:p.checksLimit}))} activePlanIds={subs.map(s=>s.planId)} loggedIn={!!session?.user} testMode={test}/><div className="subscription-explainer"><h2>Как работает доступ</h2><p>После успешной оплаты дата окончания появится в кабинете. При продлении оставшиеся дни сохраняются. Подписка привязана к аккаунту и работает после повторного входа с другого устройства.</p><p>Никаких автосписаний. Вы покупаете доступ на один месяц. Когда он закончится, следующий месяц можно оплатить самостоятельно. Годовых тарифов нет.</p></div></main></div>}
+import { redirect } from "next/navigation";
+
+export default function Page() {
+  redirect("/access");
+}

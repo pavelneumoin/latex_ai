@@ -35,7 +35,7 @@ export default async function SettingsPage() {
         <div style={{ marginBottom: 24 }}>
           <h1 style={{ marginBottom: 4 }}>Настройки</h1>
           <p className="muted" style={{ fontSize: 14 }}>
-            Email: <span style={{ color: "var(--fg-2)" }}>{user.email}</span>
+            Логин: <span style={{ color: "var(--fg-2)" }}>{user.username || user.email}</span>
           </p>
         </div>
 

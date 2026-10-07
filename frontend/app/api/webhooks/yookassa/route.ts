@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MANUAL_LIBRARY_ACCESS } from "@/lib/library-mode";
 import type { Payment, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
@@ -140,6 +141,7 @@ async function grantPaymentEntitlement(
 }
 
 export async function POST(req: NextRequest) {
+  if (MANUAL_LIBRARY_ACCESS) return NextResponse.json({error:"payments_disabled"}, {status:503});
   // Подлинность события ЮKassa подтверждает provider через отдельный API-запрос.
   // Mock принимается только в явно разрешённом локальном/тестовом режиме.
   let body: unknown;

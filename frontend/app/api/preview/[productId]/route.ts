@@ -3,7 +3,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { readUploadedFile, guessMime } from "@/lib/storage";
+import { readUploadedFile } from "@/lib/storage";
+import {catalogAdmin} from "@/lib/catalog-admin";
+import sharp from "sharp";
 
 export const runtime = "nodejs";
 
@@ -15,7 +17,7 @@ export async function GET(
     where: { id: params.productId },
     select: { previewPath: true, previewPagesJson: true, isPublished: true },
   });
-  if (!product?.isPublished) {
+  if (!product || (!product.isPublished && !await catalogAdmin())) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
@@ -43,10 +45,14 @@ export async function GET(
     return NextResponse.json({ error: "file_missing" }, { status: 410 });
   }
 
+  if (!/\.(png|webp|jpe?g)$/i.test(relPath)) return NextResponse.json({error:"invalid_preview"},{status:404});
+  const width=req.nextUrl.searchParams.get("size")==="thumb"?520:1400;
+  buf=await sharp(buf,{limitInputPixels:16000000}).resize({width,height:1600,fit:"inside",withoutEnlargement:true}).webp({quality:78}).toBuffer();
   return new NextResponse(new Uint8Array(buf), {
     headers: {
-      "Content-Type": guessMime(relPath),
-      "Cache-Control": "public, max-age=86400",
+      "Content-Type": "image/webp",
+      "Cache-Control": product.isPublished ? "public, max-age=3600" : "private, no-store",
+      "X-Content-Type-Options":"nosniff",
     },
   });
 }

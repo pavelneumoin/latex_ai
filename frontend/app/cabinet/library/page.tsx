@@ -163,9 +163,6 @@ export default async function LibraryPage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {sec.items.map(({ product, tier, badge }) => {
-                  const visibleAssets = product.assets.filter(
-                    (a) => tierRank(tier) >= tierRank(a.tier)
-                  );
                   return (
                     <div key={product.id} className="card rl2-card-subject" data-subject={product.subject} style={{ padding: 16 }}>
                       <div className="rl-row-between" style={{ marginBottom: 10 }}>
@@ -187,22 +184,7 @@ export default async function LibraryPage() {
                         </span>
                       </div>
                       <div className="rl-row" style={{ gap: 8 }}>
-                        {visibleAssets.map((a) => (
-                          <a
-                            key={a.id}
-                            href={`/api/download/${a.id}`}
-                            className="btn btn-sm btn-outline"
-                            style={{ gap: 6 }}
-                          >
-                            <AssetIcon kind={a.kind} size={14} />
-                            {a.label || ASSET_KIND_LABEL[a.kind] || a.kind}
-                          </a>
-                        ))}
-                        {visibleAssets.length === 0 && (
-                          <span className="muted" style={{ fontSize: 13 }}>
-                            Файлы готовятся к выкладке.
-                          </span>
-                        )}
+                        <Link href={`/catalog/${product.slug}`} className="btn btn-sm btn-outline">Посмотреть и скачать комплект →</Link>
                       </div>
                     </div>
                   );

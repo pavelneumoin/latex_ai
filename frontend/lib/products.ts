@@ -16,6 +16,8 @@ export const PRODUCT_KIND_LABEL: Record<string, string> = {
   lesson_kit: "Комплект урока",
   presentation: "Презентация",
   worksheet: "Рабочий лист",
+  test: "Проверочная работа",
+  course_bundle: "Комплект курса",
 };
 
 export function formatKopecks(kopecks: number): string {

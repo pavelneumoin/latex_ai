@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/session";
 import { canDownloadAsset } from "@/lib/entitlements";
 import { readUploadedFile, guessMime } from "@/lib/storage";
+import {isCatalogAdmin} from "@/lib/catalog-admin";
 
 export const runtime = "nodejs";
 
@@ -16,11 +17,11 @@ export async function GET(
     where: { id: params.assetId },
     include: { product: true },
   });
-  if (!asset || !asset.product.isPublished) {
+  const user = await getSessionUser();
+  if (!asset || (!asset.product.isPublished && !await isCatalogAdmin(user?.id))) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const user = await getSessionUser();
 
   // Бесплатные материалы скачиваются только после входа — так копится библиотека учителя.
   if (!user) {

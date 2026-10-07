@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./library.css";
 import "./school-integration.css";
+import "./catalog-compact.css";
 import "katex/dist/katex.min.css";
 import { AppProviders } from "./_components/AppProviders";
 

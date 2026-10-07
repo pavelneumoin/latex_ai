@@ -1,13 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
-import { IconX, IconEye } from "../../_components/Icons";
+import {PageGallery} from "../../_components/PageGallery";
 export function PreviewGallery({productId,pageCount,title,labels}:{productId:string;pageCount:number;title:string;labels:string[]}){
- const [idx,setIdx]=useState(0);const dialog=useRef<HTMLDialogElement>(null);
- const group=(i:number)=>{const label=labels[i]??"Материал";const end=label.lastIndexOf(" · ");return end<0?label:label.slice(0,end)};
- const groups=Array.from(new Set(labels.map((_,i)=>group(i))));
- const indices=Array.from({length:pageCount},(_,i)=>i).filter(i=>group(i)===group(idx));const pos=indices.indexOf(idx);
- const step=(delta:number)=>setIdx(indices[(pos+delta+indices.length)%indices.length]);
- const src=(i:number)=>`/api/preview/${productId}?p=${i}`;
- if(!pageCount)return null;
- return <section className="document-viewer" aria-label="Предпросмотр комплекта"><div className="document-tabs" aria-label="Материалы комплекта">{groups.map(g=><button key={g} aria-pressed={group(idx)===g} onClick={()=>setIdx(labels.findIndex((_,i)=>group(i)===g))}>{g}</button>)}</div><div className="document-toolbar"><span>{group(idx)} <small>Предпросмотр</small></span><button onClick={()=>dialog.current?.showModal()}><IconEye size={16}/>Увеличить</button></div><button className="document-stage" onClick={()=>dialog.current?.showModal()} aria-label="Увеличить страницу"><img src={src(idx)} alt={`${title}. ${labels[idx]}`}/></button><div className="document-controls"><button aria-label="Предыдущая страница" onClick={()=>step(-1)} disabled={indices.length<2}>←</button><span>Страница {pos+1} из {indices.length}</span><button aria-label="Следующая страница" onClick={()=>step(1)} disabled={indices.length<2}>→</button></div><div className="document-thumbnails">{indices.map((i,j)=><button key={i} aria-label={`${group(i)}, страница ${j+1}`} aria-pressed={i===idx} onClick={()=>setIdx(i)}><img src={src(i)} alt="" loading="lazy"/><span>{j+1}</span></button>)}</div><p className="preview-note">Здесь показаны первые страницы. Полные файлы — в составе комплекта ниже.</p><dialog ref={dialog} className="document-dialog" onKeyDown={e=>{if(e.key==="ArrowLeft"){e.preventDefault();step(-1)}if(e.key==="ArrowRight"){e.preventDefault();step(1)}}}><div className="dialog-toolbar"><span>{labels[idx]} · {title}</span><button aria-label="Закрыть просмотр" onClick={()=>dialog.current?.close()}><IconX size={23}/></button></div><img src={src(idx)} alt={`${title}. ${labels[idx]}`}/><div className="document-controls"><button aria-label="Предыдущая страница" onClick={()=>step(-1)}>←</button><span>{pos+1} / {indices.length}</span><button aria-label="Следующая страница" onClick={()=>step(1)}>→</button></div></dialog></section>;
+ return <PageGallery title={title} pages={Array.from({length:pageCount},(_,i)=>({src:`/api/preview/${productId}?p=${i}`,label:labels[i]||`Страница · ${i+1}`}))}/>;
 }

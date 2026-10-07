@@ -11,6 +11,8 @@ loadEnvConfig(appDir, false);
 process.env.NODE_ENV = "production";
 process.env.PORT ||= "3010";
 process.env.HOSTNAME ||= "127.0.0.1";
+// server.js changes cwd to .next/standalone; keep preview storage at the app root.
+process.env.STORAGE_DIR = path.resolve(appDir, process.env.STORAGE_DIR || "storage");
 
 // Prisma resolves relative SQLite URLs from the generated client directory in
 // standalone builds. Rebase the project convention `file:./dev.db` to prisma/.

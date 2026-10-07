@@ -4,6 +4,7 @@
 // Подписка плана с tier="source" покрывает оба уровня; покупка source включает basic.
 
 import { prisma } from "./db";
+import { isCatalogAdmin } from "./catalog-admin";
 import type { Prisma } from "@prisma/client";
 
 export type Tier = "basic" | "source";
@@ -60,7 +61,7 @@ export function subsCover(
 export interface ProductAccess {
   /** Максимальный доступный уровень: null = нет доступа даже к basic. */
   maxTier: Tier | null;
-  via: "free" | "purchase" | "subscription" | null;
+  via: "free" | "purchase" | "subscription" | "admin" | null;
   purchaseTier: Tier | null;
 }
 
@@ -85,6 +86,11 @@ export async function getProductAccess(
   userId: string | null,
   product: { id: string; subject: string; isFree: boolean }
 ): Promise<ProductAccess> {
+  if (userId) {
+    if (await isCatalogAdmin(userId)) return {maxTier:"source",via:"admin",purchaseTier:null};
+    const user=await prisma.user.findUnique({where:{id:userId},select:{status:true}});
+    if(!user || user.status!=="active") return {maxTier:null,via:null,purchaseTier:null};
+  }
   let maxTier: Tier | null = null;
   let via: ProductAccess["via"] = null;
   let purchaseTier: Tier | null = null;

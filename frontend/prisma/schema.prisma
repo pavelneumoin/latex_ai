@@ -332,6 +332,13 @@ model Product {
   ratingCount Int     @default(0)
   // Галерея предпросмотра: JSON-массив путей к PNG страниц (storage-relative)
   previewPagesJson String?
+  examTask    Int?
+  topic       String?
+  subtopic    String?
+  compositionJson String?
+  diskFolderUrl String?
+  bundleTier  String @default("basic")
+  previewLabelsJson String?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -63,7 +63,7 @@ export function resolveStoragePath(relPath: string): string {
   const safe = relPath.replace(/^[\/\\]+/, "").split(/[\/\\]/).join(path.sep);
   const abs = path.resolve(root, safe);
   const rootAbs = path.resolve(root);
-  if (!abs.startsWith(rootAbs)) {
+  if (!abs.startsWith(rootAbs + path.sep)) {
     throw new Error("storage_path_escape");
   }
   return abs;
